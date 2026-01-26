@@ -144,7 +144,9 @@
             <button id="lockBtn" onclick="toggleLock()" style="margin-left: 15px; padding: 5px 12px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; cursor: pointer; font-size: 12px;">🔓 Unlock</button>
         </div>
     </div>
-    <div class="market-status" id="marketStatus"></div>
+    <div class="market-status" id="marketStatus">
+        <div id="marketTimer" style="margin-left: auto; font-size: 14px; font-weight: 600;"></div>
+    </div>
     <div class="grid" id="dashboardGrid">
         <!-- NQ Levels -->
         <div class="card">
@@ -486,6 +488,41 @@
             document.getElementById('globalIndices').innerHTML = indices.map(idx => `<div class="global-index-item"><div class="index-info"><span class="index-icon">${idx.icon}</span><span class="index-name">${idx.name}</span></div><span class="index-price">${idx.price.toLocaleString()}</span><span class="index-change ${idx.change >= 0 ? 'up' : 'down'}">${idx.change >= 0 ? '▲' : '▼'} ${idx.change >= 0 ? '+' : ''}${idx.change}</span></div>`).join('');
         }
         
+        // Countdown to US Market Open (9:30 AM ET = 8:00 PM IST)
+        function updateMarketTimer() {
+            const now = new Date();
+            const istNow = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+            const currentISTHour = istNow.getUTCHours() + istNow.getUTCMinutes() / 60;
+            
+            // US market opens at 20:00 IST (8:00 PM)
+            const marketOpenIST = 20.0;
+            
+            let timerHtml = '';
+            if (currentISTHour < 14.5 || currentISTHour >= 23) {
+                // Market closed, show countdown to open
+                let hoursToOpen = marketOpenIST - currentISTHour;
+                if (hoursToOpen < 0) hoursToOpen += 24; // Next day
+                
+                const hrs = Math.floor(hoursToOpen);
+                const mins = Math.floor((hoursToOpen - hrs) * 60);
+                const secs = Math.floor(((hoursToOpen - hrs) * 60 - mins) * 60);
+                
+                timerHtml = `<span style="color: #58a6ff;">⏰ Opens in ${hrs}h ${mins}m ${secs}s</span>`;
+            } else if (currentISTHour >= 14.5 && currentISTHour < 23) {
+                // Market is open
+                const closeHour = 23;
+                const hoursOpen = closeHour - currentISTHour;
+                const hrs = Math.floor(hoursOpen);
+                const mins = Math.floor((hoursOpen - hrs) * 60);
+                const secs = Math.floor(((hoursOpen - hrs) * 60 - mins) * 60);
+                
+                timerHtml = `<span style="color: #3fb950;">● LIVE ${hrs}h ${mins}m ${secs}s left</span>`;
+            }
+            
+            const timerEl = document.getElementById('marketTimer');
+            if (timerEl) timerEl.innerHTML = timerHtml;
+        }
+        
         function updateMarketRisks() {
             const risks = [
                 { icon: '📋', text: 'FOMC Minutes (Wed)', badge: 'HIGH' },
@@ -577,8 +614,10 @@
                 
                 const hour = now.getUTCHours() + now.getMinutes() / 60;
                 const isOpen = hour >= 14.5 && hour < 23 && now.getDay() > 0 && now.getDay() < 6;
-                document.getElementById('marketStatus').innerHTML = isOpen ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>' : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
+                const statusHtml = isOpen ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>' : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
+                document.getElementById('marketStatus').innerHTML = statusHtml + '<div id="marketTimer"></div>';
                 
+                updateMarketTimer();
                 updateGlobalTimes();
                 
                 const prices = await fetchPrices();
@@ -803,6 +842,10 @@
         
         // Initialize side panel
         document.addEventListener('DOMContentLoaded', updateSidePanel);
+        
+        // Update timer every second
+        setInterval(updateMarketTimer, 1000);
+        updateMarketTimer(); // Initial call
     </script>
     
     <!-- Side Tab -->
