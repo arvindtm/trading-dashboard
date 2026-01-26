@@ -225,50 +225,17 @@
         const UPDATE_INTERVAL = 2 * 60 * 1000;
         
         let cachedPrices = { tsla: null, nq: null, vix: null, dxy: null, lastFetch: 0 };
-        const PRICE_CACHE_MS = 30000;
-        
-        // Initialize with default values (always shows data)
-        cachedPrices = {
+        // Simulated data (Yahoo Finance has CORS, requires backend server for live data)
+        const simulatedPrices = {
             tsla: { current: 420.50, change: -0.5 },
             nq: { current: 25650, change: 0.12 },
             vix: { current: 16.5, change: -2.1 },
-            dxy: { current: 108.5, change: 0.15 },
-            lastFetch: 0
+            dxy: { current: 108.5, change: 0.15 }
         };
         
-        async function fetchPrices() {
-            const now = Date.now();
-            // Skip fetch if last attempt was recent
-            if (cachedPrices.lastFetch && (now - cachedPrices.lastFetch) < PRICE_CACHE_MS) {
-                return cachedPrices;
-            }
-            
-            try {
-                // Try Yahoo Finance via CORS proxy
-                const proxies = [
-                    'https://corsproxy.io/?',
-                    'https://api.allorigins.win/raw?url='
-                ];
-                
-                for (const proxy of proxies) {
-                    try {
-                        const nqRes = await fetch(proxy + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/%5ENDX?interval=1m'));
-                        if (nqRes.ok) {
-                            const nqData = await nqRes.json();
-                            const nqCurrent = nqData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0];
-                            if (nqCurrent) {
-                                cachedPrices.nq.current = nqCurrent;
-                                // Fetch others with same proxy
-                                break;
-                            }
-                        }
-                    } catch (e) { continue; }
-                }
-                cachedPrices.lastFetch = now;
-            } catch (e) {
-                console.log('Live data fetch failed, using simulated data');
-            }
-            return cachedPrices;
+        function fetchPrices() {
+            // Return simulated data (live data needs backend server due to CORS)
+            return simulatedPrices;
         }
         
         function updateTradeIdeas() {
@@ -470,28 +437,22 @@
         }
         
         async function fetchAllData() {
-            console.log('fetchAllData started');
             try {
                 const now = new Date();
                 document.getElementById('updateTime').textContent = formatDateTime12(now);
-                console.log('Time updated');
                 
                 const hour = now.getUTCHours() + now.getMinutes() / 60;
                 const isOpen = hour >= 14.5 && hour < 23 && now.getDay() > 0 && now.getDay() < 6;
                 document.getElementById('marketStatus').innerHTML = isOpen ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>' : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
                 
                 updateGlobalTimes();
-                console.log('Global times updated');
                 
-                const prices = await fetchPrices();
-                console.log('Prices fetched:', prices);
-                
+                const prices = fetchPrices(); // No await needed (simulated data)
                 await updatePrice();
-                console.log('Price updated');
                 
                 updateTradeIdeas();
                 updateLondonOpen();
-                await updatePriceAlerts(prices);
+                updatePriceAlerts(prices);
                 updateSessionLevels(prices.nq.current);
                 updateVolumeProfile(prices.nq.current);
                 updateVixData(prices.vix.current);
@@ -507,9 +468,8 @@
                 updateEconomicEvents();
                 updateEarnings();
                 updateNews();
-                console.log('All sections updated');
             } catch (e) {
-                console.error('Error in fetchAllData:', e);
+                console.error('Error:', e);
             }
         }
         
