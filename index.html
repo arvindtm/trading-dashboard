@@ -108,7 +108,14 @@
         .breadth-bar-fill { height: 100%; border-radius: 3px; }
         .breadth-bar-fill.up { background: #3fb950; }
         .breadth-bar-fill.down { background: #f85149; }
+        .card { cursor: grab; transition: transform 0.2s, box-shadow 0.2s; }
+        .card:active { cursor: grabbing; }
+        .card.sortable-ghost { opacity: 0.5; }
+        .card.sortable-drag { opacity: 1; }
+        .drag-handle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .drag-icon { color: #484f58; font-size: 16px; cursor: grab; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 <body>
     <div class="header">
@@ -119,7 +126,7 @@
         </div>
     </div>
     <div class="market-status" id="marketStatus"></div>
-    <div class="grid">
+    <div class="grid" id="dashboardGrid">
         <!-- NQ Levels -->
         <div class="card">
             <h2>📈 NQ Levels</h2>
@@ -518,35 +525,81 @@
                 dxy: { current: 108.5, change: 0.15 }
             };
             
-            // Update all sections synchronously
-            try {
-                updateTradeIdeas();
-                updateLondonOpen();
-                updatePriceAlerts(prices);
-                updateSessionLevels(prices.nq.current);
-                updateVolumeProfile(prices.nq.current);
-                updateVixData(prices.vix.current);
-                updateGapData(prices.nq.current);
-                updateAdrData();
-                updateOptionsData();
-                updateOiData();
-                updateDxyData(prices.dxy.current);
-                updateBreadthData();
-                updateIndicators();
-                updateGlobalIndices();
-                updateMarketRisks();
-                updateEconomicEvents();
-                updateEarnings();
-                updateNews();
-                console.log('Dashboard initialized with default data');
-            } catch (e) {
-                console.error('Init error:', e);
-            }
+            // Add IDs to cards and update all sections
+            const cardConfigs = [
+                { id: 'card-nq-levels', fn: () => {} },
+                { id: 'card-trade-ideas', fn: updateTradeIdeas },
+                { id: 'card-london-open', fn: updateLondonOpen },
+                { id: 'card-price-alerts', fn: () => updatePriceAlerts(prices) },
+                { id: 'card-session-levels', fn: () => updateSessionLevels(prices.nq.current) },
+                { id: 'card-volume-profile', fn: () => updateVolumeProfile(prices.nq.current) },
+                { id: 'card-vix-data', fn: () => updateVixData(prices.vix.current) },
+                { id: 'card-gap-data', fn: () => updateGapData(prices.nq.current) },
+                { id: 'card-adr-data', fn: updateAdrData },
+                { id: 'card-options-data', fn: updateOptionsData },
+                { id: 'card-oi-data', fn: updateOiData },
+                { id: 'card-dxy-data', fn: () => updateDxyData(prices.dxy.current) },
+                { id: 'card-breadth-data', fn: updateBreadthData },
+                { id: 'card-indicators', fn: updateIndicators },
+                { id: 'card-global-indices', fn: updateGlobalIndices },
+                { id: 'card-market-risks', fn: updateMarketRisks },
+                { id: 'card-economic-events', fn: updateEconomicEvents },
+                { id: 'card-earnings', fn: updateEarnings },
+                { id: 'card-news', fn: updateNews }
+            ];
+            
+            // Apply IDs and run functions
+            const grid = document.getElementById('dashboardGrid');
+            const cardDivs = grid.querySelectorAll('.card');
+            cardConfigs.forEach((config, index) => {
+                if (cardDivs[index]) {
+                    cardDivs[index].id = config.id;
+                }
+                config.fn();
+            });
+            
+            console.log('Dashboard initialized with default data');
         })();
         
         // Fetch live data in background
         fetchAllData();
         setInterval(() => fetchAllData(), UPDATE_INTERVAL);
+        
+        // Initialize drag-and-drop with SortableJS
+        document.addEventListener('DOMContentLoaded', function() {
+            const grid = document.getElementById('dashboardGrid');
+            
+            // Restore saved order from localStorage
+            const savedOrder = localStorage.getItem('dashboardOrder');
+            if (savedOrder) {
+                try {
+                    const cardIds = JSON.parse(savedOrder);
+                    cardIds.forEach(id => {
+                        const card = document.getElementById(id);
+                        if (card) grid.appendChild(card);
+                    });
+                } catch (e) {}
+            }
+            
+            // Initialize Sortable
+            new Sortable(grid, {
+                animation: 150,
+                handle: '.card',
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                onEnd: function(evt) {
+                    // Save order to localStorage
+                    const cardIds = Array.from(grid.children).map(card => card.id);
+                    localStorage.setItem('dashboardOrder', JSON.stringify(cardIds));
+                    console.log('Dashboard order saved');
+                }
+            });
+            
+            // Add drag hint to cards
+            document.querySelectorAll('.card').forEach(card => {
+                card.title = 'Drag to reorder';
+            });
+        });
     </script>
 </body>
 </html>
