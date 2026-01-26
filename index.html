@@ -63,16 +63,8 @@
         .sentiment-fill.neutral { background: #d29922; }
         .vix-display { font-size: 28px; font-weight: 700; color: #58a6ff; margin-bottom: 5px; }
         .vix-label { color: #8b949e; font-size: 12px; margin-bottom: 10px; }
-        .asset-ticker { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #0d1117; border-radius: 8px; font-size: 14px; margin-bottom: 8px; }
-        .asset-name { font-weight: 600; }
-        .asset-price { font-weight: 700; color: #58a6ff; }
-        .asset-change { font-weight: 600; font-size: 13px; }
-        .asset-change.up { color: #3fb950; }
-        .asset-change.down { color: #f85149; }
-        .asset-icon { font-size: 20px; margin-right: 8px; }
-        .asset-row { display: flex; align-items: center; }
-        .chart-link { display: block; text-align: center; padding: 15px; background: #0d1117; border-radius: 8px; color: #58a6ff; font-size: 14px; margin-bottom: 15px; text-decoration: none; }
-        .chart-link:hover { background: #21262d; }
+        .widget-container { margin-bottom: 15px; }
+        .widget-title { font-size: 12px; color: #8b949e; margin-bottom: 8px; }
     </style>
 </head>
 <body>
@@ -85,15 +77,16 @@
     </div>
     <div class="market-status" id="marketStatus"></div>
     <div class="grid">
-        <!-- Nasdaq Futures -->
+        <!-- Nasdaq Futures Live -->
         <div class="card">
-            <h2>📈 Nasdaq Futures</h2>
-            <a href="https://www.tradingview.com/chart/NQ1!?symbol=CME_MINI:NQ1!" target="_blank" class="chart-link">📊 View Live Chart on TradingView</a>
-            <div class="level-item"><span class="level-label">Key Level</span><span class="level-value" id="price">Loading...</span></div>
-            <div class="level-item"><span class="level-label">R1</span><span class="level-value resistance" id="res1">--</span></div>
-            <div class="level-item"><span class="level-label">R2</span><span class="level-value resistance" id="res2">--</span></div>
-            <div class="level-item"><span class="level-label">S1</span><span class="level-value support" id="sup1">--</span></div>
-            <div class="level-item"><span class="level-label">S2</span><span class="level-value support" id="sup2">--</span></div>
+            <h2>📈 Nasdaq Futures (Live)</h2>
+            <div class="widget-container">
+                <div class="widget-title">NQ Futures - 15min Chart</div>
+                <!-- TradingView Widget -->
+                <div class="tradingview-widget-container">
+                    <div id="tradingview_nq"></div>
+                </div>
+            </div>
         </div>
         <!-- Global Markets -->
         <div class="card">
@@ -106,10 +99,23 @@
             </div>
             <div id="globalMarkets"></div>
         </div>
-        <!-- Key Assets -->
+        <!-- Gold Live -->
         <div class="card">
-            <h2>💎 Key Assets Watchlist</h2>
-            <div id="assetsTicker"></div>
+            <h2>🥇 Gold (XAUUSD)</h2>
+            <div class="widget-container">
+                <div class="tradingview-widget-container">
+                    <div id="tradingview_gold"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Bitcoin Live -->
+        <div class="card">
+            <h2>₿ Bitcoin (BTCUSD)</h2>
+            <div class="widget-container">
+                <div class="tradingview-widget-container">
+                    <div id="tradingview_btc"></div>
+                </div>
+            </div>
         </div>
         <!-- Market Movers -->
         <div class="card">
@@ -142,20 +148,35 @@
             </div>
         </div>
     </div>
+    <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
         const UPDATE_INTERVAL = 2 * 60 * 1000;
-        const assets = [
-            { name: 'Gold', icon: '🥇', price: 2050.50, change: 8.25 },
-            { name: 'Silver', icon: '🥈', price: 23.45, change: 0.32 },
-            { name: 'Bitcoin', icon: '₿', price: 43500, change: -520 },
-            { name: 'SPY', icon: '📊', price: 582.30, change: 1.85 },
-            { name: 'QQQ', icon: '📈', price: 512.45, change: -2.30 },
-        ];
         
-        function updateAssetsTicker() {
-            document.getElementById('assetsTicker').innerHTML = assets.map(a =>
-                `<div class="asset-ticker"><div class="asset-row"><span class="asset-icon">${a.icon}</span><span class="asset-name">${a.name}</span></div><span class="asset-price">${a.price.toLocaleString()}</span><span class="asset-change ${a.change >= 0 ? 'up' : 'down'}">${a.change >= 0 ? '+' : ''}${a.change}</span></div>`
-            ).join('');
+        // Initialize TradingView widgets
+        function initWidgets() {
+            // NQ Futures
+            new TradingView.widget({
+                "width": "100%", "height": 280, "symbol": "CME_MINI:NQ1!",
+                "interval": "15", "timezone": "Etc/UTC", "theme": "dark", "style": "1",
+                "locale": "en", "toolbar_bg": "#f1f3f6", "enable_publishing": false,
+                "allow_symbol_change": true, "container_id": "tradingview_nq"
+            });
+            
+            // Gold
+            new TradingView.widget({
+                "width": "100%", "height": 280, "symbol": "OANDA:XAUUSD",
+                "interval": "60", "timezone": "Etc/UTC", "theme": "dark", "style": "1",
+                "locale": "en", "toolbar_bg": "#f1f3f6", "enable_publishing": false,
+                "allow_symbol_change": true, "container_id": "tradingview_gold"
+            });
+            
+            // Bitcoin
+            new TradingView.widget({
+                "width": "100%", "height": 280, "symbol": "BINANCE:BTCUSD",
+                "interval": "60", "timezone": "Etc/UTC", "theme": "dark", "style": "1",
+                "locale": "en", "toolbar_bg": "#f1f3f6", "enable_publishing": false,
+                "allow_symbol_change": true, "container_id": "tradingview_btc"
+            });
         }
         
         function updateMarketRisks() {
@@ -204,8 +225,7 @@
         }
         
         function updateSentiment() {
-            const vix = 16.5;
-            document.getElementById('vixLevel').textContent = vix.toFixed(2);
+            document.getElementById('vixLevel').textContent = "16.5";
             const sentiment = 40;
             const fill = document.getElementById('sentimentFill');
             const label = document.getElementById('sentimentLabel');
@@ -234,17 +254,6 @@
             ).join('');
         }
         
-        function updatePrice() {
-            const base = 25650;
-            const change = Math.floor(Math.random() * 100) - 50;
-            const price = base + change;
-            document.getElementById('price').textContent = price.toLocaleString();
-            document.getElementById('res1').textContent = (price + 100).toLocaleString();
-            document.getElementById('res2').textContent = (price + 200).toLocaleString();
-            document.getElementById('sup1').textContent = (price - 100).toLocaleString();
-            document.getElementById('sup2').textContent = (price - 200).toLocaleString();
-        }
-        
         function fetchAllData() {
             const now = new Date();
             document.getElementById('updateTime').textContent = now.toLocaleTimeString();
@@ -254,16 +263,16 @@
                 ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>'
                 : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
             
-            updatePrice();
             updateGlobalMarkets();
             updateMarketRisks();
             updateEconomicEvents();
             updateEarnings();
             updateNews();
             updateSentiment();
-            updateAssetsTicker();
         }
         
+        // Initialize
+        initWidgets();
         fetchAllData();
         setInterval(fetchAllData, UPDATE_INTERVAL);
     </script>
