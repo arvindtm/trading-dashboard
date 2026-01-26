@@ -108,10 +108,11 @@
         .breadth-bar-fill { height: 100%; border-radius: 3px; }
         .breadth-bar-fill.up { background: #3fb950; }
         .breadth-bar-fill.down { background: #f85149; }
-        .card { cursor: grab; transition: transform 0.2s, box-shadow 0.2s; }
+        .card { cursor: grab; transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s; }
         .card:active { cursor: grabbing; }
         .card.sortable-ghost { opacity: 0.5; }
         .card.sortable-drag { opacity: 1; }
+        .grid.locked .card { cursor: not-allowed; }
         .drag-handle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .drag-icon { color: #484f58; font-size: 16px; cursor: grab; }
     </style>
@@ -122,7 +123,8 @@
         <h1>🚀 Trading Dashboard</h1>
         <div>
             <span class="status-indicator"></span>
-            <span class="last-updated">Last updated: <span id="updateTime">--:--</span></span>
+            <span class="last-updated">Last updated: <span id="updateTime">--:--</span>
+            <button id="lockBtn" onclick="toggleLock()" style="margin-left: 15px; padding: 5px 12px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; cursor: pointer; font-size: 12px;">🔓 Unlock</button>
         </div>
     </div>
     <div class="market-status" id="marketStatus"></div>
@@ -568,6 +570,7 @@
         // Initialize drag-and-drop with SortableJS
         document.addEventListener('DOMContentLoaded', function() {
             const grid = document.getElementById('dashboardGrid');
+            const lockBtn = document.getElementById('lockBtn');
             
             // Restore saved order from localStorage
             const savedOrder = localStorage.getItem('dashboardOrder');
@@ -582,23 +585,48 @@
             }
             
             // Initialize Sortable
-            new Sortable(grid, {
+            const sortable = new Sortable(grid, {
                 animation: 150,
                 handle: '.card',
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
                 onEnd: function(evt) {
-                    // Save order to localStorage
                     const cardIds = Array.from(grid.children).map(card => card.id);
                     localStorage.setItem('dashboardOrder', JSON.stringify(cardIds));
-                    console.log('Dashboard order saved');
                 }
             });
             
-            // Add drag hint to cards
-            document.querySelectorAll('.card').forEach(card => {
-                card.title = 'Drag to reorder';
-            });
+            // Lock toggle function
+            window.toggleLock = function() {
+                const isLocked = sortable.option('disabled');
+                sortable.option('disabled', !isLocked);
+                
+                if (!isLocked) {
+                    // Locking
+                    lockBtn.textContent = '🔒 Lock';
+                    lockBtn.style.borderColor = '#f85149';
+                    lockBtn.style.color = '#f85149';
+                    localStorage.setItem('dashboardLocked', 'true');
+                    grid.style.opacity = '0.7';
+                } else {
+                    // Unlocking
+                    lockBtn.textContent = '🔓 Unlock';
+                    lockBtn.style.borderColor = '#30363d';
+                    lockBtn.style.color = '#8b949e';
+                    localStorage.setItem('dashboardLocked', 'false');
+                    grid.style.opacity = '1';
+                }
+            };
+            
+            // Check saved lock state
+            const wasLocked = localStorage.getItem('dashboardLocked') === 'true';
+            if (wasLocked) {
+                sortable.option('disabled', true);
+                lockBtn.textContent = '🔒 Lock';
+                lockBtn.style.borderColor = '#f85149';
+                lockBtn.style.color = '#f85149';
+                grid.style.opacity = '0.7';
+            }
         });
     </script>
 </body>
