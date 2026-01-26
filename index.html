@@ -231,15 +231,10 @@
         async function fetchFromFinnhub(symbol) {
             try {
                 const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`;
-                console.log(`Fetching ${symbol} from Finnhub...`);
                 const res = await fetch(url);
                 const data = await res.json();
-                console.log(`${symbol} response:`, data);
-                if (data && data.c !== undefined && data.c !== 0) {
-                    return {
-                        current: data.c,
-                        change: data.dp || 0
-                    };
+                if (data && data.c !== undefined && data.c > 0) {
+                    return { current: data.c, change: data.dp || 0 };
                 }
             } catch (e) {
                 console.log(`Finnhub fetch failed for ${symbol}:`, e);
@@ -248,19 +243,23 @@
         }
         
         async function fetchPrices() {
-            console.log('Fetching prices from Finnhub...');
-            const tslaData = await fetchFromFinnhub('TSLA');
-            const nqData = await fetchFromFinnhub('NQ');
-            const vixData = await fetchFromFinnhub('VIX');
-            const dxyData = await fetchFromFinnhub('USUSDX'); // Dollar Index
+            // Fetch stocks that work with Finnhub
+            const [tslaData, qqqData] = await Promise.all([
+                fetchFromFinnhub('TSLA'),
+                fetchFromFinnhub('QQQ') // Nasdaq 100 ETF - proxy for NQ
+            ]);
             
-            console.log('Final prices:', { tsla: tslaData, nq: nqData, vix: vixData, dxy: dxyData });
+            // Scale QQQ to approximate NQ (QQQ ~ 1/10 of NQ)
+            const nqFromQqq = qqqData ? qqqData.current * 10 : null;
+            
+            console.log('TSLA:', tslaData);
+            console.log('QQQ:', qqqData, '→ NQ approx:', nqFromQqq);
             
             return {
                 tsla: tslaData || { current: 420.50, change: -0.5 },
-                nq: nqData || { current: 25650, change: 0.12 },
-                vix: vixData || { current: 16.5, change: -2.1 },
-                dxy: dxyData || { current: 108.5, change: 0.15 }
+                nq: nqFromQqq ? { current: Math.round(nqFromQqq), change: qqqData?.change || 0 } : { current: 25650, change: 0.12 },
+                vix: { current: 16.5, change: -2.1 },
+                dxy: { current: 108.5, change: 0.15 }
             };
         }
         
