@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Trading Dashboard | Nasdaq Futures</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #21262d;
+        }
+        
+        .header h1 { font-size: 24px; color: #58a6ff; }
+        .last-updated { color: #8b949e; font-size: 14px; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .card h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8b949e;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .price-display {
+            font-size: 48px;
+            font-weight: 700;
+            color: #58a6ff;
+            margin-bottom: 10px;
+        }
+        
+        .price-change {
+            font-size: 18px;
+            color: #3fb950;
+        }
+        
+        .price-change.negative { color: #f85149; }
+        
+        .level-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #21262d;
+            font-size: 14px;
+        }
+        
+        .level-item:last-child { border-bottom: none; }
+        .level-label { color: #8b949e; }
+        .level-value { font-weight: 600; }
+        .level-value.resistance { color: #f85149; }
+        .level-value.support { color: #3fb950; }
+        
+        .event-item {
+            display: flex;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #21262d;
+            font-size: 14px;
+        }
+        
+        .event-item:last-child { border-bottom: none; }
+        .event-time { color: #58a6ff; min-width: 80px; }
+        .event-name { flex: 1; }
+        .event-impact { 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .event-impact.high { background: #f8514933; color: #f85149; }
+        .event-impact.medium { background: #d2992233; color: #d29922; }
+        .event-impact.low { background: #3fb95033; color: #3fb950; }
+        
+        .earnings-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #21262d;
+            font-size: 14px;
+        }
+        
+        .earnings-item:last-child { border-bottom: none; }
+        .ticker { font-weight: 700; color: #58a6ff; }
+        .date { color: #8b949e; }
+        
+        .news-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #21262d;
+            font-size: 13px;
+        }
+        
+        .news-item:last-child { border-bottom: none; }
+        .news-headline { margin-bottom: 4px; }
+        .news-source { color: #8b949e; font-size: 12px; }
+        
+        .refresh-btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .refresh-btn:hover { background: #2ea043; }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #3fb950;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .market-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #161b22;
+            border-radius: 8px;
+        }
+        
+        .market-closed { color: #f85149; }
+        .market-open { color: #3fb950; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 Trading Dashboard</h1>
+        <div>
+            <span class="status-indicator"></span>
+            <span class="last-updated">Last updated: <span id="updateTime">--:--</span></span>
+            <button class="refresh-btn" onclick="fetchAllData()" style="margin-left: 15px;">Refresh</button>
+        </div>
+    </div>
+    
+    <div class="market-status" id="marketStatus">
+        <!-- Populated by JS -->
+    </div>
+    
+    <div class="grid">
+        <!-- Price Card -->
+        <div class="card">
+            <h2>📈 Nasdaq Futures</h2>
+            <div class="price-display" id="price">--</div>
+            <div class="price-change" id="priceChange">--</div>
+            <div style="margin-top: 15px;">
+                <div class="level-item">
+                    <span class="level-label">Resistance 1</span>
+                    <span class="level-value resistance" id="res1">--</span>
+                </div>
+                <div class="level-item">
+                    <span class="level-label">Resistance 2</span>
+                    <span class="level-value resistance" id="res2">--</span>
+                </div>
+                <div class="level-item">
+                    <span class="level-label">Support 1</span>
+                    <span class="level-value support" id="sup1">--</span>
+                </div>
+                <div class="level-item">
+                    <span class="level-label">Support 2</span>
+                    <span class="level-value support" id="sup2">--</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Economic Events -->
+        <div class="card">
+            <h2>📅 Today's Economic Events</h2>
+            <div id="economicEvents">
+                <p style="color: #8b949e;">Loading...</p>
+            </div>
+        </div>
+        
+        <!-- Earnings -->
+        <div class="card">
+            <h2>💰 Earnings This Week</h2>
+            <div id="earnings">
+                <p style="color: #8b949e;">Loading...</p>
+            </div>
+        </div>
+        
+        <!-- News -->
+        <div class="card">
+            <h2>📰 Market News</h2>
+            <div id="news">
+                <p style="color: #8b949e;">Loading...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Trading Dashboard - Auto-refreshes every 5 minutes
+        const UPDATE_INTERVAL = 5 * 60 * 1000;
+        
+        async function fetchAllData() {
+            const now = new Date();
+            document.getElementById('updateTime').textContent = now.toLocaleTimeString();
+            
+            // Check market status
+            const hour = now.getUTCHours();
+            const day = now.getUTCDay();
+            const isWeekend = day === 0 || day === 6;
+            const isOpen = hour >= 14 && hour < 23 && !isWeekend;
+            
+            const statusEl = document.getElementById('marketStatus');
+            statusEl.innerHTML = isOpen 
+                ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>'
+                : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
+            
+            // Fetch data from API endpoints (placeholder - would connect to real APIs)
+            updatePrice();
+            updateEconomicEvents();
+            updateEarnings();
+            updateNews();
+        }
+        
+        function updatePrice() {
+            // Placeholder - would fetch from real data source
+            const base = 25680;
+            const change = (Math.random() - 0.5) * 50;
+            const price = base + change;
+            const pct = (change / base * 100).toFixed(2);
+            
+            document.getElementById('price').textContent = price.toFixed(0);
+            const changeEl = document.getElementById('priceChange');
+            changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(0)} (${pct}%)`;
+            changeEl.className = `price-change ${change < 0 ? 'negative' : ''}`;
+            
+            document.getElementById('res1').textContent = (price + 200).toFixed(0);
+            document.getElementById('res2').textContent = (price + 400).toFixed(0);
+            document.getElementById('sup1').textContent = (price - 80).toFixed(0);
+            document.getElementById('sup2').textContent = (price - 280).toFixed(0);
+        }
+        
+        function updateEconomicEvents() {
+            const events = [
+                { time: '18:30', name: 'Dallas Fed Manufacturing', impact: 'medium' },
+                { time: '20:30', name: 'Durable Goods Orders', impact: 'medium' },
+                { time: '22:00', name: 'Vice Chair Bowman Speech', impact: 'high' },
+            ];
+            
+            const html = events.map(e => `
+                <div class="event-item">
+                    <span class="event-time">${e.time} IST</span>
+                    <span class="event-name">${e.name}</span>
+                    <span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('economicEvents').innerHTML = html;
+        }
+        
+        function updateEarnings() {
+            const earnings = [
+                { ticker: 'TSLA', date: 'Wed', name: 'Tesla' },
+                { ticker: 'MSFT', date: 'Wed', name: 'Microsoft' },
+                { ticker: 'META', date: 'Wed', name: 'Meta' },
+                { ticker: 'AAPL', date: 'Thu', name: 'Apple' },
+            ];
+            
+            const html = earnings.map(e => `
+                <div class="earnings-item">
+                    <span><span class="ticker">${e.ticker}</span> - ${e.name}</span>
+                    <span class="date">${e.date}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('earnings').innerHTML = html;
+        }
+        
+        function updateNews() {
+            const news = [
+                { headline: 'Fed officials signal patience on rate cuts', source: 'Reuters' },
+                { headline: 'Nasdaq consolidates near 25,700 amid earnings anticipation', source: 'CNBC' },
+                { headline: 'Tech stocks face test with major earnings week ahead', source: 'Bloomberg' },
+            ];
+            
+            const html = news.map(n => `
+                <div class="news-item">
+                    <div class="news-headline">${n.headline}</div>
+                    <div class="news-source">${n.source}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('news').innerHTML = html;
+        }
+        
+        // Initial load and auto-refresh
+        fetchAllData();
+        setInterval(fetchAllData, UPDATE_INTERVAL);
+    </script>
+</body>
+</html>
