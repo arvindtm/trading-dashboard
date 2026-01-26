@@ -102,6 +102,11 @@
             <h2>🎯 NQ Trade Ideas (Jan 26)</h2>
             <div id="tradeIdeas"></div>
         </div>
+        <!-- London Open Strategy -->
+        <div class="card">
+            <h2>🇬🇧 London Open (6AM EST)</h2>
+            <div id="londonOpen"></div>
+        </div>
         <!-- Nasdaq Futures -->
         <div class="card">
             <h2>📈 NQ Levels</h2>
@@ -236,6 +241,41 @@
             `).join('');
         }
         
+        function updateLondonOpen() {
+            const londonData = {
+                bias: 'BULLISH',
+                asiaHigh: 25680,
+                asiaLow: 25520,
+                candleHigh: 25650,
+                candleLow: 25580,
+                swept: 'ASIA_LOW',
+                signal: 'Look for long pullback at 9:30 NY'
+            };
+            
+            document.getElementById('londonOpen').innerHTML = `
+                <div class="trade-card long">
+                    <div class="trade-header">
+                        <span class="trade-direction long">${londonData.bias}</span>
+                        <span class="trade-badge">6AM H4 Candle</span>
+                    </div>
+                    <div class="trade-row"><span class="trade-label">Asia High</span><span class="trade-value">${londonData.asiaHigh}</span></div>
+                    <div class="trade-row"><span class="trade-label">Asia Low</span><span class="trade-value">${londonData.asiaLow}</span></div>
+                    <div class="trade-row"><span class="trade-label">6AM High</span><span class="trade-value">${londonData.candleHigh}</span></div>
+                    <div class="trade-row"><span class="trade-label">6AM Low</span><span class="trade-value">${londonData.candleLow}</span></div>
+                    <div class="trade-row"><span class="trade-label">Swept</span><span class="trade-value">${londonData.swept}</span></div>
+                    <div class="trade-rationale">${londonData.signal}</div>
+                </div>
+                <div style="margin-top: 15px; padding: 12px; background: #0d1117; border-radius: 8px; font-size: 12px;">
+                    <div style="color: #8b949e; margin-bottom: 8px;">📖 How to trade:</div>
+                    <div>1. 6AM sweeps Asia HIGH → going DOWN</div>
+                    <div>2. 6AM sweeps Asia LOW → going UP</div>
+                    <div>3. 6AM does nothing → wait</div>
+                    <div>4. 9:30 NY: pullback in 6AM direction = entry</div>
+                    <div>5. Still nothing? Wait for 10AM</div>
+                </div>
+            `;
+        }
+        
         function updateMarketRisks() {
             const risks = [
                 { icon: '📋', text: 'FOMC Minutes (Wed)', badge: 'HIGH' },
@@ -347,6 +387,7 @@
             updateGlobalTimes();
             updatePrice();
             updateTradeIdeas();
+            updateLondonOpen();
             updateIndicators();
             updateGlobalIndices();
             updateMarketRisks();
