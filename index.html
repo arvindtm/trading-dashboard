@@ -6,263 +6,73 @@
     <title>🚀 Trading Dashboard | Nasdaq Futures</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0d1117;
-            color: #e6edf3;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #21262d;
-        }
-        
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #e6edf3; min-height: 100vh; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #21262d; }
         .header h1 { font-size: 24px; color: #58a6ff; }
         .last-updated { color: #8b949e; font-size: 14px; }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .card {
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 12px;
-            padding: 20px;
-        }
-        
-        .card h2 {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #8b949e;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .price-display {
-            font-size: 48px;
-            font-weight: 700;
-            color: #58a6ff;
-            margin-bottom: 10px;
-        }
-        
-        .price-change {
-            font-size: 18px;
-            color: #3fb950;
-        }
-        
-        .price-change.negative { color: #f85149; }
-        
-        .level-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #21262d;
-            font-size: 14px;
-        }
-        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 20px; }
+        .card h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #8b949e; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .level-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 14px; }
         .level-item:last-child { border-bottom: none; }
         .level-label { color: #8b949e; }
         .level-value { font-weight: 600; }
         .level-value.resistance { color: #f85149; }
         .level-value.support { color: #3fb950; }
-        
-        .event-item {
-            display: flex;
-            gap: 15px;
-            padding: 10px 0;
-            border-bottom: 1px solid #21262d;
-            font-size: 14px;
-        }
-        
+        .event-item { display: flex; gap: 15px; padding: 10px 0; border-bottom: 1px solid #21262d; font-size: 14px; }
         .event-item:last-child { border-bottom: none; }
         .event-time { color: #58a6ff; min-width: 80px; }
-        .event-name { flex: 1; }
-        .event-impact { 
-            padding: 2px 8px; 
-            border-radius: 4px; 
-            font-size: 11px;
-            font-weight: 600;
-        }
+        .event-impact { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
         .event-impact.high { background: #f8514933; color: #f85149; }
         .event-impact.medium { background: #d2992233; color: #d29922; }
         .event-impact.low { background: #3fb95033; color: #3fb950; }
-        
-        .earnings-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #21262d;
-            font-size: 14px;
-        }
-        
+        .earnings-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 14px; }
         .earnings-item:last-child { border-bottom: none; }
         .ticker { font-weight: 700; color: #58a6ff; }
-        .date { color: #8b949e; }
-        
-        .news-item {
-            padding: 8px 0;
-            border-bottom: 1px solid #21262d;
-            font-size: 13px;
-        }
-        
+        .news-item { padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 13px; }
         .news-item:last-child { border-bottom: none; }
-        .news-headline { margin-bottom: 4px; }
         .news-source { color: #8b949e; font-size: 12px; }
-        
-        .refresh-btn {
-            background: #238636;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .refresh-btn:hover { background: #2ea043; }
-        
-        .status-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #3fb950;
-            margin-right: 8px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .market-status {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #161b22;
-            border-radius: 8px;
-        }
-        
+        .status-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3fb950; margin-right: 8px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .market-status { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: #161b22; border-radius: 8px; }
         .market-closed { color: #f85149; }
         .market-open { color: #3fb950; }
-        
-        .risk-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 0;
-            border-bottom: 1px solid #21262d;
-            font-size: 13px;
-        }
-        
+        .risk-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #21262d; font-size: 13px; }
         .risk-item:last-child { border-bottom: none; }
         .risk-icon { font-size: 18px; }
         .risk-text { flex: 1; }
-        .risk-badge {
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-        }
+        .risk-badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
         .risk-badge.high { background: #f8514933; color: #f85149; }
         .risk-badge.medium { background: #d2992233; color: #d29922; }
-        .risk-badge.low { background: #3fb95033; color: #3fb950; }
-        
-        .sentiment-bar {
-            height: 8px;
-            background: #21262d;
-            border-radius: 4px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-        
-        .sentiment-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
+        .global-market-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #21262d; }
+        .global-market-item:last-child { border-bottom: none; }
+        .market-icon { font-size: 24px; }
+        .market-name { font-weight: 600; font-size: 14px; color: #e6edf3; }
+        .market-time { font-size: 12px; color: #8b949e; }
+        .market-status-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        .market-status-badge.open { background: #3fb95033; color: #3fb950; }
+        .market-status-badge.closed { background: #f8514933; color: #f85149; }
+        .global-clock { display: flex; gap: 15px; margin-bottom: 15px; padding: 10px; background: #0d1117; border-radius: 8px; }
+        .clock-item { text-align: center; flex: 1; }
+        .clock-value { font-size: 18px; font-weight: 700; color: #58a6ff; }
+        .clock-label { font-size: 10px; color: #8b949e; text-transform: uppercase; }
+        .sentiment-bar { height: 8px; background: #21262d; border-radius: 4px; margin-top: 10px; overflow: hidden; }
+        .sentiment-fill { height: 100%; border-radius: 4px; }
         .sentiment-fill.bearish { background: #f85149; }
         .sentiment-fill.bullish { background: #3fb950; }
         .sentiment-fill.neutral { background: #d29922; }
-        
-        .vix-display {
-            font-size: 28px;
-            font-weight: 700;
-            color: #58a6ff;
-            margin-bottom: 5px;
-        }
-        
+        .vix-display { font-size: 28px; font-weight: 700; color: #58a6ff; margin-bottom: 5px; }
         .vix-label { color: #8b949e; font-size: 12px; margin-bottom: 10px; }
-        
-        .overnight-range {
-            padding: 10px;
-            background: #0d1117;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-        
-        .range-label { color: #8b949e; font-size: 12px; margin-bottom: 5px; }
-        .range-value { font-size: 16px; font-weight: 600; }
-        .range-value.gap-down { color: #f85149; }
-        .range-value.gap-up { color: #3fb950; }
-        
-        .global-market-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid #21262d;
-        }
-        
-        .global-market-item:last-child { border-bottom: none; }
-        .market-icon { font-size: 24px; }
-        .market-info { flex: 1; }
-        .market-name { font-weight: 600; font-size: 14px; color: #e6edf3; }
-        .market-time { font-size: 12px; color: #8b949e; }
-        .market-status-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .market-status-badge.open { background: #3fb95033; color: #3fb950; }
-        .market-status-badge.closed { background: #f8514933; color: #f85149; }
-        .market-status-badge.soon { background: #d2992233; color: #d29922; }
-        
-        .market-note { font-size: 12px; color: #8b949e; margin-top: 4px; }
-        
-        .global-clock {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 10px;
-            background: #0d1117;
-            border-radius: 8px;
-        }
-        
-        .clock-item {
-            text-align: center;
-            flex: 1;
-        }
-        .clock-value { font-size: 18px; font-weight: 700; color: #58a6ff; }
-        .clock-label { font-size: 10px; color: #8b949e; text-transform: uppercase; }
+        .asset-ticker { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #0d1117; border-radius: 8px; font-size: 14px; margin-bottom: 8px; }
+        .asset-name { font-weight: 600; }
+        .asset-price { font-weight: 700; color: #58a6ff; }
+        .asset-change { font-weight: 600; font-size: 13px; }
+        .asset-change.up { color: #3fb950; }
+        .asset-change.down { color: #f85149; }
+        .asset-icon { font-size: 20px; margin-right: 8px; }
+        .asset-row { display: flex; align-items: center; }
+        .chart-link { display: block; text-align: center; padding: 15px; background: #0d1117; border-radius: 8px; color: #58a6ff; font-size: 14px; margin-bottom: 15px; text-decoration: none; }
+        .chart-link:hover { background: #21262d; }
     </style>
 </head>
 <body>
@@ -271,203 +81,69 @@
         <div>
             <span class="status-indicator"></span>
             <span class="last-updated">Last updated: <span id="updateTime">--:--</span></span>
-            <button class="refresh-btn" onclick="fetchAllData()" style="margin-left: 15px;">Refresh</button>
         </div>
     </div>
-    
-    <div class="market-status" id="marketStatus">
-        <!-- Populated by JS -->
-    </div>
-    
+    <div class="market-status" id="marketStatus"></div>
     <div class="grid">
-        <!-- Price Card -->
+        <!-- Nasdaq Futures -->
         <div class="card">
-            <h2>📈 Nasdaq Futures (Live)</h2>
-            <div style="margin-bottom: 15px;">
-                <!-- TradingView Advanced Chart Widget -->
-                <div class="tradingview-widget-container">
-                    <div id="tradingview_chart"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                    <script type="text/javascript">
-                    new TradingView.widget({
-                        "width": "100%",
-                        "height": 350,
-                        "symbol": "CME_MINI:NQ1!",
-                        "interval": "15",
-                        "timezone": "Etc/UTC",
-                        "theme": "dark",
-                        "style": "1",
-                        "locale": "en",
-                        "toolbar_bg": "#f1f3f6",
-                        "enable_publishing": false,
-                        "allow_symbol_change": true,
-                        "container_id": "tradingview_chart"
-                    });
-                    </script>
-                </div>
-            </div>
-            <div class="price-display" id="price">--</div>
-            <div class="price-change" id="priceChange">--</div>
-            <div class="overnight-range" id="overnightRange">
-                <div class="range-label">Overnight Range (Asia Session)</div>
-                <div class="range-value gap-down" id="overnightGap">--</div>
-            </div>
-            <div style="margin-top: 15px;">
-                <div class="level-item">
-                    <span class="level-label">Resistance 1</span>
-                    <span class="level-value resistance" id="res1">--</span>
-                </div>
-                <div class="level-item">
-                    <span class="level-label">Resistance 2</span>
-                    <span class="level-value resistance" id="res2">--</span>
-                </div>
-                <div class="level-item">
-                    <span class="level-label">Support 1</span>
-                    <span class="level-value support" id="sup1">--</span>
-                </div>
-                <div class="level-item">
-                    <span class="level-label">Support 2</span>
-                    <span class="level-value support" id="sup2">--</span>
-                </div>
-            </div>
+            <h2>📈 Nasdaq Futures</h2>
+            <a href="https://www.tradingview.com/chart/NQ1!?symbol=CME_MINI:NQ1!" target="_blank" class="chart-link">📊 View Live Chart on TradingView</a>
+            <div class="level-item"><span class="level-label">Key Level</span><span class="level-value" id="price">Loading...</span></div>
+            <div class="level-item"><span class="level-label">R1</span><span class="level-value resistance" id="res1">--</span></div>
+            <div class="level-item"><span class="level-label">R2</span><span class="level-value resistance" id="res2">--</span></div>
+            <div class="level-item"><span class="level-label">S1</span><span class="level-value support" id="sup1">--</span></div>
+            <div class="level-item"><span class="level-label">S2</span><span class="level-value support" id="sup2">--</span></div>
         </div>
-        
-        <!-- Global Market Openings -->
+        <!-- Global Markets -->
         <div class="card">
             <h2>🌍 Global Market Hours</h2>
             <div class="global-clock">
-                <div class="clock-item">
-                    <div class="clock-value" id="tokyoTime">--:--</div>
-                    <div class="clock-label">Tokyo</div>
-                </div>
-                <div class="clock-item">
-                    <div class="clock-value" id="londonTime">--:--</div>
-                    <div class="clock-label">London</div>
-                </div>
-                <div class="clock-item">
-                    <div class="clock-value" id="frankfurtTime">--:--</div>
-                    <div class="clock-label">Frankfurt</div>
-                </div>
-                <div class="clock-item">
-                    <div class="clock-value" id="nyTime">--:--</div>
-                    <div class="clock-label">NY</div>
-                </div>
+                <div class="clock-item"><div class="clock-value" id="tokyoTime">--:--</div><div class="clock-label">Tokyo</div></div>
+                <div class="clock-item"><div class="clock-value" id="londonTime">--:--</div><div class="clock-label">London</div></div>
+                <div class="clock-item"><div class="clock-value" id="frankfurtTime">--:--</div><div class="clock-label">Frankfurt</div></div>
+                <div class="clock-item"><div class="clock-value" id="nyTime">--:--</div><div class="clock-label">NY</div></div>
             </div>
-            <div id="globalMarkets">
-                <p style="color: #8b949e;">Loading...</p>
-            </div>
+            <div id="globalMarkets"></div>
         </div>
-        
-        <!-- Market Movers / Risk Factors -->
+        <!-- Key Assets -->
+        <div class="card">
+            <h2>💎 Key Assets Watchlist</h2>
+            <div id="assetsTicker"></div>
+        </div>
+        <!-- Market Movers -->
         <div class="card">
             <h2>⚠️ Market Movers & Risks</h2>
-            <div id="marketRisks">
-                <p style="color: #8b949e;">Loading...</p>
-            </div>
+            <div id="marketRisks"></div>
         </div>
-        
         <!-- Economic Events -->
         <div class="card">
             <h2>📅 Today's Economic Events</h2>
-            <div id="economicEvents">
-                <p style="color: #8b949e;">Loading...</p>
-            </div>
+            <div id="economicEvents"></div>
         </div>
-        
         <!-- Earnings -->
         <div class="card">
             <h2>💰 Earnings This Week</h2>
-            <div id="earnings">
-                <p style="color: #8b949e;">Loading...</p>
-            </div>
+            <div id="earnings"></div>
         </div>
-        
         <!-- News -->
         <div class="card">
             <h2>📰 Market News</h2>
-            <div id="news">
-                <p style="color: #8b949e;">Loading...</p>
-            </div>
+            <div id="news"></div>
         </div>
-        
-                <!-- Key Assets Watchlist -->
-        <div class="card">
-            <h2>💎 Key Assets Watchlist</h2>
-            <div id="assetsTicker" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                <!-- Populated by JS -->
-            </div>
-        </div>
-        
-        <style>
-        .asset-ticker {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px;
-            background: #0d1117;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        .asset-name { font-weight: 600; }
-        .asset-price { font-weight: 700; color: #58a6ff; }
-        .asset-change { font-weight: 600; font-size: 13px; }
-        .asset-change.up { color: #3fb950; }
-        .asset-change.down { color: #f85149; }
-        .asset-icon { font-size: 20px; margin-right: 8px; }
-        .asset-row { display: flex; align-items: center; }
-        </style>
-        
-        <script>
-        function updateAssetsTicker() {
-            const assets = [
-                { name: 'Gold', icon: '🥇', price: 2050.50, change: 8.25 },
-                { name: 'Silver', icon: '🥈', price: 23.45, change: 0.32 },
-                { name: 'Bitcoin', icon: '₿', price: 43500, change: -520 },
-                { name: 'SPY', icon: '📊', price: 582.30, change: 1.85 },
-                { name: 'QQQ', icon: '📈', price: 512.45, change: -2.30 },
-            ];
-            const html = assets.map(a => `
-                <div class="asset-ticker">
-                    <div class="asset-row">
-                        <span class="asset-icon">${a.icon}</span>
-                        <span class="asset-name">${a.name}</span>
-                    </div>
-                    <span class="asset-price">${a.price.toLocaleString()}</span>
-                    <span class="asset-change ${a.change >= 0 ? 'up' : 'down'}">${a.change >= 0 ? '+' : ''}${a.change}</span>
-                </div>
-            `).join('');
-            document.getElementById('assetsTicker').innerHTML = html;
-        }
-        
-        // Integrate with fetchAllData
-        const oldFetch = window.fetchAllData || function(){};
-        window.fetchAllData = async function() {
-            await oldFetch();
-            updateAssetsTicker();
-        };
-        </script>
-
-<!-- Sentiment & VIX -->
+        <!-- Sentiment -->
         <div class="card">
             <h2>📊 Sentiment & VIX</h2>
             <div class="vix-display" id="vixLevel">--</div>
             <div class="vix-label">VIX (Volatility Index)</div>
-            <div class="sentiment-bar">
-                <div class="sentiment-fill neutral" id="sentimentFill" style="width: 50%;"></div>
-            </div>
+            <div class="sentiment-bar"><div class="sentiment-fill neutral" id="sentimentFill" style="width: 50%;"></div></div>
             <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: #8b949e;">
-                <span>Bearish</span>
-                <span id="sentimentLabel">Neutral</span>
-                <span>Bullish</span>
+                <span>Bearish</span><span id="sentimentLabel">Neutral</span><span>Bullish</span>
             </div>
         </div>
     </div>
-    
     <script>
-        // Trading Dashboard - Auto-refreshes every 2 minutes
         const UPDATE_INTERVAL = 2 * 60 * 1000;
-        
-        // Asset data
         const assets = [
             { name: 'Gold', icon: '🥇', price: 2050.50, change: 8.25 },
             { name: 'Silver', icon: '🥈', price: 23.45, change: 0.32 },
@@ -477,215 +153,32 @@
         ];
         
         function updateAssetsTicker() {
-            const html = assets.map(a => `
-                <div class="asset-ticker">
-                    <div class="asset-row">
-                        <span class="asset-icon">${a.icon}</span>
-                        <span class="asset-name">${a.name}</span>
-                    </div>
-                    <span class="asset-price">${a.price.toLocaleString()}</span>
-                    <span class="asset-change ${a.change >= 0 ? 'up' : 'down'}">${a.change >= 0 ? '+' : ''}${a.change}</span>
-                </div>
-            `).join('');
-            document.getElementById('assetsTicker').innerHTML = html;
-        }
-        const UPDATE_INTERVAL = 2 * 60 * 1000;
-        
-        // Market hours in UTC
-        const marketHours = {
-            tokyo: { open: 0, close: 6, name: 'Tokyo (Japan)', icon: '🗼', note: 'Asian session - often sets tone' },
-            london: { open: 8, close: 16.5, name: 'London (UK)', icon: '🇬🇧', note: 'European session begins' },
-            frankfurt: { open: 9, close: 17.5, name: 'Frankfurt (EU)', icon: '🇩🇪', note: 'DAX trading hours' },
-            ny: { open: 14.5, close: 23, name: 'New York (US)', icon: '🇺🇸', note: 'US session - most volatile' }
-        };
-        
-        function getMarketStatus(utcHour) {
-            if (utcHour >= marketHours.tokyo.open && utcHour < marketHours.tokyo.close) return 'open';
-            if (utcHour >= marketHours.london.open && utcHour < marketHours.london.close) return 'open';
-            if (utcHour >= marketHours.frankfurt.open && utcHour < marketHours.frankfurt.close) return 'open';
-            if (utcHour >= marketHours.ny.open && utcHour < marketHours.ny.close) return 'open';
-            return 'closed';
-        }
-        
-        function getMarketNext(utcHour) {
-            if (utcHour < marketHours.tokyo.open) return { name: 'Tokyo', time: marketHours.tokyo.open - utcHour };
-            if (utcHour < marketHours.london.open) return { name: 'London', time: marketHours.london.open - utcHour };
-            if (utcHour < marketHours.frankfurt.open) return { name: 'Frankfurt', time: marketHours.frankfurt.open - utcHour };
-            if (utcHour < marketHours.ny.open) return { name: 'NY', time: marketHours.ny.open - utcHour };
-            // After all closed, next is Tokyo tomorrow
-            return { name: 'Tokyo (tom)', time: 24 - utcHour + marketHours.tokyo.open };
-        }
-        
-        function formatTime(utcHour) {
-            const hours = Math.floor(utcHour);
-            const minutes = Math.floor((utcHour - hours) * 60);
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        }
-        
-        function getMarketBadgeClass(status) {
-            if (status === 'open') return 'open';
-            if (status === 'closed') return 'closed';
-            return 'soon';
-        }
-        
-        function getMarketStatusText(utcHour) {
-            const status = getMarketStatus(utcHour);
-            if (status === 'open') {
-                if (utcHour >= marketHours.ny.open) return 'OPEN';
-                if (utcHour >= marketHours.frankfurt.open) return 'OPEN';
-                if (utcHour >= marketHours.london.open) return 'OPEN';
-                if (utcHour >= marketHours.tokyo.open) return 'OPEN';
-            }
-            const next = getMarketNext(utcHour);
-            const hours = Math.floor(next.time);
-            const mins = Math.floor((next.time - hours) * 60);
-            if (hours > 0) return `Opens ${hours}h ${mins}m`;
-            return `Opens ${mins}m`;
-        }
-        
-        async function fetchAllData() {
-            const now = new Date();
-            const utcHour = now.getUTCHours() + now.getMinutes() / 60;
-            document.getElementById('updateTime').textContent = now.toLocaleTimeString();
-            
-            // Update global clocks
-            document.getElementById('tokyoTime').textContent = formatTime((utcHour + 9) % 24);
-            document.getElementById('londonTime').textContent = formatTime((utcHour) % 24);
-            document.getElementById('frankfurtTime').textContent = formatTime((utcHour + 1) % 24);
-            document.getElementById('nyTime').textContent = formatTime((utcHour - 5 + 24) % 24);
-            
-            // Check market status
-            const hour = utcHour;
-            const day = now.getUTCDay();
-            const isWeekend = day === 0 || day === 6;
-            const isOpen = hour >= 14.5 && hour < 23 && !isWeekend;
-            
-            const statusEl = document.getElementById('marketStatus');
-            statusEl.innerHTML = isOpen 
-                ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>'
-                : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
-            
-            // Fetch data from API endpoints (placeholder - would connect to real APIs)
-            updatePrice();
-            updateGlobalMarkets(utcHour);
-            updateMarketRisks();
-            updateEconomicEvents();
-            updateEarnings();
-            updateNews();
-            updateSentiment();
-        }
-        
-        function updateGlobalMarkets(utcHour) {
-            const markets = [
-                { 
-                    name: 'Tokyo', 
-                    icon: '🗼', 
-                    time: '01:00 - 07:00 UTC', 
-                    istTime: '06:30 - 12:30 IST', 
-                    status: utcHour >= 0 && utcHour < 6 ? 'open' : 'closed',
-                    note: 'Asian session - Nikkei 225, JPY moves' 
-                },
-                { 
-                    name: 'Frankfurt', 
-                    icon: '🇩🇪', 
-                    time: '09:00 - 17:30 UTC', 
-                    istTime: '14:30 - 23:00 IST', 
-                    status: utcHour >= 9 && utcHour < 17.5 ? 'open' : 'closed',
-                    note: 'DAX, Euro Stoxx 50' 
-                },
-                { 
-                    name: 'London', 
-                    icon: '🇬🇧', 
-                    time: '08:00 - 16:30 UTC', 
-                    istTime: '13:30 - 22:00 IST', 
-                    status: utcHour >= 8 && utcHour < 16.5 ? 'open' : 'closed',
-                    note: 'FTSE 100, GBP moves, liquidity spike' 
-                },
-                { 
-                    name: 'New York', 
-                    icon: '🇺🇸', 
-                    time: '14:30 - 23:00 UTC', 
-                    istTime: '20:00 - 04:30 IST', 
-                    status: utcHour >= 14.5 && utcHour < 23 ? 'open' : 'closed',
-                    note: 'Nasdaq, S&P 500 - Most volatile' 
-                }
-            ];
-            
-            const html = markets.map(m => `
-                <div class="global-market-item">
-                    <span class="market-icon">${m.icon}</span>
-                    <div class="market-info">
-                        <div class="market-name">${m.name}</div>
-                        <div class="market-note">${m.note}</div>
-                    </div>
-                    <span class="market-status-badge ${m.status === 'open' ? 'open' : 'closed'}">${m.status.toUpperCase()}</span>
-                </div>
-            `).join('');
-            
-            document.getElementById('globalMarkets').innerHTML = html;
-        }
-        
-        function updatePrice() {
-            // Placeholder - would fetch from real data source
-            const base = 25680;
-            const change = (Math.random() - 0.5) * 50;
-            const price = base + change;
-            const pct = (change / base * 100).toFixed(2);
-            
-            document.getElementById('price').textContent = price.toFixed(0);
-            const changeEl = document.getElementById('priceChange');
-            changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(0)} (${pct}%)`;
-            changeEl.className = `price-change ${change < 0 ? 'negative' : ''}`;
-            
-            // Overnight gap (simulated)
-            const overnightGap = -80; // Example gap down
-            const gapEl = document.getElementById('overnightGap');
-            gapEl.textContent = `Gap ${overnightGap >= 0 ? '+' : ''}${overnightGap} pts`;
-            gapEl.className = `range-value ${overnightGap < 0 ? 'gap-down' : 'gap-up'}`;
-            
-            document.getElementById('res1').textContent = (price + 200).toFixed(0);
-            document.getElementById('res2').textContent = (price + 400).toFixed(0);
-            document.getElementById('sup1').textContent = (price - 80).toFixed(0);
-            document.getElementById('sup2').textContent = (price - 280).toFixed(0);
+            document.getElementById('assetsTicker').innerHTML = assets.map(a =>
+                `<div class="asset-ticker"><div class="asset-row"><span class="asset-icon">${a.icon}</span><span class="asset-name">${a.name}</span></div><span class="asset-price">${a.price.toLocaleString()}</span><span class="asset-change ${a.change >= 0 ? 'up' : 'down'}">${a.change >= 0 ? '+' : ''}${a.change}</span></div>`
+            ).join('');
         }
         
         function updateMarketRisks() {
             const risks = [
-                { icon: '📋', text: 'FOMC Minutes (Wed) - Rate path uncertainty', badge: 'HIGH', badgeClass: 'high' },
-                { icon: '📊', text: 'PCE Inflation (Thu) - Fed\'s favorite metric', badge: 'HIGH', badgeClass: 'high' },
-                { icon: '📈', text: 'Jobs Report (Fri) - NFP volatility expected', badge: 'HIGH', badgeClass: 'high' },
-                { icon: '🔮', text: 'Megacap Earnings - TSLA/MSFT/META/AAPL', badge: 'MEDIUM', badgeClass: 'medium' },
-                { icon: '🌍', text: 'Global growth concerns - China/Europe', badge: 'MEDIUM', badgeClass: 'medium' },
-                { icon: '🇺🇸', text: 'Trump policy uncertainty - Trade/Tariffs', badge: 'MEDIUM', badgeClass: 'medium' },
+                { icon: '📋', text: 'FOMC Minutes (Wed) - Rate path', badge: 'HIGH', badgeClass: 'high' },
+                { icon: '📊', text: 'PCE Inflation (Thu) - Fed metric', badge: 'HIGH', badgeClass: 'high' },
+                { icon: '📈', text: 'Jobs Report (Fri) - NFP volatility', badge: 'HIGH', badgeClass: 'high' },
+                { icon: '🔮', text: 'Megacap Earnings', badge: 'MEDIUM', badgeClass: 'medium' },
             ];
-            
-            const html = risks.map(r => `
-                <div class="risk-item">
-                    <span class="risk-icon">${r.icon}</span>
-                    <span class="risk-text">${r.text}</span>
-                    <span class="risk-badge ${r.badgeClass}">${r.badge}</span>
-                </div>
-            `).join('');
-            
-            document.getElementById('marketRisks').innerHTML = html;
+            document.getElementById('marketRisks').innerHTML = risks.map(r =>
+                `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge ${r.badgeClass}">${r.badge}</span></div>`
+            ).join('');
         }
         
         function updateEconomicEvents() {
             const events = [
-                { time: '18:30', name: 'Dallas Fed Manufacturing', impact: 'medium' },
-                { time: '20:30', name: 'Durable Goods Orders', impact: 'medium' },
-                { time: '22:00', name: 'Vice Chair Bowman Speech', impact: 'high' },
+                { time: '18:30 IST', name: 'Dallas Fed Manufacturing', impact: 'medium' },
+                { time: '20:30 IST', name: 'Durable Goods Orders', impact: 'medium' },
+                { time: '22:00 IST', name: 'Vice Chair Bowman Speech', impact: 'high' },
             ];
-            
-            const html = events.map(e => `
-                <div class="event-item">
-                    <span class="event-time">${e.time} IST</span>
-                    <span class="event-name">${e.name}</span>
-                    <span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span>
-                </div>
-            `).join('');
-            
-            document.getElementById('economicEvents').innerHTML = html;
+            document.getElementById('economicEvents').innerHTML = events.map(e =>
+                `<div class="event-item"><span class="event-time">${e.time}</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`
+            ).join('');
         }
         
         function updateEarnings() {
@@ -695,63 +188,84 @@
                 { ticker: 'META', date: 'Wed', name: 'Meta' },
                 { ticker: 'AAPL', date: 'Thu', name: 'Apple' },
             ];
-            
-            const html = earnings.map(e => `
-                <div class="earnings-item">
-                    <span><span class="ticker">${e.ticker}</span> - ${e.name}</span>
-                    <span class="date">${e.date}</span>
-                </div>
-            `).join('');
-            
-            document.getElementById('earnings').innerHTML = html;
+            document.getElementById('earnings').innerHTML = earnings.map(e =>
+                `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span class="date">${e.date}</span></div>`
+            ).join('');
         }
         
         function updateNews() {
             const news = [
                 { headline: 'Fed officials signal patience on rate cuts', source: 'Reuters' },
                 { headline: 'Nasdaq consolidates amid earnings anticipation', source: 'CNBC' },
-                { headline: 'Tech stocks face test with major earnings week', source: 'Bloomberg' },
             ];
-            
-            const html = news.map(n => `
-                <div class="news-item">
-                    <div class="news-headline">${n.headline}</div>
-                    <div class="news-source">${n.source}</div>
-                </div>
-            `).join('');
-            
-            document.getElementById('news').innerHTML = html;
+            document.getElementById('news').innerHTML = news.map(n =>
+                `<div class="news-item"><div class="news-headline">${n.headline}</div><div class="news-source">${n.source}</div></div>`
+            ).join('');
         }
         
         function updateSentiment() {
-            // VIX placeholder - would fetch from real API
-            const vix = 16.5 + (Math.random() - 0.5) * 2;
+            const vix = 16.5;
             document.getElementById('vixLevel').textContent = vix.toFixed(2);
-            
-            // Sentiment (simulated - would use real data)
-            const sentiment = 40; // 0-100, lower = more bearish
+            const sentiment = 40;
             const fill = document.getElementById('sentimentFill');
             const label = document.getElementById('sentimentLabel');
-            
-            fill.style.width = `${sentiment}%`;
-            
-            if (sentiment < 35) {
-                fill.className = 'sentiment-fill bearish';
-                label.textContent = 'Bearish';
-            } else if (sentiment > 65) {
-                fill.className = 'sentiment-fill bullish';
-                label.textContent = 'Bullish';
-            } else {
-                fill.className = 'sentiment-fill neutral';
-                label.textContent = 'Neutral';
-            }
+            fill.style.width = sentiment + '%';
+            if (sentiment < 35) { fill.className = 'sentiment-fill bearish'; label.textContent = 'Bearish'; }
+            else if (sentiment > 65) { fill.className = 'sentiment-fill bullish'; label.textContent = 'Bullish'; }
+            else { fill.className = 'sentiment-fill neutral'; label.textContent = 'Neutral'; }
         }
         
-        // Initial load and auto-refresh
+        function updateGlobalMarkets() {
+            const now = new Date();
+            const utcHour = now.getUTCHours() + now.getMinutes() / 60;
+            document.getElementById('tokyoTime').textContent = ((utcHour + 9) % 24).toFixed(0).padStart(2, '0') + ':00';
+            document.getElementById('londonTime').textContent = (utcHour % 24).toFixed(0).padStart(2, '0') + ':00';
+            document.getElementById('frankfurtTime').textContent = ((utcHour + 1) % 24).toFixed(0).padStart(2, '0') + ':00';
+            document.getElementById('nyTime').textContent = ((utcHour - 5 + 24) % 24).toFixed(0).padStart(2, '0') + ':00';
+            
+            const markets = [
+                { name: 'Tokyo', icon: '🗼', status: utcHour >= 0 && utcHour < 6 ? 'OPEN' : 'CLOSED' },
+                { name: 'London', icon: '🇬🇧', status: utcHour >= 8 && utcHour < 16.5 ? 'OPEN' : 'CLOSED' },
+                { name: 'Frankfurt', icon: '🇩🇪', status: utcHour >= 9 && utcHour < 17.5 ? 'OPEN' : 'CLOSED' },
+                { name: 'New York', icon: '🇺🇸', status: utcHour >= 14.5 && utcHour < 23 ? 'OPEN' : 'CLOSED' },
+            ];
+            document.getElementById('globalMarkets').innerHTML = markets.map(m =>
+                `<div class="global-market-item"><span class="market-icon">${m.icon}</span><span class="market-name">${m.name}</span><span class="market-status-badge ${m.status === 'OPEN' ? 'open' : 'closed'}">${m.status}</span></div>`
+            ).join('');
+        }
+        
+        function updatePrice() {
+            const base = 25650;
+            const change = Math.floor(Math.random() * 100) - 50;
+            const price = base + change;
+            document.getElementById('price').textContent = price.toLocaleString();
+            document.getElementById('res1').textContent = (price + 100).toLocaleString();
+            document.getElementById('res2').textContent = (price + 200).toLocaleString();
+            document.getElementById('sup1').textContent = (price - 100).toLocaleString();
+            document.getElementById('sup2').textContent = (price - 200).toLocaleString();
+        }
+        
+        function fetchAllData() {
+            const now = new Date();
+            document.getElementById('updateTime').textContent = now.toLocaleTimeString();
+            const hour = now.getUTCHours() + now.getMinutes() / 60;
+            const isOpen = hour >= 14.5 && hour < 23 && now.getDay() > 0 && now.getDay() < 6;
+            document.getElementById('marketStatus').innerHTML = isOpen 
+                ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>'
+                : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
+            
+            updatePrice();
+            updateGlobalMarkets();
+            updateMarketRisks();
+            updateEconomicEvents();
+            updateEarnings();
+            updateNews();
+            updateSentiment();
+            updateAssetsTicker();
+        }
+        
         fetchAllData();
-        updateAssetsTicker();
         setInterval(fetchAllData, UPDATE_INTERVAL);
-        setInterval(updateAssetsTicker, UPDATE_INTERVAL);
     </script>
 </body>
 </html>
