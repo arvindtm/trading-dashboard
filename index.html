@@ -370,7 +370,64 @@
             </div>
         </div>
         
-        <!-- Sentiment & VIX -->
+                <!-- Key Assets Watchlist -->
+        <div class="card">
+            <h2>💎 Key Assets Watchlist</h2>
+            <div id="assetsTicker" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+        
+        <style>
+        .asset-ticker {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #0d1117;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .asset-name { font-weight: 600; }
+        .asset-price { font-weight: 700; color: #58a6ff; }
+        .asset-change { font-weight: 600; font-size: 13px; }
+        .asset-change.up { color: #3fb950; }
+        .asset-change.down { color: #f85149; }
+        .asset-icon { font-size: 20px; margin-right: 8px; }
+        .asset-row { display: flex; align-items: center; }
+        </style>
+        
+        <script>
+        function updateAssetsTicker() {
+            const assets = [
+                { name: 'Gold', icon: '🥇', price: 2050.50, change: 8.25 },
+                { name: 'Silver', icon: '🥈', price: 23.45, change: 0.32 },
+                { name: 'Bitcoin', icon: '₿', price: 43500, change: -520 },
+                { name: 'SPY', icon: '📊', price: 582.30, change: 1.85 },
+                { name: 'QQQ', icon: '📈', price: 512.45, change: -2.30 },
+            ];
+            const html = assets.map(a => `
+                <div class="asset-ticker">
+                    <div class="asset-row">
+                        <span class="asset-icon">${a.icon}</span>
+                        <span class="asset-name">${a.name}</span>
+                    </div>
+                    <span class="asset-price">${a.price.toLocaleString()}</span>
+                    <span class="asset-change ${a.change >= 0 ? 'up' : 'down'}">${a.change >= 0 ? '+' : ''}${a.change}</span>
+                </div>
+            `).join('');
+            document.getElementById('assetsTicker').innerHTML = html;
+        }
+        
+        // Integrate with fetchAllData
+        const oldFetch = window.fetchAllData || function(){};
+        window.fetchAllData = async function() {
+            await oldFetch();
+            updateAssetsTicker();
+        };
+        </script>
+
+<!-- Sentiment & VIX -->
         <div class="card">
             <h2>📊 Sentiment & VIX</h2>
             <div class="vix-display" id="vixLevel">--</div>
