@@ -225,40 +225,39 @@
         const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour (Alpha Vantage free tier: 25 req/day)
         
         let cachedPrices = { tsla: null, nq: null, vix: null, dxy: null, lastFetch: 0 };
-        // Alpha Vantage API (free tier: 25 requests/day)
-        const API_KEY = '6WZFPUSJ92DAUS53';
+        // Finnhub API (free tier: 60 requests/minute)
+        // Get your free key: https://finnhub.io/
+        const FINNHUB_KEY = 'demo'; // Replace with your Finnhub API key for live data
         
-        async function fetchFromAlphaVantage(symbol) {
+        async function fetchFromFinnhub(symbol) {
             try {
-                const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`;
+                const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`;
                 const res = await fetch(url);
                 const data = await res.json();
-                const quote = data['Global Quote'];
-                if (quote && quote['05. price']) {
+                if (data && data.c) {
                     return {
-                        current: parseFloat(quote['05. price']),
-                        change: parseFloat(quote['09. change percent']) || 0
+                        current: data.c,
+                        change: data.dp || 0
                     };
                 }
             } catch (e) {
-                console.log(`Alpha Vantage fetch failed for ${symbol}:`, e);
+                console.log(`Finnhub fetch failed for ${symbol}:`, e);
             }
             return null;
         }
         
         async function fetchPrices() {
-            // Try Alpha Vantage for stocks/ETFs
-            const tslaData = await fetchFromAlphaVantage('TSLA');
-            const qqqData = await fetchFromAlphaVantage('QQQ'); // Nasdaq 100 ETF proxy for NQ
-            
-            // Scale QQQ to approximate NQ (QQQ ~ 10x NQ)
-            const nqFromQqq = qqqData ? qqqData.current * 10 : null;
+            // Fetch from Finnhub
+            const tslaData = await fetchFromFinnhub('TSLA');
+            const nqData = await fetchFromFinnhub('NQ'); // Nasdaq futures
+            const vixData = await fetchFromFinnhub('VIX');
+            const dxyData = await fetchFromFinnhub('DX-Y'); // Dollar Index
             
             return {
                 tsla: tslaData || { current: 420.50, change: -0.5 },
-                nq: nqFromQqq ? { current: nqFromQqq, change: 0 } : { current: 25650, change: 0.12 },
-                vix: { current: 16.5, change: -2.1 }, // Alpha Vantage doesn't support VIX
-                dxy: { current: 108.5, change: 0.15 }  // Alpha Vantage doesn't support DXY
+                nq: nqData || { current: 25650, change: 0.12 },
+                vix: vixData || { current: 16.5, change: -2.1 },
+                dxy: dxyData || { current: 108.5, change: 0.15 }
             };
         }
         
