@@ -107,6 +107,11 @@
             <h2>🇬🇧 London Open (6AM EST)</h2>
             <div id="londonOpen"></div>
         </div>
+        <!-- Price Alerts -->
+        <div class="card">
+            <h2>🔔 Price Alerts</h2>
+            <div id="priceAlerts"></div>
+        </div>
         <!-- Nasdaq Futures -->
         <div class="card">
             <h2>📈 NQ Levels</h2>
@@ -276,6 +281,29 @@
             `;
         }
         
+        function updatePriceAlerts() {
+            const alerts = [
+                { ticker: 'TSLA', current: 420.50, threshold: 399.48, change: -5, type: 'drop' },
+                { ticker: 'NQ', current: 25650, threshold: 25550, change: -100, type: 'drop' },
+            ];
+            
+            document.getElementById('priceAlerts').innerHTML = alerts.map(alert => {
+                const pct = ((alert.current - alert.threshold) / alert.threshold * 100).toFixed(2);
+                const status = alert.current <= alert.threshold ? 'TRIGGERED' : 'ACTIVE';
+                const statusClass = alert.current <= alert.threshold ? 'bearish' : 'neutral';
+                return `
+                    <div class="indicator-row">
+                        <span class="indicator-name">${alert.ticker}</span>
+                        <span class="indicator-value ${statusClass}">${alert.current} / ${alert.threshold} (${status})</span>
+                    </div>
+                `;
+            }).join('') + `
+                <div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">
+                    Checking every 5 min • Alerts sent to Telegram
+                </div>
+            `;
+        }
+        
         function updateMarketRisks() {
             const risks = [
                 { icon: '📋', text: 'FOMC Minutes (Wed)', badge: 'HIGH' },
@@ -388,6 +416,7 @@
             updatePrice();
             updateTradeIdeas();
             updateLondonOpen();
+            updatePriceAlerts();
             updateIndicators();
             updateGlobalIndices();
             updateMarketRisks();
