@@ -290,8 +290,9 @@
             
             // Candle sweep alerts
             const sweepAlerts = [
-                { timeframe: '1H', previousHigh: 25680, previousLow: 25580, direction: 'BULLISH' },
-                { timeframe: '4H', previousHigh: 25750, previousLow: 25450, direction: 'NEUTRAL' },
+                { timeframe: '1H', high: 25680, low: 25580, close: 25620, dir: 'BULLISH' },
+                { timeframe: '4H', high: 25750, low: 25450, close: 25600, dir: 'NEUTRAL' },
+                { timeframe: 'Prev Day', high: 25890, low: 25380, close: 25650, dir: 'PDH/PDL' },
             ];
             
             let html = '<div style="margin-bottom: 15px;"><strong style="font-size: 12px; color: #8b949e;">📉 Price Drops</strong></div>';
@@ -308,11 +309,11 @@
             
             html += '<div style="margin: 15px 0 10px;"><strong style="font-size: 12px; color: #8b949e;">🕯️ Candle Sweeps (NQ)</strong></div>';
             html += sweepAlerts.map(sweep => {
-                const sweepClass = sweep.direction === 'BULLISH' ? 'bullish' : (sweep.direction === 'BEARISH' ? 'bearish' : 'neutral');
+                const sweepClass = sweep.dir === 'BULLISH' ? 'bullish' : (sweep.dir === 'BEARISH' ? 'bearish' : 'neutral');
                 return `
                     <div class="indicator-row">
-                        <span class="indicator-name">${sweep.timeframe} Candle</span>
-                        <span class="indicator-value ${sweepClass}">${sweep.direction} (H: ${sweep.previousHigh} / L: ${sweep.previousLow})</span>
+                        <span class="indicator-name">${sweep.timeframe}</span>
+                        <span class="indicator-value ${sweepClass}">H: ${sweep.high} | L: ${sweep.low} | C: ${sweep.close}</span>
                     </div>
                 `;
             }).join('');
