@@ -734,6 +734,45 @@
         
         // Load non-trading data
         function updateSidePanel() {
+            // Cricket Scores (Simulated)
+            const cricketMatches = [
+                { team1: 'IND', team2: 'ENG', score1: '312/3', score2: 'Trailing', status: '3rd Day' },
+                { team1: 'RCB', team2: 'CSK', score1: '185/6', score2: 'Yet to bat', status: 'IPL Warmup' },
+            ];
+            document.getElementById('cricketData').innerHTML = cricketMatches.map(m => `
+                <div class="ao-match">
+                    <div class="ao-match-player"><span>${m.team1}</span><span class="ao-score">${m.score1}</span></div>
+                    <div class="ao-match-player"><span>${m.team2}</span><span style="color: #8b949e;">${m.score2}</span></div>
+                    <div style="font-size: 10px; color: #58a6ff; margin-top: 4px;">${m.status}</div>
+                </div>
+            `).join('');
+            
+            // India News (Simulated)
+            const indiaNews = [
+                { headline: 'RBI keeps repo rate unchanged at 6.5%', source: 'ET' },
+                { headline: 'Sensex closes at record high', source: 'BS' },
+                { headline: 'India Inc. Q3 earnings beat expectations', source: 'FE' },
+            ];
+            document.getElementById('indiaNews').innerHTML = indiaNews.map(n => `
+                <div style="padding: 6px 0; border-bottom: 1px solid #21262d;">
+                    <div style="font-size: 12px;">${n.headline}</div>
+                    <div style="font-size: 10px; color: #8b949e;">${n.source}</div>
+                </div>
+            `).join('');
+            
+            // Bengaluru News (Simulated)
+            const bangaloreNews = [
+                { headline: 'Metro phase 2 expansion approved', source: 'TOI' },
+                { headline: 'Bangalore tech hub sees new IPOs', source: 'ET' },
+                { headline: 'Weather alert: Light rain expected', source: 'IMD' },
+            ];
+            document.getElementById('bangaloreNews').innerHTML = bangaloreNews.map(n => `
+                <div style="padding: 6px 0; border-bottom: 1px solid #21262d;">
+                    <div style="font-size: 12px;">${n.headline}</div>
+                    <div style="font-size: 10px; color: #8b949e;">${n.source}</div>
+                </div>
+            `).join('');
+            
             // Australian Open
             const aoScores = [
                 { p1: 'Sinner', p2: 'Darderi', s1: '6-1', s2: '6-3', s3: '7-6', winner: 1 },
@@ -774,6 +813,21 @@
     <!-- Side Panel -->
     <div class="side-panel" id="sidePanel">
         <h2>📋 Extras <button class="side-panel-close" onclick="toggleSidePanel()">×</button></h2>
+        
+        <div class="side-section">
+            <h3>🏏 Cricket</h3>
+            <div id="cricketData">Loading...</div>
+        </div>
+        
+        <div class="side-section">
+            <h3>🇮🇳 India News</h3>
+            <div id="indiaNews">Loading...</div>
+        </div>
+        
+        <div class="side-section">
+            <h3>🇮🇳 Bengaluru News</h3>
+            <div id="bangaloreNews">Loading...</div>
+        </div>
         
         <div class="side-section">
             <h3>🎾 Australian Open</h3>
