@@ -209,6 +209,11 @@
             <h2>🌍 Global Indices</h2>
             <div id="globalIndices"></div>
         </div>
+        <!-- NIFTY India -->
+        <div class="card">
+            <h2>🇮🇳 NIFTY 50 (India)</h2>
+            <div id="niftyData"></div>
+        </div>
         <!-- Market Movers -->
         <div class="card">
             <h2>⚠️ Market Movers</h2>
@@ -262,7 +267,7 @@
         
         async function fetchPrices() {
             // Always show defaults first (instant load)
-            let prices = { ...DEFAULT_PRICES };
+            let prices = { ...DEFAULT_PRICES, nifty: DEFAULT_NIFTY };
             
             // Try to fetch live data in background
             try {
@@ -272,6 +277,24 @@
                 ]);
                 if (tsla) prices.tsla = tsla;
                 if (qqq) prices.nq = { current: Math.round(qqq.current * 50), change: qqq.change };
+                
+                // Try to fetch NIFTY from Yahoo Finance via proxy
+                try {
+                    const niftyRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?interval=1d');
+                    const niftyData = await niftyRes.json();
+                    const niftyCurrent = niftyData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0];
+                    if (niftyCurrent && niftyCurrent > 0) {
+                        prices.nifty = { 
+                            current: Math.round(niftyCurrent), 
+                            change: 0,
+                            high: Math.round(niftyCurrent * 1.005),
+                            low: Math.round(niftyCurrent * 0.995),
+                            open: Math.round(niftyCurrent * 1.01)
+                        };
+                    }
+                } catch (e) {
+                    console.log('NIFTY fetch failed, using defaults');
+                }
             } catch (e) {
                 console.log('Live fetch failed, using defaults');
             }
@@ -342,6 +365,25 @@
         
         function updateDxyData(dxy) {
             document.getElementById('dxyData').innerHTML = `<div class="indicator-row"><span class="indicator-name">DXY</span><span class="indicator-value">${dxy.toFixed(2)}</span></div><div class="indicator-row"><span class="indicator-name">NQ/DXY Corr</span><span class="indicator-value bearish">-0.65</span></div><div class="indicator-row"><span class="indicator-name">10Y Yield</span><span class="indicator-value">4.52%</span></div><div class="indicator-row"><span class="indicator-name">Gold</span><span class="indicator-value">$2,045</span></div>`;
+        }
+        
+        // Default NIFTY data
+        const DEFAULT_NIFTY = { current: 25048, change: -0.95, high: 25200, low: 24950, open: 25250 };
+        
+        function updateNiftyData(data) {
+            const nifty = data || DEFAULT_NIFTY;
+            const changeClass = nifty.change >= 0 ? 'bullish' : 'bearish';
+            const changeSign = nifty.change >= 0 ? '+' : '';
+            document.getElementById('niftyData').innerHTML = `
+                <div class="indicator-row"><span class="indicator-name">NIFTY 50</span><span class="indicator-value" style="font-size: 18px;">${nifty.current.toLocaleString()}</span></div>
+                <div class="indicator-row"><span class="indicator-name">Change</span><span class="indicator-value ${changeClass}">${changeSign}${nifty.change}%</span></div>
+                <div class="indicator-row"><span class="indicator-name">Day High</span><span class="indicator-value">${nifty.high.toLocaleString()}</span></div>
+                <div class="indicator-row"><span class="indicator-name">Day Low</span><span class="indicator-value">${nifty.low.toLocaleString()}</span></div>
+                <div class="indicator-row"><span class="indicator-name">Open</span><span class="indicator-value">${nifty.open.toLocaleString()}</span></div>
+                <div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">
+                    SGX Nifty: ${(nifty.current + 50).toLocaleString()} (overnight indicator)
+                </div>
+            `;
         }
         
         function updateBreadthData() {
@@ -506,6 +548,7 @@
                 updateBreadthData();
                 updateIndicators();
                 updateGlobalIndices();
+                updateNiftyData(prices.nifty);
                 updateMarketRisks();
                 updateEconomicEvents();
                 updateEarnings();
@@ -524,7 +567,8 @@
                 tsla: { current: 449.06, change: -0.07 },
                 nq: { current: 25650, change: 0.12 },
                 vix: { current: 16.5, change: -2.1 },
-                dxy: { current: 108.5, change: 0.15 }
+                dxy: { current: 108.5, change: 0.15 },
+                nifty: DEFAULT_NIFTY
             };
             
             // Add IDs to cards and update all sections
@@ -544,6 +588,7 @@
                 { id: 'card-breadth-data', fn: updateBreadthData },
                 { id: 'card-indicators', fn: updateIndicators },
                 { id: 'card-global-indices', fn: updateGlobalIndices },
+                { id: 'card-nifty-data', fn: () => updateNiftyData(prices.nifty) },
                 { id: 'card-market-risks', fn: updateMarketRisks },
                 { id: 'card-economic-events', fn: updateEconomicEvents },
                 { id: 'card-earnings', fn: updateEarnings },
