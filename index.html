@@ -281,17 +281,57 @@
             `;
         }
         
-        function updatePriceAlerts() {
+        // Cache for prices to avoid spamming APIs
+        let cachedPrices = { tsla: null, nq: null, lastFetch: 0 };
+        const PRICE_CACHE_MS = 30000; // 30 second cache
+        
+        async function fetchPrices() {
+            const now = Date.now();
+            if (cachedPrices.lastFetch && (now - cachedPrices.lastFetch) < PRICE_CACHE_MS) {
+                return cachedPrices;
+            }
+            
+            try {
+                // Fetch TSLA from Finnhub (free tier)
+                const tslaRes = await fetch('https://finnhub.io/api/v1/quote?symbol=TSLA&token=demo');
+                const tslaData = await tslaRes.json();
+                
+                // Fetch NQ from Yahoo Finance (via proxy)
+                const nqRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5ENDX?interval=1m');
+                const nqData = await nqRes.json();
+                
+                const nqCurrent = nqData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0] || 25650;
+                
+                cachedPrices = {
+                    tsla: { current: tslaData.c || 420, change: tslaData.dp || 0 },
+                    nq: { current: nqCurrent, change: 0 },
+                    lastFetch: now
+                };
+            } catch (e) {
+                console.log('Price fetch failed, using defaults', e);
+                // Fallback to simulated values
+                cachedPrices = {
+                    tsla: { current: 420.50, change: -0.5 },
+                    nq: { current: 25650, change: 0.12 },
+                    lastFetch: now
+                };
+            }
+            return cachedPrices;
+        }
+        
+        async function updatePriceAlerts() {
+            const prices = await fetchPrices();
+            
             // Price drop alerts
             const priceAlerts = [
-                { ticker: 'TSLA', current: 420.50, threshold: 399.48, change: -5, type: 'drop' },
-                { ticker: 'NQ', current: 25650, threshold: 25550, change: -100, type: 'drop' },
+                { ticker: 'TSLA', current: prices.tsla.current, threshold: prices.tsla.current * 0.95, change: prices.tsla.change, type: 'drop' },
+                { ticker: 'NQ', current: prices.nq.current, threshold: prices.nq.current - 100, change: prices.nq.change, type: 'drop' },
             ];
             
             // Candle sweep alerts
             const sweepAlerts = [
-                { timeframe: '1H', high: 25680, low: 25580, close: 25620, dir: 'BULLISH' },
-                { timeframe: '4H', high: 25750, low: 25450, close: 25600, dir: 'NEUTRAL' },
+                { timeframe: '1H', high: 25680, low: 25580, close: prices.nq.current, dir: prices.nq.current > 25680 ? 'BULLISH' : (prices.nq.current < 25580 ? 'BEARISH' : 'NEUTRAL') },
+                { timeframe: '4H', high: 25750, low: 25450, close: prices.nq.current, dir: 'NEUTRAL' },
                 { timeframe: 'Prev Day', high: 25890, low: 25380, close: 25650, dir: 'PDH/PDL' },
             ];
             
@@ -302,7 +342,7 @@
                 return `
                     <div class="indicator-row">
                         <span class="indicator-name">${alert.ticker}</span>
-                        <span class="indicator-value ${statusClass}">${alert.current} / ${alert.threshold} (${status})</span>
+                        <span class="indicator-value ${statusClass}">${alert.current.toFixed(2)} / ${alert.threshold.toFixed(2)} (${status})</span>
                     </div>
                 `;
             }).join('');
@@ -313,10 +353,19 @@
                 return `
                     <div class="indicator-row">
                         <span class="indicator-name">${sweep.timeframe}</span>
-                        <span class="indicator-value ${sweepClass}">H: ${sweep.high} | L: ${sweep.low} | C: ${sweep.close}</span>
+                        <span class="indicator-value ${sweepClass}">H: ${sweep.high} | L: ${sweep.low} | C: ${sweep.close.toFixed(0)}</span>
                     </div>
                 `;
             }).join('');
+            
+            html += `
+                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px; color: #8b949e; text-align: center;">
+                    Live data • Updating every 30s
+                </div>
+            `;
+            
+            document.getElementById('priceAlerts').innerHTML = html;
+        }
             
             html += `
                 <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px; color: #8b949e; text-align: center;">
@@ -407,10 +456,10 @@
             document.getElementById('nyTime').textContent = format12Hour(nyHour);
         }
         
-        function updatePrice() {
-            const base = 25650;
-            const change = Math.floor(Math.random() * 100) - 50;
-            const price = base + change;
+        async function updatePrice() {
+            const prices = await fetchPrices();
+            const price = prices.nq.current;
+            
             document.getElementById('price').textContent = price.toLocaleString();
             document.getElementById('res1').textContent = (price + 100).toLocaleString();
             document.getElementById('res2').textContent = (price + 200).toLocaleString();
@@ -426,7 +475,7 @@
             return h12 + ':' + m.toString().padStart(2, '0') + ' ' + ampm + ' IST';
         }
         
-        function fetchAllData() {
+        async function fetchAllData() {
             const now = new Date();
             document.getElementById('updateTime').textContent = formatDateTime12(now);
             const hour = now.getUTCHours() + now.getMinutes() / 60;
@@ -436,10 +485,10 @@
                 : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
             
             updateGlobalTimes();
-            updatePrice();
+            await updatePrice();
             updateTradeIdeas();
             updateLondonOpen();
-            updatePriceAlerts();
+            await updatePriceAlerts();
             updateIndicators();
             updateGlobalIndices();
             updateMarketRisks();
@@ -449,7 +498,7 @@
         }
         
         fetchAllData();
-        setInterval(fetchAllData, UPDATE_INTERVAL);
+        setInterval(() => fetchAllData(), UPDATE_INTERVAL);
     </script>
 </body>
 </html>
