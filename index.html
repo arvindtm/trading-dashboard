@@ -64,6 +64,27 @@
         .hour-label { font-size: 10px; color: #8b949e; text-transform: uppercase; }
         .external-link { display: block; text-align: center; padding: 12px; background: #0d1117; border-radius: 8px; color: #58a6ff; font-size: 13px; text-decoration: none; margin-top: 10px; }
         .external-link:hover { background: #21262d; }
+        .trade-card { background: #0d1117; border-radius: 8px; padding: 15px; margin-bottom: 12px; border-left: 4px solid; }
+        .trade-card.long { border-left-color: #3fb950; }
+        .trade-card.short { border-left-color: #f85149; }
+        .trade-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .trade-direction { font-weight: 700; font-size: 14px; }
+        .trade-direction.long { color: #3fb950; }
+        .trade-direction.short { color: #f85149; }
+        .trade-badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; background: #21262d; color: #8b949e; }
+        .trade-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+        .trade-label { color: #8b949e; }
+        .trade-value { font-weight: 600; }
+        .trade-target { color: #3fb950; }
+        .trade-stop { color: #f85149; }
+        .trade-rationale { font-size: 12px; color: #8b949e; margin-top: 8px; font-style: italic; }
+        .indicator-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #21262d; font-size: 13px; }
+        .indicator-row:last-child { border-bottom: none; }
+        .indicator-name { color: #8b949e; }
+        .indicator-value { font-weight: 600; }
+        .indicator-value.bullish { color: #3fb950; }
+        .indicator-value.bearish { color: #f85149; }
+        .indicator-value.neutral { color: #d29922; }
     </style>
 </head>
 <body>
@@ -76,19 +97,29 @@
     </div>
     <div class="market-status" id="marketStatus"></div>
     <div class="grid">
+        <!-- Trade Ideas -->
+        <div class="card">
+            <h2>🎯 NQ Trade Ideas (Jan 26)</h2>
+            <div id="tradeIdeas"></div>
+        </div>
         <!-- Nasdaq Futures -->
         <div class="card">
-            <h2>📈 Nasdaq Futures Levels</h2>
-            <a href="https://www.tradingview.com/chart/NQ1!?symbol=CME_MINI:NQ1!" target="_blank" class="external-link">📊 View Live Chart on TradingView</a>
-            <div class="level-item"><span class="level-label">Current Level</span><span class="level-value" id="price">--</span></div>
+            <h2>📈 NQ Levels</h2>
+            <a href="https://www.tradingview.com/chart/NQ1/?symbol=CME_MINI:NQ1!" target="_blank" class="external-link">📊 View Chart on TradingView</a>
+            <div class="level-item"><span class="level-label">Current</span><span class="level-value" id="price">--</span></div>
             <div class="level-item"><span class="level-label">R1</span><span class="level-value resistance" id="res1">--</span></div>
             <div class="level-item"><span class="level-label">R2</span><span class="level-value resistance" id="res2">--</span></div>
             <div class="level-item"><span class="level-label">S1</span><span class="level-value support" id="sup1">--</span></div>
             <div class="level-item"><span class="level-label">S2</span><span class="level-value support" id="sup2">--</span></div>
         </div>
+        <!-- Technical Indicators -->
+        <div class="card">
+            <h2>📊 Technical Indicators</h2>
+            <div id="indicators"></div>
+        </div>
         <!-- Global Indices -->
         <div class="card">
-            <h2>🌍 Global Indices Opening</h2>
+            <h2>🌍 Global Indices</h2>
             <div class="market-hours-grid">
                 <div class="hour-item"><div class="hour-value" id="tokyoTime">--:--</div><div class="hour-label">Tokyo</div></div>
                 <div class="hour-item"><div class="hour-value" id="londonTime">--:--</div><div class="hour-label">London</div></div>
@@ -99,12 +130,12 @@
         </div>
         <!-- Market Movers -->
         <div class="card">
-            <h2>⚠️ Market Movers & Risks</h2>
+            <h2>⚠️ Market Movers</h2>
             <div id="marketRisks"></div>
         </div>
         <!-- Economic Events -->
         <div class="card">
-            <h2>📅 Today's Economic Events</h2>
+            <h2>📅 Economic Events</h2>
             <div id="economicEvents"></div>
         </div>
         <!-- Earnings -->
@@ -117,19 +148,38 @@
             <h2>📰 Market News</h2>
             <div id="news"></div>
         </div>
-        <!-- Sentiment -->
-        <div class="card">
-            <h2>📊 Sentiment & VIX</h2>
-            <div class="vix-display" id="vixLevel">--</div>
-            <div class="vix-label">VIX (Volatility Index)</div>
-            <div class="sentiment-bar"><div class="sentiment-fill neutral" id="sentimentFill" style="width: 50%;"></div></div>
-            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: #8b949e;">
-                <span>Bearish</span><span id="sentimentLabel">Neutral</span><span>Bullish</span>
-            </div>
-        </div>
     </div>
     <script>
         const UPDATE_INTERVAL = 2 * 60 * 1000;
+        
+        const tradeIdeas = [
+            {
+                direction: 'LONG',
+                type: 'Pullback Buy',
+                entry: '25,400 - 25,450',
+                stop: '25,350',
+                target1: '25,550',
+                target2: '25,650',
+                rationale: 'Demand zone, previous support, MA 200 support nearby'
+            },
+            {
+                direction: 'SHORT',
+                type: 'Rejection Short',
+                entry: '25,850 - 26,000',
+                stop: '26,050',
+                target1: '25,700',
+                target2: '25,600',
+                rationale: 'Supply zone, overextension, potential head & shoulders'
+            },
+            {
+                direction: 'LONG',
+                type: 'Break & Retest',
+                entry: '25,650 break + retest',
+                stop: '25,550',
+                target: '25,750',
+                rationale: 'Ascending triangle breakout retest'
+            }
+        ];
         
         const globalIndices = [
             { name: 'Nikkei 225', icon: '🗼', price: 39250, change: -180 },
@@ -137,6 +187,39 @@
             { name: 'FTSE 100', icon: '🇬🇧', price: 8120, change: +28 },
             { name: 'S&P 500', icon: '🇺🇸', price: 6795, change: +12 },
         ];
+        
+        const indicators = [
+            { name: 'MA 200', value: '25,200', signal: 'Bullish' },
+            { name: 'MA 50', value: '25,500', signal: 'Neutral' },
+            { name: 'RSI (14)', value: '48', signal: 'Neutral' },
+            { name: 'MACD', value: 'Slightly Bearish', signal: 'Bearish' },
+            { name: 'VWAP', value: '25,580', signal: 'Neutral' },
+        ];
+        
+        function updateTradeIdeas() {
+            document.getElementById('tradeIdeas').innerHTML = tradeIdeas.map(trade => `
+                <div class="trade-card ${trade.direction.toLowerCase()}">
+                    <div class="trade-header">
+                        <span class="trade-direction ${trade.direction.toLowerCase()}">${trade.direction}</span>
+                        <span class="trade-badge">${trade.type}</span>
+                    </div>
+                    <div class="trade-row"><span class="trade-label">Entry</span><span class="trade-value">${trade.entry}</span></div>
+                    <div class="trade-row"><span class="trade-label">Stop</span><span class="trade-value trade-stop">${trade.stop}</span></div>
+                    <div class="trade-row"><span class="trade-label">Target 1</span><span class="trade-value trade-target">${trade.target1}</span></div>
+                    <div class="trade-row"><span class="trade-label">Target 2</span><span class="trade-value trade-target">${trade.target2}</span></div>
+                    <div class="trade-rationale">${trade.rationale}</div>
+                </div>
+            `).join('');
+        }
+        
+        function updateIndicators() {
+            document.getElementById('indicators').innerHTML = indicators.map(ind => `
+                <div class="indicator-row">
+                    <span class="indicator-name">${ind.name}</span>
+                    <span class="indicator-value ${ind.signal.toLowerCase()}">${ind.value} (${ind.signal})</span>
+                </div>
+            `).join('');
+        }
         
         function updateGlobalIndices() {
             document.getElementById('globalIndices').innerHTML = globalIndices.map(idx => `
@@ -155,21 +238,21 @@
         
         function updateMarketRisks() {
             const risks = [
-                { icon: '📋', text: 'FOMC Minutes (Wed) - Rate path', badge: 'HIGH', badgeClass: 'high' },
-                { icon: '📊', text: 'PCE Inflation (Thu) - Fed metric', badge: 'HIGH', badgeClass: 'high' },
-                { icon: '📈', text: 'Jobs Report (Fri) - NFP volatility', badge: 'HIGH', badgeClass: 'high' },
-                { icon: '🔮', text: 'Megacap Earnings', badge: 'MEDIUM', badgeClass: 'medium' },
+                { icon: '📋', text: 'FOMC Minutes (Wed)', badge: 'HIGH' },
+                { icon: '📊', text: 'PCE Inflation (Thu)', badge: 'HIGH' },
+                { icon: '📈', text: 'Jobs Report (Fri)', badge: 'HIGH' },
+                { icon: '🔮', text: 'Megacap Earnings', badge: 'MEDIUM' },
             ];
             document.getElementById('marketRisks').innerHTML = risks.map(r =>
-                `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge ${r.badgeClass}">${r.badge}</span></div>`
+                `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`
             ).join('');
         }
         
         function updateEconomicEvents() {
             const events = [
-                { time: '18:30 IST', name: 'Dallas Fed Manufacturing', impact: 'medium' },
-                { time: '20:30 IST', name: 'Durable Goods Orders', impact: 'medium' },
-                { time: '22:00 IST', name: 'Vice Chair Bowman Speech', impact: 'high' },
+                { time: '18:30 IST', name: 'Dallas Fed Mfg', impact: 'medium' },
+                { time: '20:30 IST', name: 'Durable Goods', impact: 'medium' },
+                { time: '22:00 IST', name: 'Bowman Speech', impact: 'high' },
             ];
             document.getElementById('economicEvents').innerHTML = events.map(e =>
                 `<div class="event-item"><span class="event-time">${e.time}</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`
@@ -191,22 +274,11 @@
         function updateNews() {
             const news = [
                 { headline: 'Fed officials signal patience on rate cuts', source: 'Reuters' },
-                { headline: 'Nasdaq consolidates amid earnings anticipation', source: 'CNBC' },
+                { headline: 'Nasdaq consolidates amid earnings week', source: 'CNBC' },
             ];
             document.getElementById('news').innerHTML = news.map(n =>
                 `<div class="news-item"><div class="news-headline">${n.headline}</div><div class="news-source">${n.source}</div></div>`
             ).join('');
-        }
-        
-        function updateSentiment() {
-            document.getElementById('vixLevel').textContent = "16.5";
-            const sentiment = 40;
-            const fill = document.getElementById('sentimentFill');
-            const label = document.getElementById('sentimentLabel');
-            fill.style.width = sentiment + '%';
-            if (sentiment < 35) { fill.className = 'sentiment-fill bearish'; label.textContent = 'Bearish'; }
-            else if (sentiment > 65) { fill.className = 'sentiment-fill bullish'; label.textContent = 'Bullish'; }
-            else { fill.className = 'sentiment-fill neutral'; label.textContent = 'Neutral'; }
         }
         
         function updateGlobalTimes() {
@@ -240,12 +312,13 @@
             
             updateGlobalTimes();
             updatePrice();
+            updateTradeIdeas();
+            updateIndicators();
             updateGlobalIndices();
             updateMarketRisks();
             updateEconomicEvents();
             updateEarnings();
             updateNews();
-            updateSentiment();
         }
         
         fetchAllData();
