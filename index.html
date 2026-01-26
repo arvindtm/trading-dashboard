@@ -506,6 +506,45 @@
             }
         }
         
+        // Populate data immediately with defaults
+        (function initDashboard() {
+            console.log('Initializing dashboard...');
+            
+            // Default prices
+            const prices = {
+                tsla: { current: 449.06, change: -0.07 },
+                nq: { current: 25650, change: 0.12 },
+                vix: { current: 16.5, change: -2.1 },
+                dxy: { current: 108.5, change: 0.15 }
+            };
+            
+            // Update all sections synchronously
+            try {
+                updateTradeIdeas();
+                updateLondonOpen();
+                updatePriceAlerts(prices);
+                updateSessionLevels(prices.nq.current);
+                updateVolumeProfile(prices.nq.current);
+                updateVixData(prices.vix.current);
+                updateGapData(prices.nq.current);
+                updateAdrData();
+                updateOptionsData();
+                updateOiData();
+                updateDxyData(prices.dxy.current);
+                updateBreadthData();
+                updateIndicators();
+                updateGlobalIndices();
+                updateMarketRisks();
+                updateEconomicEvents();
+                updateEarnings();
+                updateNews();
+                console.log('Dashboard initialized with default data');
+            } catch (e) {
+                console.error('Init error:', e);
+            }
+        })();
+        
+        // Fetch live data in background
         fetchAllData();
         setInterval(() => fetchAllData(), UPDATE_INTERVAL);
     </script>
