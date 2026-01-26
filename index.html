@@ -470,33 +470,47 @@
         }
         
         async function fetchAllData() {
-            const now = new Date();
-            document.getElementById('updateTime').textContent = formatDateTime12(now);
-            const hour = now.getUTCHours() + now.getMinutes() / 60;
-            const isOpen = hour >= 14.5 && hour < 23 && now.getDay() > 0 && now.getDay() < 6;
-            document.getElementById('marketStatus').innerHTML = isOpen ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>' : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
-            
-            updateGlobalTimes();
-            const prices = await fetchPrices();
-            await updatePrice();
-            updateTradeIdeas();
-            updateLondonOpen();
-            await updatePriceAlerts(prices);
-            updateSessionLevels(prices.nq.current);
-            updateVolumeProfile(prices.nq.current);
-            updateVixData(prices.vix.current);
-            updateGapData(prices.nq.current);
-            updateAdrData();
-            updateOptionsData();
-            updateOiData();
-            updateDxyData(prices.dxy.current);
-            updateBreadthData();
-            updateIndicators();
-            updateGlobalIndices();
-            updateMarketRisks();
-            updateEconomicEvents();
-            updateEarnings();
-            updateNews();
+            console.log('fetchAllData started');
+            try {
+                const now = new Date();
+                document.getElementById('updateTime').textContent = formatDateTime12(now);
+                console.log('Time updated');
+                
+                const hour = now.getUTCHours() + now.getMinutes() / 60;
+                const isOpen = hour >= 14.5 && hour < 23 && now.getDay() > 0 && now.getDay() < 6;
+                document.getElementById('marketStatus').innerHTML = isOpen ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>' : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
+                
+                updateGlobalTimes();
+                console.log('Global times updated');
+                
+                const prices = await fetchPrices();
+                console.log('Prices fetched:', prices);
+                
+                await updatePrice();
+                console.log('Price updated');
+                
+                updateTradeIdeas();
+                updateLondonOpen();
+                await updatePriceAlerts(prices);
+                updateSessionLevels(prices.nq.current);
+                updateVolumeProfile(prices.nq.current);
+                updateVixData(prices.vix.current);
+                updateGapData(prices.nq.current);
+                updateAdrData();
+                updateOptionsData();
+                updateOiData();
+                updateDxyData(prices.dxy.current);
+                updateBreadthData();
+                updateIndicators();
+                updateGlobalIndices();
+                updateMarketRisks();
+                updateEconomicEvents();
+                updateEarnings();
+                updateNews();
+                console.log('All sections updated');
+            } catch (e) {
+                console.error('Error in fetchAllData:', e);
+            }
         }
         
         fetchAllData();
