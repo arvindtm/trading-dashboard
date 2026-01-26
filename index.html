@@ -490,11 +490,23 @@
         
         // Countdown to US Market Open (9:30 AM ET = 8:00 PM IST)
         function updateMarketTimer() {
-            // Get current IST hour using toLocaleString
+            // Calculate IST from UTC
             const now = new Date();
-            const istTimeStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false });
-            const [istHour, istMin, istSec] = istTimeStr.split(':').map(Number);
-            const currentISTHour = istHour + istMin / 60 + istSec / 3600;
+            const utcHours = now.getUTCHours();
+            const utcMins = now.getUTCMinutes();
+            const utcSecs = now.getUTCSeconds();
+            
+            // IST = UTC + 5:30
+            let istHours = utcHours + 5;
+            let istMins = utcMins + 30;
+            
+            if (istMins >= 60) {
+                istMins -= 60;
+                istHours += 1;
+            }
+            if (istHours >= 24) istHours -= 24;
+            
+            const currentISTHour = istHours + istMins / 60 + utcSecs / 3600;
             
             const marketOpenIST = 20.0; // 8:00 PM IST
             
