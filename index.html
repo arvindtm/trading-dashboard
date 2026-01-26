@@ -231,9 +231,11 @@
         async function fetchFromFinnhub(symbol) {
             try {
                 const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`;
+                console.log(`Fetching ${symbol} from Finnhub...`);
                 const res = await fetch(url);
                 const data = await res.json();
-                if (data && data.c) {
+                console.log(`${symbol} response:`, data);
+                if (data && data.c !== undefined && data.c !== 0) {
                     return {
                         current: data.c,
                         change: data.dp || 0
@@ -246,11 +248,13 @@
         }
         
         async function fetchPrices() {
-            // Fetch from Finnhub
+            console.log('Fetching prices from Finnhub...');
             const tslaData = await fetchFromFinnhub('TSLA');
-            const nqData = await fetchFromFinnhub('NQ'); // Nasdaq futures
+            const nqData = await fetchFromFinnhub('NQ');
             const vixData = await fetchFromFinnhub('VIX');
-            const dxyData = await fetchFromFinnhub('DX-Y'); // Dollar Index
+            const dxyData = await fetchFromFinnhub('USUSDX'); // Dollar Index
+            
+            console.log('Final prices:', { tsla: tslaData, nq: nqData, vix: vixData, dxy: dxyData });
             
             return {
                 tsla: tslaData || { current: 420.50, change: -0.5 },
