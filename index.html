@@ -248,14 +248,21 @@
             ).join('');
         }
         
+        function formatTime12(str) {
+            const [h, m] = str.split(':').map(Number);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return h12 + ':' + m.toString().padStart(2, '0') + ' ' + ampm;
+        }
+        
         function updateEconomicEvents() {
             const events = [
-                { time: '18:30 IST', name: 'Dallas Fed Mfg', impact: 'medium' },
-                { time: '20:30 IST', name: 'Durable Goods', impact: 'medium' },
-                { time: '22:00 IST', name: 'Bowman Speech', impact: 'high' },
+                { time: '18:30', name: 'Dallas Fed Mfg', impact: 'medium' },
+                { time: '20:30', name: 'Durable Goods', impact: 'medium' },
+                { time: '22:00', name: 'Bowman Speech', impact: 'high' },
             ];
             document.getElementById('economicEvents').innerHTML = events.map(e =>
-                `<div class="event-item"><span class="event-time">${e.time}</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`
+                `<div class="event-item"><span class="event-time">${formatTime12(e.time)} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`
             ).join('');
         }
         
@@ -281,13 +288,32 @@
             ).join('');
         }
         
+        function format12Hour(hour24) {
+            const h = Math.floor(hour24) % 24;
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return h12 + ':00 ' + ampm;
+        }
+        
         function updateGlobalTimes() {
             const now = new Date();
-            const utcHour = now.getUTCHours() + now.getMinutes() / 60;
-            document.getElementById('tokyoTime').textContent = ((utcHour + 9) % 24).toFixed(0).padStart(2, '0') + ':00';
-            document.getElementById('londonTime').textContent = (utcHour % 24).toFixed(0).padStart(2, '0') + ':00';
-            document.getElementById('frankfurtTime').textContent = ((utcHour + 1) % 24).toFixed(0).padStart(2, '0') + ':00';
-            document.getElementById('nyTime').textContent = ((utcHour - 5 + 24) % 24).toFixed(0).padStart(2, '0') + ':00';
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const istNow = new Date(now.getTime() + istOffset);
+            const istHour = istNow.getHours() + istNow.getMinutes() / 60;
+            
+            // Tokyo = IST - 3.5 hours
+            const tokyoHour = (istHour - 3.5 + 24) % 24;
+            // London = IST - 5.5 hours
+            const londonHour = (istHour - 5.5 + 24) % 24;
+            // Frankfurt = IST - 4.5 hours
+            const frankfurtHour = (istHour - 4.5 + 24) % 24;
+            // NY = IST - 10.5 hours
+            const nyHour = (istHour - 10.5 + 24) % 24;
+            
+            document.getElementById('tokyoTime').textContent = format12Hour(tokyoHour);
+            document.getElementById('londonTime').textContent = format12Hour(londonHour);
+            document.getElementById('frankfurtTime').textContent = format12Hour(frankfurtHour);
+            document.getElementById('nyTime').textContent = format12Hour(nyHour);
         }
         
         function updatePrice() {
@@ -301,9 +327,17 @@
             document.getElementById('sup2').textContent = (price - 200).toLocaleString();
         }
         
+        function formatDateTime12(d) {
+            const h = d.getHours();
+            const m = d.getMinutes();
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return h12 + ':' + m.toString().padStart(2, '0') + ' ' + ampm + ' IST';
+        }
+        
         function fetchAllData() {
             const now = new Date();
-            document.getElementById('updateTime').textContent = now.toLocaleTimeString();
+            document.getElementById('updateTime').textContent = formatDateTime12(now);
             const hour = now.getUTCHours() + now.getMinutes() / 60;
             const isOpen = hour >= 14.5 && hour < 23 && now.getDay() > 0 && now.getDay() < 6;
             document.getElementById('marketStatus').innerHTML = isOpen 
