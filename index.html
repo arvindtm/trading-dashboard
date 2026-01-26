@@ -115,6 +115,23 @@
         .grid.locked .card { cursor: not-allowed; }
         .drag-handle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .drag-icon { color: #484f58; font-size: 16px; cursor: grab; }
+        /* Side Tab for Non-Trading */
+        .side-tab { position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 1000; }
+        .side-tab-btn { width: 40px; height: 120px; background: #161b22; border: 1px solid #21262d; border-right: none; border-radius: 8px 0 0 8px; color: #58a6ff; cursor: pointer; writing-mode: vertical-rl; text-orientation: mixed; font-size: 12px; padding: 10px 5px; }
+        .side-tab-btn:hover { background: #21262d; }
+        .side-panel { position: fixed; right: -320px; top: 0; width: 320px; height: 100vh; background: #0d1117; border-left: 1px solid #21262d; padding: 20px; transition: right 0.3s ease; overflow-y: auto; z-index: 999; }
+        .side-panel.open { right: 0; }
+        .side-panel h2 { font-size: 16px; color: #58a6ff; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .side-panel-close { background: none; border: none; color: #8b949e; font-size: 20px; cursor: pointer; }
+        .side-section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #21262d; }
+        .side-section h3 { font-size: 13px; color: #8b949e; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .side-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+        .ao-match { padding: 8px; background: #161b22; border-radius: 6px; margin-bottom: 8px; }
+        .ao-match-player { display: flex; justify-content: space-between; }
+        .ao-score { font-weight: 700; color: #58a6ff; }
+        .weather-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .weather-icon { font-size: 24px; }
+        .weather-temp { font-size: 18px; font-weight: 700; color: #58a6ff; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
@@ -708,6 +725,76 @@
                 grid.style.opacity = '0.7';
             }
         });
+        
+        // Side Tab Functions
+        window.toggleSidePanel = function() {
+            const panel = document.getElementById('sidePanel');
+            panel.classList.toggle('open');
+        }
+        
+        // Load non-trading data
+        function updateSidePanel() {
+            // Australian Open
+            const aoScores = [
+                { p1: 'Sinner', p2: 'Darderi', s1: '6-1', s2: '6-3', s3: '7-6', winner: 1 },
+                { p1: 'Shelton', p2: 'Ruud', s1: '3-6', s2: '6-4', s3: '6-3', s4: '6-4', winner: 1 },
+                { p1: 'Swiatek', p2: 'Inglis', s1: '6-0', s2: '6-3', winner: 1 },
+            ];
+            document.getElementById('aoScores').innerHTML = aoScores.map(m => `
+                <div class="ao-match">
+                    <div class="ao-match-player"><span>${m.p1}</span><span class="ao-score">${m.s1}</span></div>
+                    <div class="ao-match-player"><span>${m.p2}</span><span class="ao-score">${m.s2}</span></div>
+                    ${m.s3 ? `<div class="ao-match-player" style="color: #8b949e; font-size: 11px;">${m.s3}${m.s4 ? ' / ' + m.s4 : ''}</div>` : ''}
+                </div>
+            `).join('');
+            
+            // Weather (Bangalore)
+            document.getElementById('weatherData').innerHTML = `
+                <div class="weather-item"><span class="weather-icon">☀️</span><span>Bangalore</span><span class="weather-temp">28°C</span></div>
+                <div class="weather-item"><span class="weather-icon">🌙</span><span> Tonight</span><span>22°C</span></div>
+            `;
+            
+            // Crypto
+            document.getElementById('cryptoData').innerHTML = `
+                <div class="side-item"><span>₿ Bitcoin</span><span style="color: #3fb950;">$104,250 (+2.1%)</span></div>
+                <div class="side-item"><span>Ξ Ethereum</span><span style="color: #3fb950;">$3,420 (+1.8%)</span></div>
+                <div class="side-item"><span>◎ Solana</span><span style="color: #f85149;">$175 (-0.5%)</span></div>
+            `;
+        }
+        
+        // Initialize side panel
+        document.addEventListener('DOMContentLoaded', updateSidePanel);
     </script>
+    
+    <!-- Side Tab -->
+    <div class="side-tab">
+        <button class="side-tab-btn" onclick="toggleSidePanel()">MORE ▪</button>
+    </div>
+    
+    <!-- Side Panel -->
+    <div class="side-panel" id="sidePanel">
+        <h2>📋 Extras <button class="side-panel-close" onclick="toggleSidePanel()">×</button></h2>
+        
+        <div class="side-section">
+            <h3>🎾 Australian Open</h3>
+            <div id="aoScores">Loading...</div>
+        </div>
+        
+        <div class="side-section">
+            <h3>🌤️ Weather (Bangalore)</h3>
+            <div id="weatherData">Loading...</div>
+        </div>
+        
+        <div class="side-section">
+            <h3>₿ Crypto</h3>
+            <div id="cryptoData">Loading...</div>
+        </div>
+        
+        <div class="side-section">
+            <h3>📅 Reminders</h3>
+            <div class="side-item"><span>Jan 29</span><span>School Fees (₹90K)</span></div>
+            <div class="side-item"><span>Jan 31</span><span>PTM @ 9AM</span></div>
+        </div>
+    </div>
 </body>
 </html>
