@@ -214,6 +214,11 @@
             <h2>🇮🇳 NIFTY 50 (India)</h2>
             <div id="niftyData"></div>
         </div>
+        <!-- Liquidation Candles -->
+        <div class="card">
+            <h2>🔥 Liquidation Candles</h2>
+            <div id="liquidationData"></div>
+        </div>
         <!-- Market Movers -->
         <div class="card">
             <h2>⚠️ Market Movers</h2>
@@ -369,6 +374,34 @@
         
         // Default NIFTY data
         const DEFAULT_NIFTY = { current: 25048, change: -0.95, high: 25200, low: 24950, open: 25250 };
+        
+        // Liquidation candle detection (simulated - real detection needs live candle data)
+        function updateLiquidationData() {
+            const candles = [
+                { timeframe: '15M', type: 'BEARISH', wick: 'Long Lower', body: 'Small', level: 25620, confidence: 'HIGH', note: 'Swept liquidity, rejected' },
+                { timeframe: '1H', type: 'NEUTRAL', wick: 'Moderate', body: 'Large', level: 25650, confidence: 'LOW', note: 'No clear rejection' },
+                { timeframe: '4H', type: 'BULLISH', wick: 'Long Upper', body: 'Small', level: 25680, confidence: 'MEDIUM', note: 'Rejected at resistance' },
+            ];
+            
+            document.getElementById('liquidationData').innerHTML = `
+                <div style="margin-bottom: 12px; font-size: 11px; color: #8b949e;">
+                    Long wick + small body = institutional rejection
+                </div>
+                ${candles.map(c => `
+                    <div class="indicator-row" style="border-bottom: 1px solid #21262d; padding: 8px 0;">
+                        <span class="indicator-name">${c.timeframe}</span>
+                        <span class="indicator-value ${c.type.toLowerCase()}">${c.type}</span>
+                        <span class="indicator-value" style="color: #8b949e; font-size: 11px;">${c.wick}</span>
+                    </div>
+                    <div style="font-size: 11px; color: #8b949e; padding: 4px 0 8px; margin-left: 60px;">
+                        ${c.note} • <span style="color: ${c.confidence === 'HIGH' ? '#f85149' : '#3fb950'}">${c.confidence}</span>
+                    </div>
+                `).join('')}
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px; color: #58a6ff; text-align: center;">
+                    💡 Enter after candle closes • Stop beyond wick • Target 2R
+                </div>
+            `;
+        }
         
         function updateNiftyData(data) {
             const nifty = data || DEFAULT_NIFTY;
@@ -549,6 +582,7 @@
                 updateIndicators();
                 updateGlobalIndices();
                 updateNiftyData(prices.nifty);
+                updateLiquidationData();
                 updateMarketRisks();
                 updateEconomicEvents();
                 updateEarnings();
@@ -589,6 +623,7 @@
                 { id: 'card-indicators', fn: updateIndicators },
                 { id: 'card-global-indices', fn: updateGlobalIndices },
                 { id: 'card-nifty-data', fn: () => updateNiftyData(prices.nifty) },
+                { id: 'card-liquidation', fn: updateLiquidationData },
                 { id: 'card-market-risks', fn: updateMarketRisks },
                 { id: 'card-economic-events', fn: updateEconomicEvents },
                 { id: 'card-earnings', fn: updateEarnings },
