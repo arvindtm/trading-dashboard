@@ -222,7 +222,7 @@
         </div>
     </div>
     <script>
-        const UPDATE_INTERVAL = 2 * 60 * 1000;
+        const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour (Alpha Vantage free tier: 25 req/day)
         
         let cachedPrices = { tsla: null, nq: null, vix: null, dxy: null, lastFetch: 0 };
         // Alpha Vantage API (free tier: 25 requests/day)
