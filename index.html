@@ -225,17 +225,41 @@
         const UPDATE_INTERVAL = 2 * 60 * 1000;
         
         let cachedPrices = { tsla: null, nq: null, vix: null, dxy: null, lastFetch: 0 };
-        // Simulated data (Yahoo Finance has CORS, requires backend server for live data)
-        const simulatedPrices = {
-            tsla: { current: 420.50, change: -0.5 },
-            nq: { current: 25650, change: 0.12 },
-            vix: { current: 16.5, change: -2.1 },
-            dxy: { current: 108.5, change: 0.15 }
-        };
+        // Alpha Vantage API (free tier: 25 requests/day)
+        const API_KEY = '6WZFPUSJ92DAUS53';
         
-        function fetchPrices() {
-            // Return simulated data (live data needs backend server due to CORS)
-            return simulatedPrices;
+        async function fetchFromAlphaVantage(symbol) {
+            try {
+                const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                const quote = data['Global Quote'];
+                if (quote && quote['05. price']) {
+                    return {
+                        current: parseFloat(quote['05. price']),
+                        change: parseFloat(quote['09. change percent']) || 0
+                    };
+                }
+            } catch (e) {
+                console.log(`Alpha Vantage fetch failed for ${symbol}:`, e);
+            }
+            return null;
+        }
+        
+        async function fetchPrices() {
+            // Try Alpha Vantage for stocks/ETFs
+            const tslaData = await fetchFromAlphaVantage('TSLA');
+            const qqqData = await fetchFromAlphaVantage('QQQ'); // Nasdaq 100 ETF proxy for NQ
+            
+            // Scale QQQ to approximate NQ (QQQ ~ 10x NQ)
+            const nqFromQqq = qqqData ? qqqData.current * 10 : null;
+            
+            return {
+                tsla: tslaData || { current: 420.50, change: -0.5 },
+                nq: nqFromQqq ? { current: nqFromQqq, change: 0 } : { current: 25650, change: 0.12 },
+                vix: { current: 16.5, change: -2.1 }, // Alpha Vantage doesn't support VIX
+                dxy: { current: 108.5, change: 0.15 }  // Alpha Vantage doesn't support DXY
+            };
         }
         
         function updateTradeIdeas() {
@@ -447,7 +471,7 @@
                 
                 updateGlobalTimes();
                 
-                const prices = fetchPrices(); // No await needed (simulated data)
+                const prices = await fetchPrices();
                 await updatePrice();
                 
                 updateTradeIdeas();
