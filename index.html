@@ -491,13 +491,15 @@
         // Countdown to US Market Open (9:30 AM ET = 8:00 PM IST)
         function updateMarketTimer() {
             const now = new Date();
+            // Current time in IST
             const istNow = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
-            const currentISTHour = istNow.getUTCHours() + istNow.getUTCMinutes() / 60;
+            const currentISTHour = istNow.getUTCHours() + istNow.getUTCMinutes() / 60 + istNow.getUTCSeconds() / 3600;
             
-            // US market opens at 20:00 IST (8:00 PM)
+            // US market opens at 20:00 IST (8:00 PM IST = 9:30 AM ET)
             const marketOpenIST = 20.0;
             
             let timerHtml = '';
+            
             if (currentISTHour < 14.5 || currentISTHour >= 23) {
                 // Market closed, show countdown to open
                 let hoursToOpen = marketOpenIST - currentISTHour;
@@ -521,6 +523,7 @@
             
             const timerEl = document.getElementById('marketTimer');
             if (timerEl) timerEl.innerHTML = timerHtml;
+            console.log('Timer updated:', timerHtml, '| Current IST hour:', currentISTHour.toFixed(2));
         }
         
         function updateMarketRisks() {
