@@ -33,9 +33,6 @@
         .news-source { color: #8b949e; font-size: 12px; }
         .status-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3fb950; margin-right: 8px; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .market-status { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: #161b22; border-radius: 8px; }
-        .market-closed { color: #f85149; }
-        .market-open { color: #3fb950; }
         .risk-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #21262d; font-size: 13px; }
         .risk-item:last-child { border-bottom: none; }
         .risk-icon { font-size: 18px; }
@@ -145,7 +142,6 @@
             <button id="lockBtn" onclick="toggleLock()" style="margin-left: 15px; padding: 5px 12px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; cursor: pointer; font-size: 12px;">🔓 Unlock</button>
         </div>
     </div>
-    <div class="market-status" id="marketStatus"></div>
     <div class="market-timer-fixed" id="marketTimerFixed"></div>
     <div class="grid" id="dashboardGrid">
         <!-- NQ Levels -->
@@ -620,11 +616,6 @@
             try {
                 const now = new Date();
                 document.getElementById('updateTime').textContent = formatDateTime12(now);
-                
-                const hour = now.getUTCHours() + now.getMinutes() / 60;
-                const isOpen = hour >= 14.5 && hour < 23 && now.getDay() > 0 && now.getDay() < 6;
-                const statusHtml = isOpen ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>' : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
-                document.getElementById('marketStatus').innerHTML = statusHtml;
                 
                 updateNYTime();
                 updateGlobalTimes();
