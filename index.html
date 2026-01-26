@@ -228,39 +228,47 @@
         // Finnhub API (free tier: 60 requests/minute)
         const FINNHUB_KEY = 'd5rkr2pr01qln7b668tgd5rkr2pr01qln7b668u0';
         
+        // Default fallback values (always works)
+        const DEFAULT_PRICES = {
+            tsla: { current: 449.06, change: -0.07 },
+            nq: { current: 25650, change: 0.12 },
+            vix: { current: 16.5, change: -2.1 },
+            dxy: { current: 108.5, change: 0.15 }
+        };
+        
         async function fetchFromFinnhub(symbol) {
             try {
                 const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`;
                 const res = await fetch(url);
+                if (!res.ok) throw new Error('Network error');
                 const data = await res.json();
-                if (data && data.c !== undefined && data.c > 0) {
+                if (data && data.c > 0) {
                     return { current: data.c, change: data.dp || 0 };
                 }
             } catch (e) {
-                console.log(`Finnhub fetch failed for ${symbol}:`, e);
+                console.log(`Finnhub fetch failed for ${symbol}`);
             }
             return null;
         }
         
         async function fetchPrices() {
-            // Fetch stocks that work with Finnhub
-            const [tslaData, qqqData] = await Promise.all([
-                fetchFromFinnhub('TSLA'),
-                fetchFromFinnhub('QQQ') // Nasdaq 100 ETF - proxy for NQ
-            ]);
+            // Always show defaults first (instant load)
+            let prices = { ...DEFAULT_PRICES };
             
-            // QQQ × 50 ≈ NQ (based on historical correlation)
-            const nqFromQqq = qqqData ? qqqData.current * 50 : null;
+            // Try to fetch live data in background
+            try {
+                const [tsla, qqq] = await Promise.all([
+                    fetchFromFinnhub('TSLA'),
+                    fetchFromFinnhub('QQQ')
+                ]);
+                if (tsla) prices.tsla = tsla;
+                if (qqq) prices.nq = { current: Math.round(qqq.current * 50), change: qqq.change };
+            } catch (e) {
+                console.log('Live fetch failed, using defaults');
+            }
             
-            console.log('TSLA:', tslaData);
-            console.log('QQQ:', qqqData, '→ NQ approx:', nqFromQqq);
-            
-            return {
-                tsla: tslaData || { current: 420.50, change: -0.5 },
-                nq: nqFromQqq ? { current: Math.round(nqFromQqq), change: qqqData?.change || 0 } : { current: 25650, change: 0.12 },
-                vix: { current: 16.5, change: -2.1 },
-                dxy: { current: 108.5, change: 0.15 }
-            };
+            console.log('Current prices:', prices);
+            return prices;
         }
         
         function updateTradeIdeas() {
