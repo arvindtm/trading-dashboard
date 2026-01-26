@@ -132,6 +132,7 @@
         .weather-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .weather-icon { font-size: 24px; }
         .weather-temp { font-size: 18px; font-weight: 700; color: #58a6ff; }
+        .market-timer-fixed { position: fixed; top: 20px; right: 20px; z-index: 1001; background: #161b22; padding: 8px 16px; border-radius: 8px; border: 1px solid #21262d; font-size: 14px; font-weight: 600; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
@@ -144,9 +145,8 @@
             <button id="lockBtn" onclick="toggleLock()" style="margin-left: 15px; padding: 5px 12px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; cursor: pointer; font-size: 12px;">🔓 Unlock</button>
         </div>
     </div>
-    <div class="market-status" id="marketStatus">
-        <div id="marketTimer" style="margin-left: auto; font-size: 14px; font-weight: 600;"></div>
-    </div>
+    <div class="market-status" id="marketStatus"></div>
+    <div class="market-timer-fixed" id="marketTimerFixed"></div>
     <div class="grid" id="dashboardGrid">
         <!-- NQ Levels -->
         <div class="card">
@@ -491,19 +491,16 @@
         // Countdown to US Market Open (9:30 AM ET = 8:00 PM IST)
         function updateMarketTimer() {
             const now = new Date();
-            // Current time in IST
             const istNow = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
             const currentISTHour = istNow.getUTCHours() + istNow.getUTCMinutes() / 60 + istNow.getUTCSeconds() / 3600;
             
-            // US market opens at 20:00 IST (8:00 PM IST = 9:30 AM ET)
             const marketOpenIST = 20.0;
             
             let timerHtml = '';
             
             if (currentISTHour < 14.5 || currentISTHour >= 23) {
-                // Market closed, show countdown to open
                 let hoursToOpen = marketOpenIST - currentISTHour;
-                if (hoursToOpen < 0) hoursToOpen += 24; // Next day
+                if (hoursToOpen < 0) hoursToOpen += 24;
                 
                 const hrs = Math.floor(hoursToOpen);
                 const mins = Math.floor((hoursToOpen - hrs) * 60);
@@ -511,7 +508,6 @@
                 
                 timerHtml = `<span style="color: #58a6ff;">⏰ Opens in ${hrs}h ${mins}m ${secs}s</span>`;
             } else if (currentISTHour >= 14.5 && currentISTHour < 23) {
-                // Market is open
                 const closeHour = 23;
                 const hoursOpen = closeHour - currentISTHour;
                 const hrs = Math.floor(hoursOpen);
@@ -521,9 +517,8 @@
                 timerHtml = `<span style="color: #3fb950;">● LIVE ${hrs}h ${mins}m ${secs}s left</span>`;
             }
             
-            const timerEl = document.getElementById('marketTimer');
+            const timerEl = document.getElementById('marketTimerFixed');
             if (timerEl) timerEl.innerHTML = timerHtml;
-            console.log('Timer updated:', timerHtml, '| Current IST hour:', currentISTHour.toFixed(2));
         }
         
         function updateMarketRisks() {
@@ -618,7 +613,7 @@
                 const hour = now.getUTCHours() + now.getMinutes() / 60;
                 const isOpen = hour >= 14.5 && hour < 23 && now.getDay() > 0 && now.getDay() < 6;
                 const statusHtml = isOpen ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>' : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
-                document.getElementById('marketStatus').innerHTML = statusHtml + '<div id="marketTimer"></div>';
+                document.getElementById('marketStatus').innerHTML = statusHtml;
                 
                 updateMarketTimer();
                 updateGlobalTimes();
