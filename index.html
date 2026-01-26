@@ -282,13 +282,20 @@
         }
         
         function updatePriceAlerts() {
-            const alerts = [
+            // Price drop alerts
+            const priceAlerts = [
                 { ticker: 'TSLA', current: 420.50, threshold: 399.48, change: -5, type: 'drop' },
                 { ticker: 'NQ', current: 25650, threshold: 25550, change: -100, type: 'drop' },
             ];
             
-            document.getElementById('priceAlerts').innerHTML = alerts.map(alert => {
-                const pct = ((alert.current - alert.threshold) / alert.threshold * 100).toFixed(2);
+            // Candle sweep alerts
+            const sweepAlerts = [
+                { timeframe: '1H', previousHigh: 25680, previousLow: 25580, direction: 'BULLISH' },
+                { timeframe: '4H', previousHigh: 25750, previousLow: 25450, direction: 'NEUTRAL' },
+            ];
+            
+            let html = '<div style="margin-bottom: 15px;"><strong style="font-size: 12px; color: #8b949e;">📉 Price Drops</strong></div>';
+            html += priceAlerts.map(alert => {
                 const status = alert.current <= alert.threshold ? 'TRIGGERED' : 'ACTIVE';
                 const statusClass = alert.current <= alert.threshold ? 'bearish' : 'neutral';
                 return `
@@ -297,11 +304,26 @@
                         <span class="indicator-value ${statusClass}">${alert.current} / ${alert.threshold} (${status})</span>
                     </div>
                 `;
-            }).join('') + `
-                <div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">
+            }).join('');
+            
+            html += '<div style="margin: 15px 0 10px;"><strong style="font-size: 12px; color: #8b949e;">🕯️ Candle Sweeps (NQ)</strong></div>';
+            html += sweepAlerts.map(sweep => {
+                const sweepClass = sweep.direction === 'BULLISH' ? 'bullish' : (sweep.direction === 'BEARISH' ? 'bearish' : 'neutral');
+                return `
+                    <div class="indicator-row">
+                        <span class="indicator-name">${sweep.timeframe} Candle</span>
+                        <span class="indicator-value ${sweepClass}">${sweep.direction} (H: ${sweep.previousHigh} / L: ${sweep.previousLow})</span>
+                    </div>
+                `;
+            }).join('');
+            
+            html += `
+                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px; color: #8b949e; text-align: center;">
                     Checking every 5 min • Alerts sent to Telegram
                 </div>
             `;
+            
+            document.getElementById('priceAlerts').innerHTML = html;
         }
         
         function updateMarketRisks() {
