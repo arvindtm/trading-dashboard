@@ -222,6 +222,47 @@
         .range-value { font-size: 16px; font-weight: 600; }
         .range-value.gap-down { color: #f85149; }
         .range-value.gap-up { color: #3fb950; }
+        
+        .global-market-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #21262d;
+        }
+        
+        .global-market-item:last-child { border-bottom: none; }
+        .market-icon { font-size: 24px; }
+        .market-info { flex: 1; }
+        .market-name { font-weight: 600; font-size: 14px; color: #e6edf3; }
+        .market-time { font-size: 12px; color: #8b949e; }
+        .market-status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .market-status-badge.open { background: #3fb95033; color: #3fb950; }
+        .market-status-badge.closed { background: #f8514933; color: #f85149; }
+        .market-status-badge.soon { background: #d2992233; color: #d29922; }
+        
+        .market-note { font-size: 12px; color: #8b949e; margin-top: 4px; }
+        
+        .global-clock {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #0d1117;
+            border-radius: 8px;
+        }
+        
+        .clock-item {
+            text-align: center;
+            flex: 1;
+        }
+        .clock-value { font-size: 18px; font-weight: 700; color: #58a6ff; }
+        .clock-label { font-size: 10px; color: #8b949e; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -265,6 +306,32 @@
                     <span class="level-label">Support 2</span>
                     <span class="level-value support" id="sup2">--</span>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Global Market Openings -->
+        <div class="card">
+            <h2>🌍 Global Market Hours</h2>
+            <div class="global-clock">
+                <div class="clock-item">
+                    <div class="clock-value" id="tokyoTime">--:--</div>
+                    <div class="clock-label">Tokyo</div>
+                </div>
+                <div class="clock-item">
+                    <div class="clock-value" id="londonTime">--:--</div>
+                    <div class="clock-label">London</div>
+                </div>
+                <div class="clock-item">
+                    <div class="clock-value" id="frankfurtTime">--:--</div>
+                    <div class="clock-label">Frankfurt</div>
+                </div>
+                <div class="clock-item">
+                    <div class="clock-value" id="nyTime">--:--</div>
+                    <div class="clock-label">NY</div>
+                </div>
+            </div>
+            <div id="globalMarkets">
+                <p style="color: #8b949e;">Loading...</p>
             </div>
         </div>
         
@@ -320,15 +387,74 @@
         // Trading Dashboard - Auto-refreshes every 5 minutes
         const UPDATE_INTERVAL = 5 * 60 * 1000;
         
+        // Market hours in UTC
+        const marketHours = {
+            tokyo: { open: 0, close: 6, name: 'Tokyo (Japan)', icon: '🗼', note: 'Asian session - often sets tone' },
+            london: { open: 8, close: 16.5, name: 'London (UK)', icon: '🇬🇧', note: 'European session begins' },
+            frankfurt: { open: 9, close: 17.5, name: 'Frankfurt (EU)', icon: '🇩🇪', note: 'DAX trading hours' },
+            ny: { open: 14.5, close: 23, name: 'New York (US)', icon: '🇺🇸', note: 'US session - most volatile' }
+        };
+        
+        function getMarketStatus(utcHour) {
+            if (utcHour >= marketHours.tokyo.open && utcHour < marketHours.tokyo.close) return 'open';
+            if (utcHour >= marketHours.london.open && utcHour < marketHours.london.close) return 'open';
+            if (utcHour >= marketHours.frankfurt.open && utcHour < marketHours.frankfurt.close) return 'open';
+            if (utcHour >= marketHours.ny.open && utcHour < marketHours.ny.close) return 'open';
+            return 'closed';
+        }
+        
+        function getMarketNext(utcHour) {
+            if (utcHour < marketHours.tokyo.open) return { name: 'Tokyo', time: marketHours.tokyo.open - utcHour };
+            if (utcHour < marketHours.london.open) return { name: 'London', time: marketHours.london.open - utcHour };
+            if (utcHour < marketHours.frankfurt.open) return { name: 'Frankfurt', time: marketHours.frankfurt.open - utcHour };
+            if (utcHour < marketHours.ny.open) return { name: 'NY', time: marketHours.ny.open - utcHour };
+            // After all closed, next is Tokyo tomorrow
+            return { name: 'Tokyo (tom)', time: 24 - utcHour + marketHours.tokyo.open };
+        }
+        
+        function formatTime(utcHour) {
+            const hours = Math.floor(utcHour);
+            const minutes = Math.floor((utcHour - hours) * 60);
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+        
+        function getMarketBadgeClass(status) {
+            if (status === 'open') return 'open';
+            if (status === 'closed') return 'closed';
+            return 'soon';
+        }
+        
+        function getMarketStatusText(utcHour) {
+            const status = getMarketStatus(utcHour);
+            if (status === 'open') {
+                if (utcHour >= marketHours.ny.open) return 'OPEN';
+                if (utcHour >= marketHours.frankfurt.open) return 'OPEN';
+                if (utcHour >= marketHours.london.open) return 'OPEN';
+                if (utcHour >= marketHours.tokyo.open) return 'OPEN';
+            }
+            const next = getMarketNext(utcHour);
+            const hours = Math.floor(next.time);
+            const mins = Math.floor((next.time - hours) * 60);
+            if (hours > 0) return `Opens ${hours}h ${mins}m`;
+            return `Opens ${mins}m`;
+        }
+        
         async function fetchAllData() {
             const now = new Date();
+            const utcHour = now.getUTCHours() + now.getMinutes() / 60;
             document.getElementById('updateTime').textContent = now.toLocaleTimeString();
             
+            // Update global clocks
+            document.getElementById('tokyoTime').textContent = formatTime((utcHour + 9) % 24);
+            document.getElementById('londonTime').textContent = formatTime((utcHour) % 24);
+            document.getElementById('frankfurtTime').textContent = formatTime((utcHour + 1) % 24);
+            document.getElementById('nyTime').textContent = formatTime((utcHour - 5 + 24) % 24);
+            
             // Check market status
-            const hour = now.getUTCHours();
+            const hour = utcHour;
             const day = now.getUTCDay();
             const isWeekend = day === 0 || day === 6;
-            const isOpen = hour >= 14 && hour < 23 && !isWeekend;
+            const isOpen = hour >= 14.5 && hour < 23 && !isWeekend;
             
             const statusEl = document.getElementById('marketStatus');
             statusEl.innerHTML = isOpen 
@@ -337,11 +463,62 @@
             
             // Fetch data from API endpoints (placeholder - would connect to real APIs)
             updatePrice();
+            updateGlobalMarkets(utcHour);
             updateMarketRisks();
             updateEconomicEvents();
             updateEarnings();
             updateNews();
             updateSentiment();
+        }
+        
+        function updateGlobalMarkets(utcHour) {
+            const markets = [
+                { 
+                    name: 'Tokyo', 
+                    icon: '🗼', 
+                    time: '01:00 - 07:00 UTC', 
+                    istTime: '06:30 - 12:30 IST', 
+                    status: utcHour >= 0 && utcHour < 6 ? 'open' : 'closed',
+                    note: 'Asian session - Nikkei 225, JPY moves' 
+                },
+                { 
+                    name: 'Frankfurt', 
+                    icon: '🇩🇪', 
+                    time: '09:00 - 17:30 UTC', 
+                    istTime: '14:30 - 23:00 IST', 
+                    status: utcHour >= 9 && utcHour < 17.5 ? 'open' : 'closed',
+                    note: 'DAX, Euro Stoxx 50' 
+                },
+                { 
+                    name: 'London', 
+                    icon: '🇬🇧', 
+                    time: '08:00 - 16:30 UTC', 
+                    istTime: '13:30 - 22:00 IST', 
+                    status: utcHour >= 8 && utcHour < 16.5 ? 'open' : 'closed',
+                    note: 'FTSE 100, GBP moves, liquidity spike' 
+                },
+                { 
+                    name: 'New York', 
+                    icon: '🇺🇸', 
+                    time: '14:30 - 23:00 UTC', 
+                    istTime: '20:00 - 04:30 IST', 
+                    status: utcHour >= 14.5 && utcHour < 23 ? 'open' : 'closed',
+                    note: 'Nasdaq, S&P 500 - Most volatile' 
+                }
+            ];
+            
+            const html = markets.map(m => `
+                <div class="global-market-item">
+                    <span class="market-icon">${m.icon}</span>
+                    <div class="market-info">
+                        <div class="market-name">${m.name}</div>
+                        <div class="market-note">${m.note}</div>
+                    </div>
+                    <span class="market-status-badge ${m.status === 'open' ? 'open' : 'closed'}">${m.status.toUpperCase()}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('globalMarkets').innerHTML = html;
         }
         
         function updatePrice() {
