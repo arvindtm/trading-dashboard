@@ -222,7 +222,7 @@
         </div>
     </div>
     <script>
-        const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour (Alpha Vantage free tier: 25 req/day)
+        const UPDATE_INTERVAL = 30 * 1000; // 30 seconds (Finnhub: 60 req/min)
         
         let cachedPrices = { tsla: null, nq: null, vix: null, dxy: null, lastFetch: 0 };
         // Finnhub API (free tier: 60 requests/minute)
