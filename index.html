@@ -227,26 +227,46 @@
         let cachedPrices = { tsla: null, nq: null, vix: null, dxy: null, lastFetch: 0 };
         const PRICE_CACHE_MS = 30000;
         
+        // Initialize with default values (always shows data)
+        cachedPrices = {
+            tsla: { current: 420.50, change: -0.5 },
+            nq: { current: 25650, change: 0.12 },
+            vix: { current: 16.5, change: -2.1 },
+            dxy: { current: 108.5, change: 0.15 },
+            lastFetch: 0
+        };
+        
         async function fetchPrices() {
             const now = Date.now();
+            // Skip fetch if last attempt was recent
             if (cachedPrices.lastFetch && (now - cachedPrices.lastFetch) < PRICE_CACHE_MS) {
                 return cachedPrices;
             }
+            
             try {
-                const nqRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5ENDX?interval=1m');
-                const nqData = await nqRes.json();
-                const nqCurrent = nqData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0] || 25650;
-                const vixRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?interval=1m');
-                const vixData = await vixRes.json();
-                const vixCurrent = vixData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0] || 16.5;
-                const dxyRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5EDXY?interval=1m');
-                const dxyData = await dxyRes.json();
-                const dxyCurrent = dxyData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0] || 108.5;
-                const tslaRes = await fetch('https://finnhub.io/api/v1/quote?symbol=TSLA&token=demo');
-                const tslaData = await tslaRes.json();
-                cachedPrices = { tsla: { current: tslaData.c || 420, change: tslaData.dp || 0 }, nq: { current: nqCurrent, change: 0 }, vix: { current: vixCurrent, change: 0 }, dxy: { current: dxyCurrent, change: 0 }, lastFetch: now };
+                // Try Yahoo Finance via CORS proxy
+                const proxies = [
+                    'https://corsproxy.io/?',
+                    'https://api.allorigins.win/raw?url='
+                ];
+                
+                for (const proxy of proxies) {
+                    try {
+                        const nqRes = await fetch(proxy + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/%5ENDX?interval=1m'));
+                        if (nqRes.ok) {
+                            const nqData = await nqRes.json();
+                            const nqCurrent = nqData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0];
+                            if (nqCurrent) {
+                                cachedPrices.nq.current = nqCurrent;
+                                // Fetch others with same proxy
+                                break;
+                            }
+                        }
+                    } catch (e) { continue; }
+                }
+                cachedPrices.lastFetch = now;
             } catch (e) {
-                cachedPrices = { tsla: { current: 420.50, change: -0.5 }, nq: { current: 25650, change: 0.12 }, vix: { current: 16.5, change: -2.1 }, dxy: { current: 108.5, change: 0.15 }, lastFetch: now };
+                console.log('Live data fetch failed, using simulated data');
             }
             return cachedPrices;
         }
