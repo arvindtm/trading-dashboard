@@ -162,6 +162,66 @@
         
         .market-closed { color: #f85149; }
         .market-open { color: #3fb950; }
+        
+        .risk-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #21262d;
+            font-size: 13px;
+        }
+        
+        .risk-item:last-child { border-bottom: none; }
+        .risk-icon { font-size: 18px; }
+        .risk-text { flex: 1; }
+        .risk-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .risk-badge.high { background: #f8514933; color: #f85149; }
+        .risk-badge.medium { background: #d2992233; color: #d29922; }
+        .risk-badge.low { background: #3fb95033; color: #3fb950; }
+        
+        .sentiment-bar {
+            height: 8px;
+            background: #21262d;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .sentiment-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .sentiment-fill.bearish { background: #f85149; }
+        .sentiment-fill.bullish { background: #3fb950; }
+        .sentiment-fill.neutral { background: #d29922; }
+        
+        .vix-display {
+            font-size: 28px;
+            font-weight: 700;
+            color: #58a6ff;
+            margin-bottom: 5px;
+        }
+        
+        .vix-label { color: #8b949e; font-size: 12px; margin-bottom: 10px; }
+        
+        .overnight-range {
+            padding: 10px;
+            background: #0d1117;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .range-label { color: #8b949e; font-size: 12px; margin-bottom: 5px; }
+        .range-value { font-size: 16px; font-weight: 600; }
+        .range-value.gap-down { color: #f85149; }
+        .range-value.gap-up { color: #3fb950; }
     </style>
 </head>
 <body>
@@ -184,6 +244,10 @@
             <h2>📈 Nasdaq Futures</h2>
             <div class="price-display" id="price">--</div>
             <div class="price-change" id="priceChange">--</div>
+            <div class="overnight-range" id="overnightRange">
+                <div class="range-label">Overnight Range (Asia Session)</div>
+                <div class="range-value gap-down" id="overnightGap">--</div>
+            </div>
             <div style="margin-top: 15px;">
                 <div class="level-item">
                     <span class="level-label">Resistance 1</span>
@@ -201,6 +265,14 @@
                     <span class="level-label">Support 2</span>
                     <span class="level-value support" id="sup2">--</span>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Market Movers / Risk Factors -->
+        <div class="card">
+            <h2>⚠️ Market Movers & Risks</h2>
+            <div id="marketRisks">
+                <p style="color: #8b949e;">Loading...</p>
             </div>
         </div>
         
@@ -227,6 +299,21 @@
                 <p style="color: #8b949e;">Loading...</p>
             </div>
         </div>
+        
+        <!-- Sentiment & VIX -->
+        <div class="card">
+            <h2>📊 Sentiment & VIX</h2>
+            <div class="vix-display" id="vixLevel">--</div>
+            <div class="vix-label">VIX (Volatility Index)</div>
+            <div class="sentiment-bar">
+                <div class="sentiment-fill neutral" id="sentimentFill" style="width: 50%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: #8b949e;">
+                <span>Bearish</span>
+                <span id="sentimentLabel">Neutral</span>
+                <span>Bullish</span>
+            </div>
+        </div>
     </div>
     
     <script>
@@ -250,9 +337,11 @@
             
             // Fetch data from API endpoints (placeholder - would connect to real APIs)
             updatePrice();
+            updateMarketRisks();
             updateEconomicEvents();
             updateEarnings();
             updateNews();
+            updateSentiment();
         }
         
         function updatePrice() {
@@ -267,10 +356,37 @@
             changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(0)} (${pct}%)`;
             changeEl.className = `price-change ${change < 0 ? 'negative' : ''}`;
             
+            // Overnight gap (simulated)
+            const overnightGap = -80; // Example gap down
+            const gapEl = document.getElementById('overnightGap');
+            gapEl.textContent = `Gap ${overnightGap >= 0 ? '+' : ''}${overnightGap} pts`;
+            gapEl.className = `range-value ${overnightGap < 0 ? 'gap-down' : 'gap-up'}`;
+            
             document.getElementById('res1').textContent = (price + 200).toFixed(0);
             document.getElementById('res2').textContent = (price + 400).toFixed(0);
             document.getElementById('sup1').textContent = (price - 80).toFixed(0);
             document.getElementById('sup2').textContent = (price - 280).toFixed(0);
+        }
+        
+        function updateMarketRisks() {
+            const risks = [
+                { icon: '📋', text: 'FOMC Minutes (Wed) - Rate path uncertainty', badge: 'HIGH', badgeClass: 'high' },
+                { icon: '📊', text: 'PCE Inflation (Thu) - Fed\'s favorite metric', badge: 'HIGH', badgeClass: 'high' },
+                { icon: '📈', text: 'Jobs Report (Fri) - NFP volatility expected', badge: 'HIGH', badgeClass: 'high' },
+                { icon: '🔮', text: 'Megacap Earnings - TSLA/MSFT/META/AAPL', badge: 'MEDIUM', badgeClass: 'medium' },
+                { icon: '🌍', text: 'Global growth concerns - China/Europe', badge: 'MEDIUM', badgeClass: 'medium' },
+                { icon: '🇺🇸', text: 'Trump policy uncertainty - Trade/Tariffs', badge: 'MEDIUM', badgeClass: 'medium' },
+            ];
+            
+            const html = risks.map(r => `
+                <div class="risk-item">
+                    <span class="risk-icon">${r.icon}</span>
+                    <span class="risk-text">${r.text}</span>
+                    <span class="risk-badge ${r.badgeClass}">${r.badge}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('marketRisks').innerHTML = html;
         }
         
         function updateEconomicEvents() {
@@ -312,8 +428,8 @@
         function updateNews() {
             const news = [
                 { headline: 'Fed officials signal patience on rate cuts', source: 'Reuters' },
-                { headline: 'Nasdaq consolidates near 25,700 amid earnings anticipation', source: 'CNBC' },
-                { headline: 'Tech stocks face test with major earnings week ahead', source: 'Bloomberg' },
+                { headline: 'Nasdaq consolidates amid earnings anticipation', source: 'CNBC' },
+                { headline: 'Tech stocks face test with major earnings week', source: 'Bloomberg' },
             ];
             
             const html = news.map(n => `
@@ -324,6 +440,30 @@
             `).join('');
             
             document.getElementById('news').innerHTML = html;
+        }
+        
+        function updateSentiment() {
+            // VIX placeholder - would fetch from real API
+            const vix = 16.5 + (Math.random() - 0.5) * 2;
+            document.getElementById('vixLevel').textContent = vix.toFixed(2);
+            
+            // Sentiment (simulated - would use real data)
+            const sentiment = 40; // 0-100, lower = more bearish
+            const fill = document.getElementById('sentimentFill');
+            const label = document.getElementById('sentimentLabel');
+            
+            fill.style.width = `${sentiment}%`;
+            
+            if (sentiment < 35) {
+                fill.className = 'sentiment-fill bearish';
+                label.textContent = 'Bearish';
+            } else if (sentiment > 65) {
+                fill.className = 'sentiment-fill bullish';
+                label.textContent = 'Bullish';
+            } else {
+                fill.className = 'sentiment-fill neutral';
+                label.textContent = 'Neutral';
+            }
         }
         
         // Initial load and auto-refresh
