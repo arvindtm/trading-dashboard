@@ -85,6 +85,29 @@
         .indicator-value.bullish { color: #3fb950; }
         .indicator-value.bearish { color: #f85149; }
         .indicator-value.neutral { color: #d29922; }
+        .session-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #21262d; font-size: 13px; }
+        .session-item:last-child { border-bottom: none; }
+        .session-name { display: flex; align-items: center; gap: 8px; }
+        .session-icon { font-size: 16px; }
+        .session-levels { display: flex; gap: 10px; }
+        .session-hl { padding: 2px 6px; background: #0d1117; border-radius: 4px; font-size: 12px; }
+        .session-hl.up { color: #3fb950; }
+        .session-hl.down { color: #f85149; }
+        .profile-bar { height: 20px; display: flex; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+        .profile-bar div { height: 100%; }
+        .profile-bar .buy { background: #3fb950; }
+        .profile-bar .sell { background: #f85149; }
+        .profile-bar .neutral { background: #21262d; }
+        .gap-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 13px; }
+        .gap-item:last-child { border-bottom: none; }
+        .gap-fill { font-weight: 600; }
+        .gap-fill.filled { color: #3fb950; }
+        .gap-fill.pending { color: #d29922; }
+        .breadth-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+        .breadth-bar { height: 6px; background: #21262d; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+        .breadth-bar-fill { height: 100%; border-radius: 3px; }
+        .breadth-bar-fill.up { background: #3fb950; }
+        .breadth-bar-fill.down { background: #f85149; }
     </style>
 </head>
 <body>
@@ -97,9 +120,19 @@
     </div>
     <div class="market-status" id="marketStatus"></div>
     <div class="grid">
+        <!-- NQ Levels -->
+        <div class="card">
+            <h2>📈 NQ Levels</h2>
+            <a href="https://www.tradingview.com/chart/NQ1/?symbol=CME_MINI:NQ1!" target="_blank" class="external-link">📊 View Chart on TradingView</a>
+            <div class="level-item"><span class="level-label">Current</span><span class="level-value" id="price">--</span></div>
+            <div class="level-item"><span class="level-label">R1</span><span class="level-value resistance" id="res1">--</span></div>
+            <div class="level-item"><span class="level-label">R2</span><span class="level-value resistance" id="res2">--</span></div>
+            <div class="level-item"><span class="level-label">S1</span><span class="level-value support" id="sup1">--</span></div>
+            <div class="level-item"><span class="level-label">S2</span><span class="level-value support" id="sup2">--</span></div>
+        </div>
         <!-- Trade Ideas -->
         <div class="card">
-            <h2>🎯 NQ Trade Ideas (Jan 26)</h2>
+            <h2>🎯 Trade Ideas (Jan 26)</h2>
             <div id="tradeIdeas"></div>
         </div>
         <!-- London Open Strategy -->
@@ -112,15 +145,50 @@
             <h2>🔔 Price Alerts</h2>
             <div id="priceAlerts"></div>
         </div>
-        <!-- Nasdaq Futures -->
+        <!-- Session Levels -->
         <div class="card">
-            <h2>📈 NQ Levels</h2>
-            <a href="https://www.tradingview.com/chart/NQ1/?symbol=CME_MINI:NQ1!" target="_blank" class="external-link">📊 View Chart on TradingView</a>
-            <div class="level-item"><span class="level-label">Current</span><span class="level-value" id="price">--</span></div>
-            <div class="level-item"><span class="level-label">R1</span><span class="level-value resistance" id="res1">--</span></div>
-            <div class="level-item"><span class="level-label">R2</span><span class="level-value resistance" id="res2">--</span></div>
-            <div class="level-item"><span class="level-label">S1</span><span class="level-value support" id="sup1">--</span></div>
-            <div class="level-item"><span class="level-label">S2</span><span class="level-value support" id="sup2">--</span></div>
+            <h2>🌏 Session Levels (NQ)</h2>
+            <div id="sessionLevels"></div>
+        </div>
+        <!-- Volume Profile -->
+        <div class="card">
+            <h2>📊 Volume Profile</h2>
+            <div id="volumeProfile"></div>
+        </div>
+        <!-- VIX & Volatility -->
+        <div class="card">
+            <h2>📉 VIX & Volatility</h2>
+            <div id="vixData"></div>
+        </div>
+        <!-- Gap Analysis -->
+        <div class="card">
+            <h2>📭 Gap Analysis</h2>
+            <div id="gapData"></div>
+        </div>
+        <!-- ADR -->
+        <div class="card">
+            <h2>📏 ADR & ATR</h2>
+            <div id="adrData"></div>
+        </div>
+        <!-- Options Data -->
+        <div class="card">
+            <h2>📊 Options Flow</h2>
+            <div id="optionsData"></div>
+        </div>
+        <!-- Open Interest -->
+        <div class="card">
+            <h2>📈 Open Interest (NQ)</h2>
+            <div id="oiData"></div>
+        </div>
+        <!-- DXY Correlation -->
+        <div class="card">
+            <h2>💵 DXY & Correlation</h2>
+            <div id="dxyData"></div>
+        </div>
+        <!-- Market Breadth -->
+        <div class="card">
+            <h2>📊 Market Breadth</h2>
+            <div id="breadthData"></div>
         </div>
         <!-- Technical Indicators -->
         <div class="card">
@@ -130,12 +198,6 @@
         <!-- Global Indices -->
         <div class="card">
             <h2>🌍 Global Indices</h2>
-            <div class="market-hours-grid">
-                <div class="hour-item"><div class="hour-value" id="tokyoTime">--:--</div><div class="hour-label">Tokyo</div></div>
-                <div class="hour-item"><div class="hour-value" id="londonTime">--:--</div><div class="hour-label">London</div></div>
-                <div class="hour-item"><div class="hour-value" id="frankfurtTime">--:--</div><div class="hour-label">Frankfurt</div></div>
-                <div class="hour-item"><div class="hour-value" id="nyTime">--:--</div><div class="hour-label">New York</div></div>
-            </div>
             <div id="globalIndices"></div>
         </div>
         <!-- Market Movers -->
@@ -162,218 +224,145 @@
     <script>
         const UPDATE_INTERVAL = 2 * 60 * 1000;
         
-        const tradeIdeas = [
-            {
-                direction: 'LONG',
-                type: 'Pullback Buy',
-                entry: '25,400 - 25,450',
-                stop: '25,350',
-                target1: '25,550',
-                target2: '25,650',
-                rationale: 'Demand zone, previous support, MA 200 support nearby'
-            },
-            {
-                direction: 'SHORT',
-                type: 'Rejection Short',
-                entry: '25,850 - 26,000',
-                stop: '26,050',
-                target1: '25,700',
-                target2: '25,600',
-                rationale: 'Supply zone, overextension, potential head & shoulders'
-            },
-            {
-                direction: 'LONG',
-                type: 'Break & Retest',
-                entry: '25,650 break + retest',
-                stop: '25,550',
-                target: '25,750',
-                rationale: 'Ascending triangle breakout retest'
-            }
-        ];
-        
-        const globalIndices = [
-            { name: 'Nikkei 225', icon: '🗼', price: 39250, change: -180 },
-            { name: 'DAX', icon: '🇩🇪', price: 20890, change: +45 },
-            { name: 'FTSE 100', icon: '🇬🇧', price: 8120, change: +28 },
-            { name: 'S&P 500', icon: '🇺🇸', price: 6795, change: +12 },
-        ];
-        
-        const indicators = [
-            { name: 'MA 200', value: '25,200', signal: 'Bullish' },
-            { name: 'MA 50', value: '25,500', signal: 'Neutral' },
-            { name: 'RSI (14)', value: '48', signal: 'Neutral' },
-            { name: 'MACD', value: 'Slightly Bearish', signal: 'Bearish' },
-            { name: 'VWAP', value: '25,580', signal: 'Neutral' },
-        ];
-        
-        function updateTradeIdeas() {
-            document.getElementById('tradeIdeas').innerHTML = tradeIdeas.map(trade => `
-                <div class="trade-card ${trade.direction.toLowerCase()}">
-                    <div class="trade-header">
-                        <span class="trade-direction ${trade.direction.toLowerCase()}">${trade.direction}</span>
-                        <span class="trade-badge">${trade.type}</span>
-                    </div>
-                    <div class="trade-row"><span class="trade-label">Entry</span><span class="trade-value">${trade.entry}</span></div>
-                    <div class="trade-row"><span class="trade-label">Stop</span><span class="trade-value trade-stop">${trade.stop}</span></div>
-                    <div class="trade-row"><span class="trade-label">Target 1</span><span class="trade-value trade-target">${trade.target1}</span></div>
-                    <div class="trade-row"><span class="trade-label">Target 2</span><span class="trade-value trade-target">${trade.target2}</span></div>
-                    <div class="trade-rationale">${trade.rationale}</div>
-                </div>
-            `).join('');
-        }
-        
-        function updateIndicators() {
-            document.getElementById('indicators').innerHTML = indicators.map(ind => `
-                <div class="indicator-row">
-                    <span class="indicator-name">${ind.name}</span>
-                    <span class="indicator-value ${ind.signal.toLowerCase()}">${ind.value} (${ind.signal})</span>
-                </div>
-            `).join('');
-        }
-        
-        function updateGlobalIndices() {
-            document.getElementById('globalIndices').innerHTML = globalIndices.map(idx => `
-                <div class="global-index-item">
-                    <div class="index-info">
-                        <span class="index-icon">${idx.icon}</span>
-                        <span class="index-name">${idx.name}</span>
-                    </div>
-                    <span class="index-price">${idx.price.toLocaleString()}</span>
-                    <span class="index-change ${idx.change >= 0 ? 'up' : 'down'}">
-                        ${idx.change >= 0 ? '▲' : '▼'} ${idx.change >= 0 ? '+' : ''}${idx.change}
-                    </span>
-                </div>
-            `).join('');
-        }
-        
-        function updateLondonOpen() {
-            const londonData = {
-                bias: 'BULLISH',
-                asiaHigh: 25680,
-                asiaLow: 25520,
-                candleHigh: 25650,
-                candleLow: 25580,
-                swept: 'ASIA_LOW',
-                signal: 'Look for long pullback at 9:30 NY'
-            };
-            
-            document.getElementById('londonOpen').innerHTML = `
-                <div class="trade-card long">
-                    <div class="trade-header">
-                        <span class="trade-direction long">${londonData.bias}</span>
-                        <span class="trade-badge">6AM H4 Candle</span>
-                    </div>
-                    <div class="trade-row"><span class="trade-label">Asia High</span><span class="trade-value">${londonData.asiaHigh}</span></div>
-                    <div class="trade-row"><span class="trade-label">Asia Low</span><span class="trade-value">${londonData.asiaLow}</span></div>
-                    <div class="trade-row"><span class="trade-label">6AM High</span><span class="trade-value">${londonData.candleHigh}</span></div>
-                    <div class="trade-row"><span class="trade-label">6AM Low</span><span class="trade-value">${londonData.candleLow}</span></div>
-                    <div class="trade-row"><span class="trade-label">Swept</span><span class="trade-value">${londonData.swept}</span></div>
-                    <div class="trade-rationale">${londonData.signal}</div>
-                </div>
-                <div style="margin-top: 15px; padding: 12px; background: #0d1117; border-radius: 8px; font-size: 12px;">
-                    <div style="color: #8b949e; margin-bottom: 8px;">📖 How to trade:</div>
-                    <div>1. 6AM sweeps Asia HIGH → going DOWN</div>
-                    <div>2. 6AM sweeps Asia LOW → going UP</div>
-                    <div>3. 6AM does nothing → wait</div>
-                    <div>4. 9:30 NY: pullback in 6AM direction = entry</div>
-                    <div>5. Still nothing? Wait for 10AM</div>
-                </div>
-            `;
-        }
-        
-        // Cache for prices to avoid spamming APIs
-        let cachedPrices = { tsla: null, nq: null, lastFetch: 0 };
-        const PRICE_CACHE_MS = 30000; // 30 second cache
+        let cachedPrices = { tsla: null, nq: null, vix: null, dxy: null, lastFetch: 0 };
+        const PRICE_CACHE_MS = 30000;
         
         async function fetchPrices() {
             const now = Date.now();
             if (cachedPrices.lastFetch && (now - cachedPrices.lastFetch) < PRICE_CACHE_MS) {
                 return cachedPrices;
             }
-            
             try {
-                // Fetch TSLA from Finnhub (free tier)
-                const tslaRes = await fetch('https://finnhub.io/api/v1/quote?symbol=TSLA&token=demo');
-                const tslaData = await tslaRes.json();
-                
-                // Fetch NQ from Yahoo Finance (via proxy)
                 const nqRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5ENDX?interval=1m');
                 const nqData = await nqRes.json();
-                
                 const nqCurrent = nqData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0] || 25650;
-                
-                cachedPrices = {
-                    tsla: { current: tslaData.c || 420, change: tslaData.dp || 0 },
-                    nq: { current: nqCurrent, change: 0 },
-                    lastFetch: now
-                };
+                const vixRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?interval=1m');
+                const vixData = await vixRes.json();
+                const vixCurrent = vixData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0] || 16.5;
+                const dxyRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5EDXY?interval=1m');
+                const dxyData = await dxyRes.json();
+                const dxyCurrent = dxyData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0] || 108.5;
+                const tslaRes = await fetch('https://finnhub.io/api/v1/quote?symbol=TSLA&token=demo');
+                const tslaData = await tslaRes.json();
+                cachedPrices = { tsla: { current: tslaData.c || 420, change: tslaData.dp || 0 }, nq: { current: nqCurrent, change: 0 }, vix: { current: vixCurrent, change: 0 }, dxy: { current: dxyCurrent, change: 0 }, lastFetch: now };
             } catch (e) {
-                console.log('Price fetch failed, using defaults', e);
-                // Fallback to simulated values
-                cachedPrices = {
-                    tsla: { current: 420.50, change: -0.5 },
-                    nq: { current: 25650, change: 0.12 },
-                    lastFetch: now
-                };
+                cachedPrices = { tsla: { current: 420.50, change: -0.5 }, nq: { current: 25650, change: 0.12 }, vix: { current: 16.5, change: -2.1 }, dxy: { current: 108.5, change: 0.15 }, lastFetch: now };
             }
             return cachedPrices;
         }
         
-        async function updatePriceAlerts() {
-            const prices = await fetchPrices();
-            
-            // Price drop alerts
-            const priceAlerts = [
-                { ticker: 'TSLA', current: prices.tsla.current, threshold: prices.tsla.current * 0.95, change: prices.tsla.change, type: 'drop' },
-                { ticker: 'NQ', current: prices.nq.current, threshold: prices.nq.current - 100, change: prices.nq.change, type: 'drop' },
+        function updateTradeIdeas() {
+            const tradeIdeas = [
+                { direction: 'LONG', type: 'Pullback Buy', entry: '25,400 - 25,450', stop: '25,350', target1: '25,550', target2: '25,650', rationale: 'Demand zone, MA 200 support' },
+                { direction: 'SHORT', type: 'Rejection Short', entry: '25,850 - 26,000', stop: '26,050', target1: '25,700', target2: '25,600', rationale: 'Supply zone, H&S pattern' },
             ];
-            
-            // Candle sweep alerts
+            document.getElementById('tradeIdeas').innerHTML = tradeIdeas.map(trade => `<div class="trade-card ${trade.direction.toLowerCase()}"><div class="trade-header"><span class="trade-direction ${trade.direction.toLowerCase()}">${trade.direction}</span><span class="trade-badge">${trade.type}</span></div><div class="trade-row"><span class="trade-label">Entry</span><span class="trade-value">${trade.entry}</span></div><div class="trade-row"><span class="trade-label">Stop</span><span class="trade-value trade-stop">${trade.stop}</span></div><div class="trade-row"><span class="trade-label">Target</span><span class="trade-value trade-target">${trade.target1} / ${trade.target2}</span></div><div class="trade-rationale">${trade.rationale}</div></div>`).join('');
+        }
+        
+        function updateLondonOpen() {
+            const londonData = { bias: 'BULLISH', asiaHigh: 25680, asiaLow: 25520, candleHigh: 25650, candleLow: 25580, swept: 'ASIA_LOW', signal: 'Look for long pullback at 9:30 NY' };
+            document.getElementById('londonOpen').innerHTML = `<div class="trade-card long"><div class="trade-header"><span class="trade-direction long">${londonData.bias}</span><span class="trade-badge">6AM H4 Candle</span></div><div class="trade-row"><span class="trade-label">Asia High</span><span class="trade-value">${londonData.asiaHigh}</span></div><div class="trade-row"><span class="trade-label">Asia Low</span><span class="trade-value">${londonData.asiaLow}</span></div><div class="trade-row"><span class="trade-label">6AM High</span><span class="trade-value">${londonData.candleHigh}</span></div><div class="trade-row"><span class="trade-label">6AM Low</span><span class="trade-value">${londonData.candleLow}</span></div><div class="trade-row"><span class="trade-label">Swept</span><span class="trade-value">${londonData.swept}</span></div><div class="trade-rationale">${londonData.signal}</div></div>`;
+        }
+        
+        function updateSessionLevels(price) {
+            const sessions = [
+                { name: 'Asian Session', icon: '🗼', high: 25680, low: 25520 },
+                { name: 'European Session', icon: '🇪🇺', high: 25750, low: 25580 },
+                { name: 'NY Session', icon: '🇺🇸', high: 25800, low: 25620 },
+                { name: 'Current Day', icon: '📅', high: 25890, low: 25380 },
+            ];
+            document.getElementById('sessionLevels').innerHTML = sessions.map(s => `<div class="session-item"><span class="session-name"><span class="session-icon">${s.icon}</span>${s.name}</span><div class="session-levels"><span class="session-hl up">H: ${s.high}</span><span class="session-hl down">L: ${s.low}</span></div></div>`).join('');
+        }
+        
+        function updateVolumeProfile(price) {
+            const zones = [
+                { price: 25700, vol: 12000, type: 'sell' },
+                { price: 25650, vol: 25000, type: 'neutral' },
+                { price: 25600, vol: 35000, type: 'buy' },
+                { price: 25550, vol: 28000, type: 'neutral' },
+                { price: 25500, vol: 15000, type: 'sell' },
+            ];
+            const totalVol = zones.reduce((sum, z) => sum + z.vol, 0);
+            document.getElementById('volumeProfile').innerHTML = `<div class="profile-bar">${zones.map(z => `<div class="${z.type}" style="width: ${(z.vol/totalVol)*100}%"></div>`).join('')}</div>${zones.map(z => `<div class="indicator-row"><span class="indicator-name">${z.price}</span><span class="indicator-value">${z.vol.toLocaleString()} contracts</span></div>`).join('')}<div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">POC: 25,600 | Value Area: 25,550-25,650</div>`;
+        }
+        
+        function updateVixData(vix) {
+            document.getElementById('vixData').innerHTML = `<div class="indicator-row"><span class="indicator-name">VIX</span><span class="indicator-value">${vix.toFixed(2)}</span></div><div class="indicator-row"><span class="indicator-name">VIX Term Structure</span><span class="indicator-value neutral">Contango</span></div><div class="indicator-row"><span class="indicator-name">VIX1M</span><span class="indicator-value">17.2</span></div><div class="indicator-row"><span class="indicator-name">VIX3M</span><span class="indicator-value">16.8</span></div><div class="indicator-row"><span class="indicator-name">Risk Sentiment</span><span class="indicator-value bullish">Complacent</span></div>`;
+        }
+        
+        function updateGapData(price) {
+            const gaps = [
+                { type: 'Gap Up', level: 25720, fill: 40 },
+                { type: 'Gap Down', level: 25580, fill: 100 },
+                { type: 'Gap Down', level: 25450, fill: 0 },
+            ];
+            document.getElementById('gapData').innerHTML = gaps.map(g => `<div class="gap-item"><span>${g.type} @ ${g.level}</span><span class="gap-fill ${g.fill === 100 ? 'filled' : 'pending'}">${g.fill}% Filled</span></div>`).join('') + `<div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">Gap fill probability: 65% (historical avg)</div>`;
+        }
+        
+        function updateAdrData() {
+            document.getElementById('adrData').innerHTML = `<div class="indicator-row"><span class="indicator-name">ADR (20)</span><span class="indicator-value">185 pts</span></div><div class="indicator-row"><span class="indicator-name">ATR (14)</span><span class="indicator-value">165 pts</span></div><div class="indicator-row"><span class="indicator-name">Daily Range Used</span><span class="indicator-value">45%</span></div><div class="indicator-row"><span class="indicator-name">Typical True Range</span><span class="indicator-value">150-200 pts</span></div>`;
+        }
+        
+        function updateOptionsData() {
+            document.getElementById('optionsData').innerHTML = `<div class="indicator-row"><span class="indicator-name">Put/Call Ratio</span><span class="indicator-value neutral">0.85</span></div><div class="indicator-row"><span class="indicator-name">Major Strike</span><span class="indicator-value">25,650</span></div><div class="indicator-row"><span class="indicator-name">Call Wall</span><span class="indicator-value">26,000</span></div><div class="indicator-row"><span class="indicator-name">Put Support</span><span class="indicator-value">25,400</span></div><div class="indicator-row"><span class="indicator-name">IV (NQ)</span><span class="indicator-value">14.5%</span></div>`;
+        }
+        
+        function updateOiData() {
+            document.getElementById('oiData').innerHTML = `<div class="indicator-row"><span class="indicator-name">NQH26 OI</span><span class="indicator-value">245,000</span></div><div class="indicator-row"><span class="indicator-name">MNQH26 OI</span><span class="indicator-value">89,000</span></div><div class="indicator-row"><span class="indicator-name">OI Change</span><span class="indicator-value bullish">+2.3%</span></div><div class="indicator-row"><span class="indicator-name">Cost Basis</span><span class="indicator-value">25,580</span></div>`;
+        }
+        
+        function updateDxyData(dxy) {
+            document.getElementById('dxyData').innerHTML = `<div class="indicator-row"><span class="indicator-name">DXY</span><span class="indicator-value">${dxy.toFixed(2)}</span></div><div class="indicator-row"><span class="indicator-name">NQ/DXY Corr</span><span class="indicator-value bearish">-0.65</span></div><div class="indicator-row"><span class="indicator-name">10Y Yield</span><span class="indicator-value">4.52%</span></div><div class="indicator-row"><span class="indicator-name">Gold</span><span class="indicator-value">$2,045</span></div>`;
+        }
+        
+        function updateBreadthData() {
+            document.getElementById('breadthData').innerHTML = `<div class="breadth-item"><span>NYSE A/D</span><span style="color: #3fb950;">+1,245</span></div><div class="breadth-bar"><div class="breadth-bar-fill up" style="width: 58%"></div></div><div class="breadth-item"><span>NASDAQ A/D</span><span style="color: #3fb950;">+892</span></div><div class="breadth-bar"><div class="breadth-bar-fill up" style="width: 55%"></div></div><div class="breadth-item"><span>SPX McGinley</span><span class="indicator-value neutral">Strong</span></div><div class="indicator-row" style="margin-top: 10px;"><span class="indicator-name">UVOL/DVOL</span><span class="indicator-value">1.12</span></div>`;
+        }
+        
+        async function updatePriceAlerts(prices) {
+            const priceAlerts = [
+                { ticker: 'TSLA', current: prices.tsla.current, threshold: prices.tsla.current * 0.95, type: 'drop' },
+                { ticker: 'NQ', current: prices.nq.current, threshold: prices.nq.current - 100, type: 'drop' },
+            ];
             const sweepAlerts = [
                 { timeframe: '1H', high: 25680, low: 25580, close: prices.nq.current, dir: prices.nq.current > 25680 ? 'BULLISH' : (prices.nq.current < 25580 ? 'BEARISH' : 'NEUTRAL') },
                 { timeframe: '4H', high: 25750, low: 25450, close: prices.nq.current, dir: 'NEUTRAL' },
                 { timeframe: 'Prev Day', high: 25890, low: 25380, close: 25650, dir: 'PDH/PDL' },
             ];
-            
             let html = '<div style="margin-bottom: 15px;"><strong style="font-size: 12px; color: #8b949e;">📉 Price Drops</strong></div>';
             html += priceAlerts.map(alert => {
                 const status = alert.current <= alert.threshold ? 'TRIGGERED' : 'ACTIVE';
                 const statusClass = alert.current <= alert.threshold ? 'bearish' : 'neutral';
-                return `
-                    <div class="indicator-row">
-                        <span class="indicator-name">${alert.ticker}</span>
-                        <span class="indicator-value ${statusClass}">${alert.current.toFixed(2)} / ${alert.threshold.toFixed(2)} (${status})</span>
-                    </div>
-                `;
+                return `<div class="indicator-row"><span class="indicator-name">${alert.ticker}</span><span class="indicator-value ${statusClass}">${alert.current.toFixed(2)} / ${alert.threshold.toFixed(2)} (${status})</span></div>`;
             }).join('');
-            
             html += '<div style="margin: 15px 0 10px;"><strong style="font-size: 12px; color: #8b949e;">🕯️ Candle Sweeps (NQ)</strong></div>';
             html += sweepAlerts.map(sweep => {
                 const sweepClass = sweep.dir === 'BULLISH' ? 'bullish' : (sweep.dir === 'BEARISH' ? 'bearish' : 'neutral');
-                return `
-                    <div class="indicator-row">
-                        <span class="indicator-name">${sweep.timeframe}</span>
-                        <span class="indicator-value ${sweepClass}">H: ${sweep.high} | L: ${sweep.low} | C: ${sweep.close.toFixed(0)}</span>
-                    </div>
-                `;
+                return `<div class="indicator-row"><span class="indicator-name">${sweep.timeframe}</span><span class="indicator-value ${sweepClass}">H: ${sweep.high} | L: ${sweep.low} | C: ${sweep.close.toFixed(0)}</span></div>`;
             }).join('');
-            
-            html += `
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px; color: #8b949e; text-align: center;">
-                    Live data • Updating every 30s
-                </div>
-            `;
-            
+            html += '<div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px; color: #8b949e; text-align: center;">Live data • Updating every 30s</div>';
             document.getElementById('priceAlerts').innerHTML = html;
         }
-            
-            html += `
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px; color: #8b949e; text-align: center;">
-                    Checking every 5 min • Alerts sent to Telegram
-                </div>
-            `;
-            
-            document.getElementById('priceAlerts').innerHTML = html;
+        
+        function updateIndicators() {
+            const indicators = [
+                { name: 'MA 200', value: '25,200', signal: 'Bullish' },
+                { name: 'MA 50', value: '25,500', signal: 'Neutral' },
+                { name: 'RSI (14)', value: '48', signal: 'Neutral' },
+                { name: 'MACD', value: 'Slightly Bearish', signal: 'Bearish' },
+                { name: 'VWAP', value: '25,580', signal: 'Neutral' },
+            ];
+            document.getElementById('indicators').innerHTML = indicators.map(ind => `<div class="indicator-row"><span class="indicator-name">${ind.name}</span><span class="indicator-value ${ind.signal.toLowerCase()}">${ind.value} (${ind.signal})</span></div>`).join('');
+        }
+        
+        function updateGlobalIndices() {
+            const indices = [
+                { name: 'Nikkei 225', icon: '🗼', price: 39250, change: -180 },
+                { name: 'DAX', icon: '🇩🇪', price: 20890, change: +45 },
+                { name: 'FTSE 100', icon: '🇬🇧', price: 8120, change: +28 },
+                { name: 'S&P 500', icon: '🇺🇸', price: 6795, change: +12 },
+            ];
+            document.getElementById('globalIndices').innerHTML = indices.map(idx => `<div class="global-index-item"><div class="index-info"><span class="index-icon">${idx.icon}</span><span class="index-name">${idx.name}</span></div><span class="index-price">${idx.price.toLocaleString()}</span><span class="index-change ${idx.change >= 0 ? 'up' : 'down'}">${idx.change >= 0 ? '▲' : '▼'} ${idx.change >= 0 ? '+' : ''}${idx.change}</span></div>`).join('');
         }
         
         function updateMarketRisks() {
@@ -383,9 +372,7 @@
                 { icon: '📈', text: 'Jobs Report (Fri)', badge: 'HIGH' },
                 { icon: '🔮', text: 'Megacap Earnings', badge: 'MEDIUM' },
             ];
-            document.getElementById('marketRisks').innerHTML = risks.map(r =>
-                `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`
-            ).join('');
+            document.getElementById('marketRisks').innerHTML = risks.map(r => `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`).join('');
         }
         
         function formatTime12(str) {
@@ -401,9 +388,7 @@
                 { time: '20:30', name: 'Durable Goods', impact: 'medium' },
                 { time: '22:00', name: 'Bowman Speech', impact: 'high' },
             ];
-            document.getElementById('economicEvents').innerHTML = events.map(e =>
-                `<div class="event-item"><span class="event-time">${formatTime12(e.time)} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`
-            ).join('');
+            document.getElementById('economicEvents').innerHTML = events.map(e => `<div class="event-item"><span class="event-time">${formatTime12(e.time)} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`).join('');
         }
         
         function updateEarnings() {
@@ -413,9 +398,7 @@
                 { ticker: 'META', date: 'Wed', name: 'Meta' },
                 { ticker: 'AAPL', date: 'Thu', name: 'Apple' },
             ];
-            document.getElementById('earnings').innerHTML = earnings.map(e =>
-                `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span class="date">${e.date}</span></div>`
-            ).join('');
+            document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span class="date">${e.date}</span></div>`).join('');
         }
         
         function updateNews() {
@@ -423,9 +406,7 @@
                 { headline: 'Fed officials signal patience on rate cuts', source: 'Reuters' },
                 { headline: 'Nasdaq consolidates amid earnings week', source: 'CNBC' },
             ];
-            document.getElementById('news').innerHTML = news.map(n =>
-                `<div class="news-item"><div class="news-headline">${n.headline}</div><div class="news-source">${n.source}</div></div>`
-            ).join('');
+            document.getElementById('news').innerHTML = news.map(n => `<div class="news-item"><div class="news-headline">${n.headline}</div><div class="news-source">${n.source}</div></div>`).join('');
         }
         
         function format12Hour(hour24) {
@@ -440,16 +421,10 @@
             const istOffset = 5.5 * 60 * 60 * 1000;
             const istNow = new Date(now.getTime() + istOffset);
             const istHour = istNow.getHours() + istNow.getMinutes() / 60;
-            
-            // Tokyo = IST - 3.5 hours
             const tokyoHour = (istHour - 3.5 + 24) % 24;
-            // London = IST - 5.5 hours
             const londonHour = (istHour - 5.5 + 24) % 24;
-            // Frankfurt = IST - 4.5 hours
             const frankfurtHour = (istHour - 4.5 + 24) % 24;
-            // NY = IST - 10.5 hours
             const nyHour = (istHour - 10.5 + 24) % 24;
-            
             document.getElementById('tokyoTime').textContent = format12Hour(tokyoHour);
             document.getElementById('londonTime').textContent = format12Hour(londonHour);
             document.getElementById('frankfurtTime').textContent = format12Hour(frankfurtHour);
@@ -459,7 +434,6 @@
         async function updatePrice() {
             const prices = await fetchPrices();
             const price = prices.nq.current;
-            
             document.getElementById('price').textContent = price.toLocaleString();
             document.getElementById('res1').textContent = (price + 100).toLocaleString();
             document.getElementById('res2').textContent = (price + 200).toLocaleString();
@@ -480,15 +454,23 @@
             document.getElementById('updateTime').textContent = formatDateTime12(now);
             const hour = now.getUTCHours() + now.getMinutes() / 60;
             const isOpen = hour >= 14.5 && hour < 23 && now.getDay() > 0 && now.getDay() < 6;
-            document.getElementById('marketStatus').innerHTML = isOpen 
-                ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>'
-                : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
+            document.getElementById('marketStatus').innerHTML = isOpen ? '<span class="status-indicator" style="background: #3fb950;"></span><span class="market-open">● US Market OPEN</span>' : '<span class="status-indicator" style="background: #f85149;"></span><span class="market-closed">● US Market CLOSED</span>';
             
             updateGlobalTimes();
+            const prices = await fetchPrices();
             await updatePrice();
             updateTradeIdeas();
             updateLondonOpen();
-            await updatePriceAlerts();
+            await updatePriceAlerts(prices);
+            updateSessionLevels(prices.nq.current);
+            updateVolumeProfile(prices.nq.current);
+            updateVixData(prices.vix.current);
+            updateGapData(prices.nq.current);
+            updateAdrData();
+            updateOptionsData();
+            updateOiData();
+            updateDxyData(prices.dxy.current);
+            updateBreadthData();
             updateIndicators();
             updateGlobalIndices();
             updateMarketRisks();
