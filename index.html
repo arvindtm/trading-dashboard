@@ -249,8 +249,8 @@
                 fetchFromFinnhub('QQQ') // Nasdaq 100 ETF - proxy for NQ
             ]);
             
-            // Scale QQQ to approximate NQ (QQQ ~ 1/10 of NQ)
-            const nqFromQqq = qqqData ? qqqData.current * 10 : null;
+            // QQQ × 50 ≈ NQ (based on historical correlation)
+            const nqFromQqq = qqqData ? qqqData.current * 50 : null;
             
             console.log('TSLA:', tslaData);
             console.log('QQQ:', qqqData, '→ NQ approx:', nqFromQqq);
