@@ -132,7 +132,7 @@
         .weather-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .weather-icon { font-size: 24px; }
         .weather-temp { font-size: 18px; font-weight: 700; color: #58a6ff; }
-        .market-timer-fixed { position: fixed; top: 20px; right: 20px; z-index: 1001; background: #161b22; padding: 8px 16px; border-radius: 8px; border: 1px solid #21262d; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 15px; }
+        .market-timer-fixed { position: fixed; top: 20px; right: 20px; z-index: 1001; background: #161b22; padding: 8px 16px; border-radius: 8px; border: 1px solid #21262d; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
@@ -488,7 +488,7 @@
             document.getElementById('globalIndices').innerHTML = indices.map(idx => `<div class="global-index-item"><div class="index-info"><span class="index-icon">${idx.icon}</span><span class="index-name">${idx.name}</span></div><span class="index-price">${idx.price.toLocaleString()}</span><span class="index-change ${idx.change >= 0 ? 'up' : 'down'}">${idx.change >= 0 ? '▲' : '▼'} ${idx.change >= 0 ? '+' : ''}${idx.change}</span></div>`).join('');
         }
         
-        // Show NY and London Time
+        // Show NY, London, and Tokyo Time
         function updateNYTime() {
             const now = new Date();
             
@@ -505,10 +505,15 @@
             const nyHour12 = Math.floor(nyHour) % 12 || 12;
             
             // London = UTC or UTC + 1 (BST)
-            const isBST = month >= 2 && month <= 10; // Roughly Mar-Oct
+            const isBST = month >= 2 && month <= 10;
             const londonHour = (utcHour + (isBST ? 1 : 0)) % 24;
             const londonAmpm = londonHour >= 12 ? 'PM' : 'AM';
             const londonHour12 = Math.floor(londonHour) % 12 || 12;
+            
+            // Tokyo = UTC + 9 (JST)
+            const tokyoHour = (utcHour + 9) % 24;
+            const tokyoAmpm = tokyoHour >= 12 ? 'PM' : 'AM';
+            const tokyoHour12 = Math.floor(tokyoHour) % 12 || 12;
             
             // Market status
             const nyHourDecimal = nyHour + utcMin / 60;
@@ -522,6 +527,7 @@
                     <span style="color: ${statusColor};">● ${statusText}</span>
                     <span style="color: #58a6ff;">🇺🇸 ${nyHour12}:${utcMin.toString().padStart(2, '0')} ${nyAmpm}</span>
                     <span style="color: #58a6ff;">🇬🇧 ${londonHour12}:${utcMin.toString().padStart(2, '0')} ${londonAmpm}</span>
+                    <span style="color: #58a6ff;">🇯🇵 ${tokyoHour12}:${utcMin.toString().padStart(2, '0')} ${tokyoAmpm}</span>
                 `;
             }
         }
