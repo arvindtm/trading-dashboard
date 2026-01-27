@@ -293,6 +293,21 @@
             // Always show defaults first (instant load)
             let prices = { ...DEFAULT_PRICES, nifty: DEFAULT_NIFTY };
             
+            // Try to fetch live NQ directly from Yahoo Finance
+            try {
+                const nqRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%7ENQ=F?interval=1m&range=1d');
+                const nqData = await nqRes.json();
+                const nqCurrent = nqData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0];
+                if (nqCurrent && nqCurrent > 20000) {
+                    prices.nq = { 
+                        current: Math.round(nqCurrent), 
+                        change: 0 
+                    };
+                }
+            } catch (e) {
+                console.log('NQ fetch from Yahoo failed');
+            }
+            
             // Try to fetch live data in background
             try {
                 const [tsla, qqq] = await Promise.all([
@@ -300,7 +315,11 @@
                     fetchFromFinnhub('QQQ')
                 ]);
                 if (tsla) prices.tsla = tsla;
-                if (qqq) prices.nq = { current: Math.round(qqq.current * 50), change: qqq.change };
+                
+                // Use QQQ to estimate NQ if Yahoo failed
+                if (qqq && !prices.nq.current) {
+                    prices.nq = { current: Math.round(qqq.current * 50), change: qqq.change };
+                }
                 
                 // Try to fetch NIFTY from Yahoo Finance via proxy
                 try {
