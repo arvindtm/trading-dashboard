@@ -441,7 +441,7 @@
                 <div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">
                     SGX Nifty: ${(nifty.current + 50).toLocaleString()} (overnight indicator)
                 </div>
-            `;
+            ` + addTimestamp('niftyData');
         }
         
         function updateBreadthData() {
@@ -473,13 +473,9 @@
             document.getElementById('priceAlerts').innerHTML = html;
         }
         
-        function updateIndicators() {
-            const now = new Date();
+        function updateIndicators(prices) {
+            const price = prices?.nq?.current || 25650;
             const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            
-            // Get current price for estimation
-            const priceEl = document.getElementById('price');
-            const price = priceEl ? parseInt(priceEl.textContent.replace(/,/g, '')) : 25650;
             
             // Estimate indicators around current price (true indicators need historical data)
             const ma200 = Math.round(price * 0.985);
@@ -494,7 +490,7 @@
                 { name: 'MACD', value: price > vwap ? 'Bullish' : 'Bearish', signal: price > vwap ? 'Bullish' : 'Bearish' },
                 { name: 'VWAP', value: vwap.toLocaleString(), signal: price > vwap ? 'Bullish' : 'Bearish' },
             ];
-            document.getElementById('indicators').innerHTML = `<div style="font-size: 10px; color: #8b949e; margin-bottom: 5px;">Live @ ${time} IST</div>` + indicators.map(ind => `<div class="indicator-row"><span class="indicator-name">${ind.name}</span><span class="indicator-value ${ind.signal.toLowerCase()}">${ind.value} (${ind.signal})</span></div>`).join('');
+            document.getElementById('indicators').innerHTML = `<div style="font-size: 10px; color: #8b949e; margin-bottom: 5px;">Live @ ${time} IST</div>` + indicators.map(ind => `<div class="indicator-row"><span class="indicator-name">${ind.name}</span><span class="indicator-value ${ind.signal.toLowerCase()}">${ind.value} (${ind.signal})</span></div>`).join('') + addTimestamp('indicators');
         }
         
         function updateGlobalIndices() {
@@ -506,7 +502,7 @@
                 { name: 'FTSE 100', icon: '🇬🇧', price: '~8,120', change: +28 },
                 { name: 'S&P 500', icon: '🇺🇸', price: '~6,795', change: +12 },
             ];
-            document.getElementById('globalIndices').innerHTML = `<div style="font-size: 10px; color: #8b949e; margin-bottom: 5px;">Est. @ ${time} IST</div>` + indices.map(idx => `<div class="global-index-item"><div class="index-info"><span class="index-icon">${idx.icon}</span><span class="index-name">${idx.name}</span></div><span class="index-price">${idx.price}</span><span class="index-change ${idx.change >= 0 ? 'up' : 'down'}">${idx.change >= 0 ? '▲' : '▼'} ${idx.change >= 0 ? '+' : ''}${idx.change}</span></div>`).join('');
+            document.getElementById('globalIndices').innerHTML = `<div style="font-size: 10px; color: #8b949e; margin-bottom: 5px;">Est. @ ${time} IST</div>` + indices.map(idx => `<div class="global-index-item"><div class="index-info"><span class="index-icon">${idx.icon}</span><span class="index-name">${idx.name}</span></div><span class="index-price">${idx.price}</span><span class="index-change ${idx.change >= 0 ? 'up' : 'down'}">${idx.change >= 0 ? '▲' : '▼'} ${idx.change >= 0 ? '+' : ''}${idx.change}</span></div>`).join('') + addTimestamp('globalIndices');
         }
         
         // Show NY, London, and Tokyo Time
@@ -780,7 +776,7 @@
                 updateOiData();
                 updateDxyData(prices.dxy.current);
                 updateBreadthData();
-                updateIndicators();
+                updateIndicators(prices);
                 updateGlobalIndices();
                 updateNiftyData(prices.nifty);
                 
@@ -823,7 +819,7 @@
                 { id: 'card-oi-data', fn: updateOiData },
                 { id: 'card-dxy-data', fn: () => updateDxyData(prices.dxy.current) },
                 { id: 'card-breadth-data', fn: updateBreadthData },
-                { id: 'card-indicators', fn: updateIndicators },
+                { id: 'card-indicators', fn: () => updateIndicators(prices) },
                 { id: 'card-global-indices', fn: updateGlobalIndices },
                 { id: 'card-nifty-data', fn: () => updateNiftyData(prices.nifty) },
                 { id: 'card-market-risks', fn: fetchMarketMovers },
