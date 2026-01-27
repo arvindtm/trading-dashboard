@@ -498,24 +498,28 @@
         }
         
         function updateIndicators() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             const indicators = [
-                { name: 'MA 200', value: '25,200', signal: 'Bullish' },
-                { name: 'MA 50', value: '25,500', signal: 'Neutral' },
-                { name: 'RSI (14)', value: '48', signal: 'Neutral' },
-                { name: 'MACD', value: 'Slightly Bearish', signal: 'Bearish' },
-                { name: 'VWAP', value: '25,580', signal: 'Neutral' },
+                { name: 'MA 200', value: '~25,200', signal: 'Bullish' },
+                { name: 'MA 50', value: '~25,500', signal: 'Neutral' },
+                { name: 'RSI (14)', value: '~48', signal: 'Neutral' },
+                { name: 'MACD', value: '~Slight Bear', signal: 'Bearish' },
+                { name: 'VWAP', value: '~25,580', signal: 'Neutral' },
             ];
-            document.getElementById('indicators').innerHTML = indicators.map(ind => `<div class="indicator-row"><span class="indicator-name">${ind.name}</span><span class="indicator-value ${ind.signal.toLowerCase()}">${ind.value} (${ind.signal})</span></div>`).join('');
+            document.getElementById('indicators').innerHTML = `<div style="font-size: 10px; color: #8b949e; margin-bottom: 5px;">Est. @ ${time} IST</div>` + indicators.map(ind => `<div class="indicator-row"><span class="indicator-name">${ind.name}</span><span class="indicator-value ${ind.signal.toLowerCase()}">${ind.value} (${ind.signal})</span></div>`).join('');
         }
         
         function updateGlobalIndices() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             const indices = [
-                { name: 'Nikkei 225', icon: '🗼', price: 39250, change: -180 },
-                { name: 'DAX', icon: '🇩🇪', price: 20890, change: +45 },
-                { name: 'FTSE 100', icon: '🇬🇧', price: 8120, change: +28 },
-                { name: 'S&P 500', icon: '🇺🇸', price: 6795, change: +12 },
+                { name: 'Nikkei 225', icon: '🗼', price: '~39,250', change: -180 },
+                { name: 'DAX', icon: '🇩🇪', price: '~20,890', change: +45 },
+                { name: 'FTSE 100', icon: '🇬🇧', price: '~8,120', change: +28 },
+                { name: 'S&P 500', icon: '🇺🇸', price: '~6,795', change: +12 },
             ];
-            document.getElementById('globalIndices').innerHTML = indices.map(idx => `<div class="global-index-item"><div class="index-info"><span class="index-icon">${idx.icon}</span><span class="index-name">${idx.name}</span></div><span class="index-price">${idx.price.toLocaleString()}</span><span class="index-change ${idx.change >= 0 ? 'up' : 'down'}">${idx.change >= 0 ? '▲' : '▼'} ${idx.change >= 0 ? '+' : ''}${idx.change}</span></div>`).join('');
+            document.getElementById('globalIndices').innerHTML = `<div style="font-size: 10px; color: #8b949e; margin-bottom: 5px;">Est. @ ${time} IST</div>` + indices.map(idx => `<div class="global-index-item"><div class="index-info"><span class="index-icon">${idx.icon}</span><span class="index-name">${idx.name}</span></div><span class="index-price">${idx.price}</span><span class="index-change ${idx.change >= 0 ? 'up' : 'down'}">${idx.change >= 0 ? '▲' : '▼'} ${idx.change >= 0 ? '+' : ''}${idx.change}</span></div>`).join('');
         }
         
         // Show NY, London, and Tokyo Time
