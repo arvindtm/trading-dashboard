@@ -798,7 +798,8 @@
         setInterval(() => fetchAllData(), UPDATE_INTERVAL);
         
         // Initialize drag-and-drop with SortableJS
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {console.log('DOMContentLoaded - populating dashboard data');
+
             const grid = document.getElementById('dashboardGrid');
             const lockBtn = document.getElementById('lockBtn');
             // Default prices
@@ -828,15 +829,95 @@
                 { id: 'card-indicators', fn: () => updateIndicators(prices) },
                 { id: 'card-global-indices', fn: updateGlobalIndices },
                 { id: 'card-nifty-data', fn: () => updateNiftyData(prices.nifty) },
-                { id: 'card-market-risks', fn: () => fetchMarketMovers().catch(() => {}) },
-                { id: 'card-economic-events', fn: () => fetchEconomicEvents().catch(() => {}) },
-                { id: 'card-earnings', fn: () => fetchEarnings().catch(() => {}) },
-                { id: 'card-news', fn: () => fetchMarketNews().catch(() => {}) }
+                { id: 'card-market-risks', fn: function() {
+                    const risks = [
+                        { icon: '📊', text: 'Durable Goods Orders', badge: 'HIGH' },
+                        { icon: '📋', text: 'State Employment/Unemployment', badge: 'MED' },
+                        { icon: '📊', text: 'State Job Openings (Nov)', badge: 'LOW' },
+                        { icon: '🔮', text: 'MegaCap Earnings Week', badge: 'HIGH' },
+                    ];
+                    document.getElementById('marketRisks').innerHTML = risks.map(r => `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`).join('') + addTimestamp('marketRisks');
+                }},
+                { id: 'card-economic-events', fn: function() {
+                    const events = [
+                        { time: '20:30', name: 'State Employment/Unemployment (Dec)', impact: 'medium' },
+                        { time: '20:30', name: 'State Job Openings (Nov)', impact: 'low' },
+                    ];
+                    document.getElementById('economicEvents').innerHTML = events.map(e => `<div class="event-item"><span class="event-time">${e.time} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`).join('') + '<div style="margin-top: 10px; padding: 10px; background: #f8514933; border-radius: 6px; font-size: 12px; color: #f85149;">⚠️ <strong>Durable Goods Orders</strong> at 7:00 PM EST (1:30 AM IST Jan 28)</div>' + addTimestamp('economicEvents');
+                }},
+                { id: 'card-earnings', fn: function() {
+                    const earnings = [
+                        { ticker: 'TSLA', date: 'Wed, Jan 28', name: 'Tesla', time: '2:35 AM IST', type: 'AFTER' },
+                        { ticker: 'MSFT', date: 'Wed, Jan 29', name: 'Microsoft', time: '10:00 PM IST', type: 'AFTER' },
+                        { ticker: 'META', date: 'Wed, Jan 29', name: 'Meta', time: '10:15 PM IST', type: 'AFTER' },
+                        { ticker: 'AAPL', date: 'Thu, Jan 30', name: 'Apple', time: 'TBD', type: 'AFTER' },
+                    ];
+                    document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span><span class="earnings-time">${e.date} ${e.time}</span><span class="earnings-type ${e.type.toLowerCase()}">${e.type}</span></span></div>`).join('') + addTimestamp('earnings');
+                }},
+                { id: 'card-news', fn: function() {
+                    const news = [
+                        { headline: 'Fed officials signal patience on rate cuts', source: 'Reuters' },
+                        { headline: 'Nasdaq consolidates amid earnings week', source: 'CNBC' },
+                        { headline: 'Tech stocks lead market higher', source: 'Bloomberg' },
+                    ];
+                    document.getElementById('news').innerHTML = news.map(n => `<div class="news-item"><div class="news-headline">${n.headline}</div><div class="news-source">${n.source}</div></div>`).join('') + addTimestamp('news');
+                }}
+            ];
+                { id: 'card-nq-levels', fn: () => {} },
+                { id: 'card-trade-ideas', fn: () => fetchTradeIdeas().catch(() => {}) },
+                { id: 'card-london-open', fn: updateLondonOpen },
+                { id: 'card-price-alerts', fn: () => updatePriceAlerts(prices) },
+                { id: 'card-session-levels', fn: () => updateSessionLevels(prices.nq.current) },
+                { id: 'card-volume-profile', fn: () => updateVolumeProfile(prices.nq.current) },
+                { id: 'card-vix-data', fn: () => updateVixData(prices.vix.current) },
+                { id: 'card-gap-data', fn: () => fetchGapFills().catch(() => {}) },
+                { id: 'card-adr-data', fn: updateAdrData },
+                { id: 'card-options-data', fn: updateOptionsData },
+                { id: 'card-oi-data', fn: updateOiData },
+                { id: 'card-dxy-data', fn: () => updateDxyData(prices.dxy.current) },
+                { id: 'card-breadth-data', fn: updateBreadthData },
+                { id: 'card-indicators', fn: () => updateIndicators(prices) },
+                { id: 'card-global-indices', fn: updateGlobalIndices },
+                { id: 'card-nifty-data', fn: () => updateNiftyData(prices.nifty) },
+                { id: 'card-market-risks', fn: function() {
+                    const risks = [
+                        { icon: '📊', text: 'Durable Goods Orders', badge: 'HIGH' },
+                        { icon: '📋', text: 'State Employment/Unemployment', badge: 'MED' },
+                        { icon: '📊', text: 'State Job Openings (Nov)', badge: 'LOW' },
+                        { icon: '🔮', text: 'MegaCap Earnings Week', badge: 'HIGH' },
+                    ];
+                    document.getElementById('marketRisks').innerHTML = risks.map(r => `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`).join('') + addTimestamp('marketRisks');
+                }},
+                { id: 'card-economic-events', fn: function() {
+                    const events = [
+                        { time: '20:30', name: 'State Employment/Unemployment (Dec)', impact: 'medium' },
+                        { time: '20:30', name: 'State Job Openings (Nov)', impact: 'low' },
+                    ];
+                    document.getElementById('economicEvents').innerHTML = events.map(e => `<div class="event-item"><span class="event-time">${e.time} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`).join('') + '<div style="margin-top: 10px; padding: 10px; background: #f8514933; border-radius: 6px; font-size: 12px; color: #f85149;">⚠️ <strong>Durable Goods Orders</strong> at 7:00 PM EST (1:30 AM IST Jan 28)</div>' + addTimestamp('economicEvents');
+                }},
+                { id: 'card-earnings', fn: function() {
+                    const earnings = [
+                        { ticker: 'TSLA', date: 'Wed, Jan 28', name: 'Tesla', time: '2:35 AM IST', type: 'AFTER' },
+                        { ticker: 'MSFT', date: 'Wed, Jan 29', name: 'Microsoft', time: '10:00 PM IST', type: 'AFTER' },
+                        { ticker: 'META', date: 'Wed, Jan 29', name: 'Meta', time: '10:15 PM IST', type: 'AFTER' },
+                        { ticker: 'AAPL', date: 'Thu, Jan 30', name: 'Apple', time: 'TBD', type: 'AFTER' },
+                    ];
+                    document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span><span class="earnings-time">${e.date} ${e.time}</span><span class="earnings-type ${e.type.toLowerCase()}">${e.type}</span></span></div>`).join('') + addTimestamp('earnings');
+                }},
+                { id: 'card-news', fn: function() {
+                    const news = [
+                        { headline: 'Fed officials signal patience on rate cuts', source: 'Reuters' },
+                        { headline: 'Nasdaq consolidates amid earnings week', source: 'CNBC' },
+                        { headline: 'Tech stocks lead market higher', source: 'Bloomberg' },
+                    ];
+                    document.getElementById('news').innerHTML = news.map(n => `<div class="news-item"><div class="news-headline">${n.headline}</div><div class="news-source">${n.source}</div></div>`).join('') + addTimestamp('news');
+                }}
             ];
             
             // Apply IDs and run functions
             const cardDivs = grid.querySelectorAll('.card');
             cardConfigs.forEach((config, index) => {
+                console.log('Processing card:', config.id);
                 if (cardDivs[index]) {
                     cardDivs[index].id = config.id;
                 }
