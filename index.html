@@ -542,7 +542,7 @@
             const grid = document.getElementById('dashboardGrid');
             document.sortableInstance = new Sortable(grid, {
                 animation: 150,
-                handle: '.drag-handle',
+                // handle: '.drag-handle', // dragging entire card
                 ghostClass: 'sortable-ghost',
                 disabled: true,
                 onEnd: function(evt) {
