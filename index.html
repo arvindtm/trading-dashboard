@@ -480,6 +480,27 @@
             }
         }
         
+        // Lock/Unlock toggle
+        window.toggleLock = function() {
+            const lockBtn = document.getElementById('lockBtn');
+            const grid = document.getElementById('dashboardGrid');
+            const isLocked = sortable.option('disabled');
+            
+            sortable.option('disabled', !isLocked);
+            
+            if (!isLocked) {
+                lockBtn.textContent = '🔒 Lock';
+                lockBtn.style.borderColor = '#f85149';
+                lockBtn.style.color = '#f85149';
+                grid.style.opacity = '0.7';
+            } else {
+                lockBtn.textContent = '🔓 Unlock';
+                lockBtn.style.borderColor = '#30363d';
+                lockBtn.style.color = '#8b949e';
+                grid.style.opacity = '1';
+            }
+        };
+        
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             updateTimestamp();
@@ -487,15 +508,28 @@
             
             // SortableJS for drag-drop
             const grid = document.getElementById('dashboardGrid');
-            new Sortable(grid, {
+            window.sortable = new Sortable(grid, {
                 animation: 150,
                 handle: '.card',
                 ghostClass: 'sortable-ghost',
+                disabled: true,
                 onEnd: function(evt) {
                     const cardIds = Array.from(grid.children).map(card => card.id);
                     localStorage.setItem('dashboardOrder', JSON.stringify(cardIds));
                 }
             });
+            
+            // Restore saved order
+            const savedOrder = localStorage.getItem('dashboardOrder');
+            if (savedOrder) {
+                try {
+                    const cardIds = JSON.parse(savedOrder);
+                    cardIds.forEach(id => {
+                        const card = document.getElementById(id);
+                        if (card) grid.appendChild(card);
+                    });
+                } catch (e) {}
+            }
         });
     </script>
     
