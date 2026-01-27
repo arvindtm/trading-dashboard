@@ -640,12 +640,12 @@
                 // Simulated - would need Yahoo Finance earnings API
                 // Times in IST
                 const earnings = [
-                    { ticker: 'TSLA', date: 'Wed 28', name: 'Tesla', time: '2:35 AM IST', type: 'AFTER' },
-                    { ticker: 'MSFT', date: 'Wed 29', name: 'Microsoft', time: '10:00 PM IST', type: 'AFTER' },
-                    { ticker: 'META', date: 'Wed 29', name: 'Meta', time: '10:15 PM IST', type: 'AFTER' },
-                    { ticker: 'AAPL', date: 'Thu 30', name: 'Apple', time: 'TBD', type: 'AFTER' },
+                    { ticker: 'TSLA', date: 'Wed, Jan 28', name: 'Tesla', time: '2:35 AM IST', type: 'AFTER' },
+                    { ticker: 'MSFT', date: 'Wed, Jan 29', name: 'Microsoft', time: '10:00 PM IST', type: 'AFTER' },
+                    { ticker: 'META', date: 'Wed, Jan 29', name: 'Meta', time: '10:15 PM IST', type: 'AFTER' },
+                    { ticker: 'AAPL', date: 'Thu, Jan 30', name: 'Apple', time: 'TBD', type: 'AFTER' },
                 ];
-                document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span><span class="earnings-time">${e.time}</span><span class="earnings-type ${e.type.toLowerCase()}">${e.type}</span></span></div>`).join('');
+                document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span><span class="earnings-time">${e.date} ${e.time}</span><span class="earnings-type ${e.type.toLowerCase()}">${e.type}</span></span></div>`).join('');
             } catch (e) {
                 console.log('Earnings fetch failed');
             }
