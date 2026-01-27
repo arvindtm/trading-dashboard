@@ -233,11 +233,6 @@
             <h2>🇮🇳 NIFTY 50 (India)</h2>
             <div id="niftyData"></div>
         </div>
-        <!-- Liquidation Candles -->
-        <div class="card">
-            <h2>🔥 Liquidation Candles</h2>
-            <div id="liquidationData"></div>
-        </div>
         <!-- Market Movers -->
         <div class="card">
             <h2>⚠️ Market Movers</h2>
@@ -359,7 +354,7 @@
                     { direction: 'LONG', type: 'Pullback Buy', entry: `${Math.floor(price-50)} - ${Math.floor(price)}`, stop: Math.floor(price-100), target1: Math.floor(price+50), target2: Math.floor(price+100), rationale: 'Support zone, 6AM H4 bullish' },
                     { direction: 'SHORT', type: 'Rejection Short', entry: `${Math.floor(price+100)} - ${Math.floor(price+150)}`, stop: Math.floor(price+200), target1: Math.floor(price+50), target2: Math.floor(price), rationale: 'Supply zone, liquidation candle' },
                 ];
-                document.getElementById('tradeIdeas').innerHTML = `<div style="font-size: 11px; color: #8b949e; margin-bottom: 8px;">📅 ${day}</div>` + tradeIdeas.map(trade => `<div class="trade-card ${trade.direction.toLowerCase()}"><div class="trade-header"><span class="trade-direction ${trade.direction.toLowerCase()}">${trade.direction}</span><span class="trade-badge">${trade.type}</span></div><div class="trade-row"><span class="trade-label">Entry</span><span class="trade-value">${trade.entry}</span></div><div class="trade-row"><span class="trade-label">Stop</span><span class="trade-value trade-stop">${trade.stop}</span></div><div class="trade-row"><span class="trade-label">Target</span><span class="trade-value trade-target">${trade.target1} / ${trade.target2}</span></div><div class="trade-rationale">${trade.rationale}</div></div>`).join('');
+                document.getElementById('tradeIdeas').innerHTML = `<div style="font-size: 11px; color: #8b949e; margin-bottom: 8px;">📅 ${day}</div>` + tradeIdeas.map(trade => `<div class="trade-card ${trade.direction.toLowerCase()}"><div class="trade-header"><span class="trade-direction ${trade.direction.toLowerCase()}">${trade.direction}</span><span class="trade-badge">${trade.type}</span></div><div class="trade-row"><span class="trade-label">Entry</span><span class="trade-value">${trade.entry}</span></div><div class="trade-row"><span class="trade-label">Stop</span><span class="trade-value trade-stop">${trade.stop}</span></div><div class="trade-row"><span class="trade-label">Target</span><span class="trade-value trade-target">${trade.target1} / ${trade.target2}</span></div><div class="trade-rationale">${trade.rationale}</div></div>`).join('') + addTimestamp('tradeIdeas');
             } catch (e) {
                 console.log('Trade ideas fetch failed');
             }
@@ -424,32 +419,13 @@
         // Default NIFTY data
         const DEFAULT_NIFTY = { current: 25048, change: -0.95, high: 25200, low: 24950, open: 25250 };
         
-        // Liquidation candle detection (simulated - real detection needs live candle data)
-        function updateLiquidationData() {
-            const candles = [
-                { timeframe: '15M', type: 'BEARISH', wick: 'Long Lower', body: 'Small', level: 25620, confidence: 'HIGH', note: 'Swept liquidity, rejected' },
-                { timeframe: '1H', type: 'NEUTRAL', wick: 'Moderate', body: 'Large', level: 25650, confidence: 'LOW', note: 'No clear rejection' },
-                { timeframe: '4H', type: 'BULLISH', wick: 'Long Upper', body: 'Small', level: 25680, confidence: 'MEDIUM', note: 'Rejected at resistance' },
-            ];
-            
-            document.getElementById('liquidationData').innerHTML = `
-                <div style="margin-bottom: 12px; font-size: 11px; color: #8b949e;">
-                    Long wick + small body = institutional rejection
-                </div>
-                ${candles.map(c => `
-                    <div class="indicator-row" style="border-bottom: 1px solid #21262d; padding: 8px 0;">
-                        <span class="indicator-name">${c.timeframe}</span>
-                        <span class="indicator-value ${c.type.toLowerCase()}">${c.type}</span>
-                        <span class="indicator-value" style="color: #8b949e; font-size: 11px;">${c.wick}</span>
-                    </div>
-                    <div style="font-size: 11px; color: #8b949e; padding: 4px 0 8px; margin-left: 60px;">
-                        ${c.note} • <span style="color: ${c.confidence === 'HIGH' ? '#f85149' : '#3fb950'}">${c.confidence}</span>
-                    </div>
-                `).join('')}
-                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px; color: #58a6ff; text-align: center;">
-                    💡 Enter after candle closes • Stop beyond wick • Target 2R
-                </div>
-            `;
+        function getTimestamp() {
+            const now = new Date();
+            return now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' IST';
+        }
+        
+        function addTimestamp(elementId) {
+            return `<div style="margin-top: 8px; font-size: 10px; color: #6e7681; text-align: right;">🕐 ${getTimestamp()}</div>`;
         }
         
         function updateNiftyData(data) {
@@ -655,7 +631,7 @@
                 const events = [
                     { time: '20:30', name: `Economic Events (${day} ${month})`, impact: 'medium' },
                 ];
-                document.getElementById('economicEvents').innerHTML = events.map(e => `<div class="event-item"><span class="event-time">${formatTime12(e.time)} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`).join('');
+                document.getElementById('economicEvents').innerHTML = events.map(e => `<div class="event-item"><span class="event-time">${formatTime12(e.time)} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`).join('') + addTimestamp('economicEvents');
             } catch (e) {
                 console.log('Economic events fetch failed');
             }
@@ -673,7 +649,7 @@
                     { icon: '📈', text: 'PCE Inflation', badge: 'HIGH' },
                     { icon: '🔮', text: 'MegaCap Earnings', badge: 'MED' },
                 ];
-                document.getElementById('marketRisks').innerHTML = risks.map(r => `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`).join('');
+                document.getElementById('marketRisks').innerHTML = risks.map(r => `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`).join('') + addTimestamp('marketRisks');
             } catch (e) {
                 console.log('Market movers fetch failed');
             }
@@ -690,7 +666,7 @@
                     { ticker: 'META', date: 'Wed, Jan 29', name: 'Meta', time: '10:15 PM IST', type: 'AFTER' },
                     { ticker: 'AAPL', date: 'Thu, Jan 30', name: 'Apple', time: 'TBD', type: 'AFTER' },
                 ];
-                document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span><span class="earnings-time">${e.date} ${e.time}</span><span class="earnings-type ${e.type.toLowerCase()}">${e.type}</span></span></div>`).join('');
+                document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span><span class="earnings-time">${e.date} ${e.time}</span><span class="earnings-type ${e.type.toLowerCase()}">${e.type}</span></span></div>`).join('') + addTimestamp('earnings');
             } catch (e) {
                 console.log('Earnings fetch failed');
             }
@@ -742,7 +718,7 @@
                     gaps.push({ direction: 'NO GAP', area: `Current: ${price.toLocaleString()}`, fill: 'Near prev close' });
                 }
                 
-                document.getElementById('gapData').innerHTML = gaps.map(g => `<div class="gap-item"><span class="gap-dir ${g.fill === 'FILLED' ? 'filled' : ''}">${g.direction}</span><span class="gap-area">${g.area}</span><span class="gap-fill ${g.fill === 'FILLED' ? 'filled' : g.fill === 'NOT filled' ? 'open' : ''}">${g.fill}</span></div>`).join('');
+                document.getElementById('gapData').innerHTML = gaps.map(g => `<div class="gap-item"><span class="gap-dir ${g.fill === 'FILLED' ? 'filled' : ''}">${g.direction}</span><span class="gap-area">${g.area}</span><span class="gap-fill ${g.fill === 'FILLED' ? 'filled' : g.fill === 'NOT filled' ? 'open' : ''}">${g.fill}</span></div>`).join('') + addTimestamp('gapData');
             } catch (e) {
                 console.log('Gap fills fetch failed');
             }
@@ -757,7 +733,7 @@
                     { headline: 'Market moving news for ' + now.toLocaleDateString(), source: 'Reuters' },
                     { headline: 'Tech sector update', source: 'CNBC' },
                 ];
-                document.getElementById('news').innerHTML = news.map(n => `<div class="news-item"><div class="news-headline">${n.headline}</div><div class="news-source">${n.source}</div></div>`).join('');
+                document.getElementById('news').innerHTML = news.map(n => `<div class="news-item"><div class="news-headline">${n.headline}</div><div class="news-source">${n.source}</div></div>`).join('') + addTimestamp('news');
             } catch (e) {
                 console.log('News fetch failed');
             }
@@ -807,7 +783,6 @@
                 updateIndicators();
                 updateGlobalIndices();
                 updateNiftyData(prices.nifty);
-                updateLiquidationData();
                 
                 // Auto-fetch dynamic data
                 fetchMarketMovers();
@@ -851,7 +826,6 @@
                 { id: 'card-indicators', fn: updateIndicators },
                 { id: 'card-global-indices', fn: updateGlobalIndices },
                 { id: 'card-nifty-data', fn: () => updateNiftyData(prices.nifty) },
-                { id: 'card-liquidation', fn: updateLiquidationData },
                 { id: 'card-market-risks', fn: fetchMarketMovers },
                 { id: 'card-economic-events', fn: fetchEconomicEvents },
                 { id: 'card-earnings', fn: fetchEarnings },
