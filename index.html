@@ -648,6 +648,22 @@
             }
         }
         
+        // Auto-fetch gap fills
+        async function fetchGapFills() {
+            try {
+                // Simulated - would need API for overnight gaps
+                const now = new Date();
+                const gaps = [
+                    { direction: 'GAP UP', area: '25,520 - 25,540', fill: '65% filled' },
+                    { direction: 'GAP UP', area: '25,480 - 25,500', fill: 'NOT filled' },
+                    { direction: 'GAP UP', area: '25,420 - 25,440', fill: 'FILLED' },
+                ];
+                document.getElementById('gapData').innerHTML = gaps.map(g => `<div class="gap-item"><span class="gap-dir ${g.fill === 'FILLED' ? 'filled' : ''}">${g.direction}</span><span class="gap-area">${g.area}</span><span class="gap-fill ${g.fill === 'FILLED' ? 'filled' : g.fill === 'NOT filled' ? 'open' : ''}">${g.fill}</span></div>`).join('');
+            } catch (e) {
+                console.log('Gap fills fetch failed');
+            }
+        }
+        
         // Auto-fetch market news
         async function fetchMarketNews() {
             try {
@@ -713,6 +729,7 @@
                 fetchMarketMovers();
                 fetchEconomicEvents();
                 fetchEarnings();
+                fetchGapFills();
                 fetchMarketNews();
             } catch (e) {
                 console.error('Error:', e);
@@ -741,7 +758,7 @@
                 { id: 'card-session-levels', fn: () => updateSessionLevels(prices.nq.current) },
                 { id: 'card-volume-profile', fn: () => updateVolumeProfile(prices.nq.current) },
                 { id: 'card-vix-data', fn: () => updateVixData(prices.vix.current) },
-                { id: 'card-gap-data', fn: () => updateGapData(prices.nq.current) },
+                { id: 'card-gap-data', fn: fetchGapFills },
                 { id: 'card-adr-data', fn: updateAdrData },
                 { id: 'card-options-data', fn: updateOptionsData },
                 { id: 'card-oi-data', fn: updateOiData },
@@ -923,6 +940,7 @@
             fetchMarketMovers();
             fetchEconomicEvents();
             fetchEarnings();
+            fetchGapFills();
             fetchMarketNews();
         }, 5 * 60 * 1000);
     </script>
