@@ -147,7 +147,7 @@
         <div>
             <span class="status-indicator"></span>
             <span class="last-updated">Last updated: <span id="updateTime">--:--</span>
-            <button id="lockBtn" onclick="toggleLock()" style="padding: 5px 12px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; cursor: pointer; font-size: 12px;">🔓 Unlock</button>
+            <button id="lockBtn" onclick="toggleLock()" style="padding: 5px 12px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #f85149; cursor: pointer; font-size: 12px;">🔒 Lock</button>
         </div>
     </div>
     <div class="market-timer-fixed" id="marketTimerFixed"></div>
@@ -510,12 +510,15 @@
         }
         
         // Lock/Unlock toggle
+        // Toggle lock/unlock for drag-drop
         window.toggleLock = function() {
             const lockBtn = document.getElementById('lockBtn');
             const grid = document.getElementById('dashboardGrid');
-            const isLocked = sortable.option('disabled');
+            const sortableEl = document.sortableInstance;
+            if (!sortableEl) return;
             
-            sortable.option('disabled', !isLocked);
+            const isLocked = sortableEl.option('disabled');
+            sortableEl.option('disabled', !isLocked);
             
             if (!isLocked) {
                 lockBtn.textContent = '🔒 Lock';
@@ -537,7 +540,7 @@
             
             // SortableJS for drag-drop
             const grid = document.getElementById('dashboardGrid');
-            window.sortable = new Sortable(grid, {
+            document.sortableInstance = new Sortable(grid, {
                 animation: 150,
                 handle: '.card',
                 ghostClass: 'sortable-ghost',
