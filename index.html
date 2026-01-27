@@ -148,29 +148,29 @@
     </div>
     <div class="market-timer-fixed" id="marketTimerFixed"></div>
     <div class="grid" id="dashboardGrid">
-        <!-- NQ Levels -->
+        <!-- Market Movers -->
         <div class="card">
-            <h2>📈 NQ Levels</h2>
-            <a href="https://www.tradingview.com/chart/NQ1/?symbol=CME_MINI:NQ1!" target="_blank" class="external-link">📊 View Chart on TradingView</a>
-            <div class="level-item"><span class="level-label">Current</span><span class="level-value" id="price">--</span></div>
-            <div class="level-item"><span class="level-label">R1</span><span class="level-value resistance" id="res1">--</span></div>
-            <div class="level-item"><span class="level-label">R2</span><span class="level-value resistance" id="res2">--</span></div>
-            <div class="level-item"><span class="level-label">S1</span><span class="level-value support" id="sup1">--</span></div>
-            <div class="level-item"><span class="level-label">S2</span><span class="level-value support" id="sup2">--</span></div>
+            <h2>⚠️ Market Movers</h2>
+            <div id="marketRisks"></div>
         </div>
-        <!-- London Open Strategy -->
+        <!-- Economic Events -->
         <div class="card">
-            <h2>🇬🇧 London Open (6AM EST)</h2>
-            <div id="londonOpen"></div>
+            <h2>📅 Economic Events</h2>
+            <div id="economicEvents"></div>
         </div>
-        <!-- Session Levels -->
+        <!-- Earnings -->
         <div class="card">
-            <h2>🌏 Session Levels (NQ)</h2>
-            <div id="sessionLevels"></div>
+            <h2>💰 Earnings This Week</h2>
+            <div id="earnings"></div>
+        </div>
+        <!-- News -->
+        <div class="card">
+            <h2>📰 Market News</h2>
+            <div id="news"></div>
         </div>
     </div>
     <script>
-        const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes (reduced to save API costs)
+        const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes // 5 minutes (reduced to save API costs)
         
         let cachedPrices = { tsla: null, nq: null, vix: null, dxy: null, lastFetch: 0 };
         // Finnhub API (free tier: 60 requests/minute)
