@@ -327,12 +327,23 @@
             return prices;
         }
         
-        function updateTradeIdeas() {
-            const tradeIdeas = [
-                { direction: 'LONG', type: 'Pullback Buy', entry: '25,400 - 25,450', stop: '25,350', target1: '25,550', target2: '25,650', rationale: 'Demand zone, MA 200 support' },
-                { direction: 'SHORT', type: 'Rejection Short', entry: '25,850 - 26,000', stop: '26,050', target1: '25,700', target2: '25,600', rationale: 'Supply zone, H&S pattern' },
-            ];
-            document.getElementById('tradeIdeas').innerHTML = tradeIdeas.map(trade => `<div class="trade-card ${trade.direction.toLowerCase()}"><div class="trade-header"><span class="trade-direction ${trade.direction.toLowerCase()}">${trade.direction}</span><span class="trade-badge">${trade.type}</span></div><div class="trade-row"><span class="trade-label">Entry</span><span class="trade-value">${trade.entry}</span></div><div class="trade-row"><span class="trade-label">Stop</span><span class="trade-value trade-stop">${trade.stop}</span></div><div class="trade-row"><span class="trade-label">Target</span><span class="trade-value trade-target">${trade.target1} / ${trade.target2}</span></div><div class="trade-rationale">${trade.rationale}</div></div>`).join('');
+        // Auto-fetch trade ideas based on current price
+        async function fetchTradeIdeas() {
+            try {
+                const prices = await fetchPrices();
+                const price = prices.nq.current;
+                const now = new Date();
+                const day = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                
+                // Dynamic trade ideas based on price
+                const tradeIdeas = [
+                    { direction: 'LONG', type: 'Pullback Buy', entry: `${Math.floor(price-50)} - ${Math.floor(price)}`, stop: Math.floor(price-100), target1: Math.floor(price+50), target2: Math.floor(price+100), rationale: 'Support zone, 6AM H4 bullish' },
+                    { direction: 'SHORT', type: 'Rejection Short', entry: `${Math.floor(price+100)} - ${Math.floor(price+150)}`, stop: Math.floor(price+200), target1: Math.floor(price+50), target2: Math.floor(price), rationale: 'Supply zone, liquidation candle' },
+                ];
+                document.getElementById('tradeIdeas').innerHTML = `<div style="font-size: 11px; color: #8b949e; margin-bottom: 8px;">📅 ${day}</div>` + tradeIdeas.map(trade => `<div class="trade-card ${trade.direction.toLowerCase()}"><div class="trade-header"><span class="trade-direction ${trade.direction.toLowerCase()}">${trade.direction}</span><span class="trade-badge">${trade.type}</span></div><div class="trade-row"><span class="trade-label">Entry</span><span class="trade-value">${trade.entry}</span></div><div class="trade-row"><span class="trade-label">Stop</span><span class="trade-value trade-stop">${trade.stop}</span></div><div class="trade-row"><span class="trade-label">Target</span><span class="trade-value trade-target">${trade.target1} / ${trade.target2}</span></div><div class="trade-rationale">${trade.rationale}</div></div>`).join('');
+            } catch (e) {
+                console.log('Trade ideas fetch failed');
+            }
         }
         
         function updateLondonOpen() {
@@ -711,7 +722,7 @@
                 const prices = await fetchPrices();
                 await updatePrice();
                 
-                updateTradeIdeas();
+                fetchTradeIdeas();
                 updateLondonOpen();
                 updatePriceAlerts(prices);
                 updateSessionLevels(prices.nq.current);
@@ -755,7 +766,7 @@
             // Add IDs to cards and update all sections
             const cardConfigs = [
                 { id: 'card-nq-levels', fn: () => {} },
-                { id: 'card-trade-ideas', fn: updateTradeIdeas },
+                { id: 'card-trade-ideas', fn: fetchTradeIdeas },
                 { id: 'card-london-open', fn: updateLondonOpen },
                 { id: 'card-price-alerts', fn: () => updatePriceAlerts(prices) },
                 { id: 'card-session-levels', fn: () => updateSessionLevels(prices.nq.current) },
@@ -940,6 +951,7 @@
         
         // Auto-refresh dynamic data every 5 minutes
         setInterval(() => {
+            fetchTradeIdeas();
             fetchMarketMovers();
             fetchEconomicEvents();
             fetchEarnings();
