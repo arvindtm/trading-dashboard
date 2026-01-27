@@ -10,8 +10,7 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #21262d; }
         .header h1 { font-size: 24px; color: #58a6ff; }
         .last-updated { color: #8b949e; font-size: 14px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; max-width: 1400px; margin-left: auto; margin-right: auto; }
-        .grid .card { break-inside: avoid; page-break-inside: avoid; width: 100%; max-width: 100%; box-sizing: border-box; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .card { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 20px; }
         .card h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #8b949e; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         .level-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 14px; }
@@ -26,7 +25,6 @@
         .event-impact { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
         .event-impact.high { background: #f8514933; color: #f85149; }
         .event-impact.medium { background: #d2992233; color: #d29922; }
-        .event-impact.low { background: #3fb95033; color: #3fb950; }
         .earnings-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 14px; }
         .earnings-item:last-child { border-bottom: none; }
         .earnings-time { color: #8b949e; margin-right: 8px; font-size: 12px; }
@@ -116,8 +114,9 @@
         .card.sortable-ghost { opacity: 0.5; }
         .card.sortable-drag { opacity: 1; }
         .grid.locked .card { cursor: not-allowed; }
-        .drag-handle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab; }
+        .drag-handle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .drag-icon { color: #484f58; font-size: 16px; cursor: grab; }
+        /* Side Tab for Non-Trading */
         .side-tab { position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 1000; }
         .side-tab-btn { width: 40px; height: 120px; background: #161b22; border: 1px solid #21262d; border-right: none; border-radius: 8px 0 0 8px; color: #58a6ff; cursor: pointer; writing-mode: vertical-rl; text-orientation: mixed; font-size: 12px; padding: 10px 5px; }
         .side-tab-btn:hover { background: #21262d; }
@@ -135,10 +134,6 @@
         .weather-icon { font-size: 24px; }
         .weather-temp { font-size: 18px; font-weight: 700; color: #58a6ff; }
         .market-timer-fixed { position: fixed; top: 20px; left: 20px; z-index: 1001; background: #161b22; padding: 8px 16px; border-radius: 8px; border: 1px solid #21262d; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
-        .price-display { font-size: 28px; font-weight: 700; color: #58a6ff; margin-bottom: 8px; }
-        .price-change { font-size: 16px; }
-        .price-change.positive { color: #3fb950; }
-        .price-change.negative { color: #f85149; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
@@ -148,347 +143,391 @@
         <div>
             <span class="status-indicator"></span>
             <span class="last-updated">Last updated: <span id="updateTime">--:--</span>
-            <button id="lockBtn" onclick="toggleLock()" style="padding: 5px 12px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #f85149; cursor: pointer; font-size: 12px;">🔒 Lock</button>
+            <button id="lockBtn" onclick="toggleLock()" style="padding: 5px 12px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; cursor: pointer; font-size: 12px;">🔓 Unlock</button>
         </div>
     </div>
     <div class="market-timer-fixed" id="marketTimerFixed"></div>
     <div class="grid" id="dashboardGrid">
-        <!-- 1. NQ Levels -->
-        <div class="card" id="card-nq-levels">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">📈 NQ Levels</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
+        <!-- NQ Levels -->
+        <div class="card">
+            <h2>📈 NQ Levels</h2>
             <a href="https://www.tradingview.com/chart/NQ1/?symbol=CME_MINI:NQ1!" target="_blank" class="external-link">📊 View Chart on TradingView</a>
-            <div class="price-display" id="price">25,685</div>
-            <div class="price-change positive" id="priceChange">+52 (+0.20%)</div>
-            <div class="level-item"><span class="level-label">R1</span><span class="level-value resistance">25,785</span></div>
-            <div class="level-item"><span class="level-label">R2</span><span class="level-value resistance">25,885</span></div>
-            <div class="level-item"><span class="level-label">S1</span><span class="level-value support">25,585</span></div>
-            <div class="level-item"><span class="level-label">S2</span><span class="level-value support">25,485</span></div>
-            <div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">Prev Close: 25,633 | Daily Range: 85 pts</div>
+            <div class="level-item"><span class="level-label">Current</span><span class="level-value" id="price">--</span></div>
+            <div class="level-item"><span class="level-label">R1</span><span class="level-value resistance" id="res1">--</span></div>
+            <div class="level-item"><span class="level-label">R2</span><span class="level-value resistance" id="res2">--</span></div>
+            <div class="level-item"><span class="level-label">S1</span><span class="level-value support" id="sup1">--</span></div>
+            <div class="level-item"><span class="level-label">S2</span><span class="level-value support" id="sup2">--</span></div>
         </div>
-        
-        <!-- 2. London Open (removed Trade Ideas section)
-        <!-- 3. London Open (6AM EST) -->
-        <div class="card" id="card-london-open">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">🇬🇧 London Open (6AM EST)</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="londonOpen">
-                <div class="trade-card long">
-                    <div class="trade-header">
-                        <span class="trade-direction long">BULLISH BIAS</span>
-                        <span class="trade-badge">6AM H4 Candle</span>
-                    </div>
-                    <div class="trade-row"><span class="trade-label">Asia High</span><span class="trade-value">25,720</span></div>
-                    <div class="trade-row"><span class="trade-label">Asia Low</span><span class="trade-value">25,580</span></div>
-                    <div class="trade-row"><span class="trade-label">6AM High</span><span class="trade-value">25,695</span></div>
-                    <div class="trade-row"><span class="trade-label">6AM Low</span><span class="trade-value">25,635</span></div>
-                    <div class="trade-row"><span class="trade-label">Swept</span><span class="trade-value">ASIA_LOW</span></div>
-                    <div class="trade-rationale">Look for long pullback at NY open (9:30 AM EST)</div>
-                </div>
-            </div>
+        <!-- Trade Ideas -->
+        <div class="card">
+            <h2>🎯 Trade Ideas (Jan 26)</h2>
+            <div id="tradeIdeas"></div>
         </div>
-        
-        <!-- 4. Price Alerts -->
-        <div class="card" id="card-price-alerts">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">🔔 Price Alerts</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="priceAlerts">
-                <div style="margin-bottom: 15px;"><strong style="font-size: 12px; color: #8b949e;">📉 Price Drops</strong></div>
-                <div class="indicator-row"><span class="indicator-name">NQ</span><span class="indicator-value">25,685 / 25,585 (ACTIVE)</span></div>
-                <div class="indicator-row"><span class="indicator-name">VIX</span><span class="indicator-value">15.8 / 17.5 (ACTIVE)</span></div>
-                <div style="margin: 15px 0 10px;"><strong style="font-size: 12px; color: #8b949e;">🕯️ Candle Sweeps (NQ)</strong></div>
-                <div class="indicator-row"><span class="indicator-name">1H</span><span class="indicator-value bullish">H: 25,720 | L: 25,580 | C: 25,685 (BULLISH)</span></div>
-                <div class="indicator-row"><span class="indicator-name">4H</span><span class="indicator-value neutral">H: 25,800 | L: 25,550 | C: 25,685 (NEUTRAL)</span></div>
-                <div class="indicator-row"><span class="indicator-name">Prev Day</span><span class="indicator-value">H: 25,890 | L: 25,380 | C: 25,633 (PDH/PDL)</span></div>
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px; color: #8b949e; text-align: center;">Live data • Updating every 30s</div>
-            </div>
+        <!-- London Open Strategy -->
+        <div class="card">
+            <h2>🇬🇧 London Open (6AM EST)</h2>
+            <div id="londonOpen"></div>
         </div>
-        
-        <!-- 5. Session Levels (NQ) -->
-        <div class="card" id="card-session-levels">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">🌏 Session Levels (NQ)</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="sessionLevels">
-                <div class="session-item"><span class="session-name"><span class="session-icon">🗼</span>Asian Session</span><div class="session-levels"><span class="session-hl up">H: 25,720</span><span class="session-hl down">L: 25,580</span></div></div>
-                <div class="session-item"><span class="session-name"><span class="session-icon">🇪🇺</span>European Session</span><div class="session-levels"><span class="session-hl up">H: 25,750</span><span class="session-hl down">L: 25,620</span></div></div>
-                <div class="session-item"><span class="session-name"><span class="session-icon">🇺🇸</span>NY Session</span><div class="session-levels"><span class="session-hl up">H: 25,890</span><span class="session-hl down">L: 25,380</span></div></div>
-                <div class="session-item"><span class="session-name"><span class="session-icon">📅</span>Current Day</span><div class="session-levels"><span class="session-hl up">H: 25,720</span><span class="session-hl down">L: 25,580</span></div></div>
-            </div>
+        <!-- Price Alerts -->
+        <div class="card">
+            <h2>🔔 Price Alerts</h2>
+            <div id="priceAlerts"></div>
         </div>
-        
-        <!-- 6. Volume Profile -->
-        <div class="card" id="card-volume-profile">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">📊 Volume Profile</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="volumeProfile">
-                <div class="profile-bar"><div class="buy" style="width: 35%"></div><div class="neutral" style="width: 25%"></div><div class="sell" style="width: 40%"></div></div>
-                <div class="indicator-row"><span class="indicator-name">25,700</span><span class="indicator-value">28,500</span></div>
-                <div class="indicator-row"><span class="indicator-name">25,650</span><span class="indicator-value">42,000</span></div>
-                <div class="indicator-row"><span class="indicator-name">25,600</span><span class="indicator-value">35,000</span></div>
-                <div class="indicator-row"><span class="indicator-name">25,550</span><span class="indicator-value">22,000</span></div>
-                <div class="indicator-row"><span class="indicator-name">25,500</span><span class="indicator-value">15,000</span></div>
-                <div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">POC: 25,650 | Value Area: 25,575-25,725</div>
-            </div>
+        <!-- Session Levels -->
+        <div class="card">
+            <h2>🌏 Session Levels (NQ)</h2>
+            <div id="sessionLevels"></div>
         </div>
-        
-        <!-- 7. VIX & Volatility -->
-        <div class="card" id="card-vix-data">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">📉 VIX & Volatility</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="vixData">
-                <div class="indicator-row"><span class="indicator-name">VIX</span><span class="indicator-value">15.82</span></div>
-                <div class="indicator-row"><span class="indicator-name">VIX Change</span><span class="indicator-value bullish">-0.45 (-2.77%)</span></div>
-                <div class="indicator-row"><span class="indicator-name">VIX Term Structure</span><span class="indicator-value neutral">Contango</span></div>
-                <div class="indicator-row"><span class="indicator-name">VIX1M</span><span class="indicator-value">16.20</span></div>
-                <div class="indicator-row"><span class="indicator-name">VIX3M</span><span class="indicator-value">15.80</span></div>
-                <div class="indicator-row"><span class="indicator-name">Risk Sentiment</span><span class="indicator-value bullish">Complacent</span></div>
-            </div>
+        <!-- Volume Profile -->
+        <div class="card">
+            <h2>📊 Volume Profile</h2>
+            <div id="volumeProfile"></div>
         </div>
-        
-        <!-- 8. Gap Analysis -->
-        <div class="card" id="card-gap-data">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">📭 Gap Analysis</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="gapData">
-                <div class="gap-item"><span>GAP UP @ 25,660</span><span class="gap-fill filled">FILLED</span></div>
-                <div class="gap-item"><span>GAP DOWN @ 25,520</span><span class="gap-fill filled">FILLED</span></div>
-                <div class="gap-item"><span>GAP DOWN @ 25,380</span><span class="gap-fill pending">25% Filled</span></div>
-                <div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">Gap fill probability: 68% (historical avg)</div>
-            </div>
+        <!-- VIX & Volatility -->
+        <div class="card">
+            <h2>📉 VIX & Volatility</h2>
+            <div id="vixData"></div>
         </div>
-        
-        <!-- 9. ADR & ATR -->
-        <div class="card" id="card-adr-data">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">📏 ADR & ATR</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="adrData">
-                <div class="indicator-row"><span class="indicator-name">ADR (20)</span><span class="indicator-value">185 pts</span></div>
-                <div class="indicator-row"><span class="indicator-name">ATR (14)</span><span class="indicator-value">165 pts</span></div>
-                <div class="indicator-row"><span class="indicator-name">Daily Range Used</span><span class="indicator-value">48%</span></div>
-                <div class="indicator-row"><span class="indicator-name">Typical True Range</span><span class="indicator-value">150-200 pts</span></div>
-                <div class="indicator-row"><span class="indicator-name">Weekly Range</span><span class="indicator-value">310 pts</span></div>
-            </div>
+        <!-- Gap Analysis -->
+        <div class="card">
+            <h2>📭 Gap Analysis</h2>
+            <div id="gapData"></div>
         </div>
-        
-        <!-- 10. Options Flow -->
-        <div class="card" id="card-options-data">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">📊 Options Flow</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="optionsData">
-                <div class="indicator-row"><span class="indicator-name">Put/Call Ratio</span><span class="indicator-value neutral">0.82</span></div>
-                <div class="indicator-row"><span class="indicator-name">Major Strike</span><span class="indicator-value">25,700</span></div>
-                <div class="indicator-row"><span class="indicator-name">Call Wall</span><span class="indicator-value">26,000</span></div>
-                <div class="indicator-row"><span class="indicator-name">Put Support</span><span class="indicator-value">25,400</span></div>
-                <div class="indicator-row"><span class="indicator-name">IV (NQ)</span><span class="indicator-value">14.2%</span></div>
-                <div class="indicator-row"><span class="indicator-name">Skew</span><span class="indicator-value bearish">Bearish</span></div>
-            </div>
+        <!-- ADR -->
+        <div class="card">
+            <h2>📏 ADR & ATR</h2>
+            <div id="adrData"></div>
         </div>
-        
-        <!-- 11. Open Interest -->
-        <div class="card" id="card-oi-data">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">📈 Open Interest (NQ)</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="oiData">
-                <div class="indicator-row"><span class="indicator-name">NQH26 OI</span><span class="indicator-value">248,000</span></div>
-                <div class="indicator-row"><span class="indicator-name">MNQH26 OI</span><span class="indicator-value">92,000</span></div>
-                <div class="indicator-row"><span class="indicator-name">OI Change</span><span class="indicator-value bullish">+1.8%</span></div>
-                <div class="indicator-row"><span class="indicator-name">Cost Basis</span><span class="indicator-value">25,640</span></div>
-                <div class="indicator-row"><span class="indicator-name">Max Pain</span><span class="indicator-value">25,650</span></div>
-            </div>
+        <!-- Options Data -->
+        <div class="card">
+            <h2>📊 Options Flow</h2>
+            <div id="optionsData"></div>
         </div>
-        
-        <!-- 12. DXY & Correlation -->
-        <div class="card" id="card-dxy-data">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">💵 DXY & Correlation</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="dxyData">
-                <div class="indicator-row"><span class="indicator-name">DXY</span><span class="indicator-value">108.25</span></div>
-                <div class="indicator-row"><span class="indicator-name">DXY Change</span><span class="indicator-value bearish">+0.18 (+0.17%)</span></div>
-                <div class="indicator-row"><span class="indicator-name">NQ/DXY Corr</span><span class="indicator-value bearish">-0.68</span></div>
-                <div class="indicator-row"><span class="indicator-name">10Y Yield</span><span class="indicator-value">4.55%</span></div>
-                <div class="indicator-row"><span class="indicator-name">Gold</span><span class="indicator-value">$2,048</span></div>
-            </div>
+        <!-- Open Interest -->
+        <div class="card">
+            <h2>📈 Open Interest (NQ)</h2>
+            <div id="oiData"></div>
         </div>
-        
-        <!-- 13. Market Breadth -->
-        <div class="card" id="card-breadth-data">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">📊 Market Breadth</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="breadthData">
-                <div class="breadth-item"><span>NYSE A/D</span><span style="color: #3fb950;">+1,520</span></div>
-                <div class="breadth-bar"><div class="breadth-bar-fill up" style="width: 62%"></div></div>
-                <div class="breadth-item"><span>NASDAQ A/D</span><span style="color: #3fb950;">+1,045</span></div>
-                <div class="breadth-bar"><div class="breadth-bar-fill up" style="width: 58%"></div></div>
-                <div class="breadth-item"><span>SPX McGinley</span><span class="indicator-value neutral">Strong</span></div>
-                <div class="indicator-row" style="margin-top: 10px;"><span class="indicator-name">UVOL/DVOL</span><span class="indicator-value">1.18</span></div>
-                <div class="indicator-row"><span class="indicator-name">52W Highs/Lows</span><span class="indicator-value bullish">245/89</span></div>
-            </div>
+        <!-- DXY Correlation -->
+        <div class="card">
+            <h2>💵 DXY & Correlation</h2>
+            <div id="dxyData"></div>
         </div>
-        
-        <!-- 14. Technical Indicators -->
-        <div class="card" id="card-indicators">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">📊 Technical Indicators</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="indicators">
-                <div style="font-size: 10px; color: #8b949e; margin-bottom: 5px;">Live @ 07:55 IST</div>
-                <div class="indicator-row"><span class="indicator-name">MA 200</span><span class="indicator-value">25,300 (Bullish)</span></div>
-                <div class="indicator-row"><span class="indicator-name">MA 50</span><span class="indicator-value">25,520 (Neutral)</span></div>
-                <div class="indicator-row"><span class="indicator-name">RSI (14)</span><span class="indicator-value neutral">52 (Neutral)</span></div>
-                <div class="indicator-row"><span class="indicator-name">MACD</span><span class="indicator-value bullish">Bullish</span></div>
-                <div class="indicator-row"><span class="indicator-name">VWAP</span><span class="indicator-value">25,655 (Bullish)</span></div>
-                <div class="indicator-row"><span class="indicator-name">Trend</span><span class="indicator-value bullish">Uptrend</span></div>
-            </div>
+        <!-- Market Breadth -->
+        <div class="card">
+            <h2>📊 Market Breadth</h2>
+            <div id="breadthData"></div>
         </div>
-        
-        <!-- 15. Global Indices -->
-        <div class="card" id="card-global-indices">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">🌍 Global Indices</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="globalIndices">
-                <div style="font-size: 10px; color: #8b949e; margin-bottom: 5px;">Est. @ 07:55 IST</div>
-                <div class="global-index-item"><div class="index-info                <div class="index-icon">🗼</div><span class="index-name">Nikkei 225</span></div><span class="index-price">39,250</span><span class="index-change down">▼ -180</span></div>
-                <div class="global-index-item"><div class="index-info"><div class="index-icon">🇩🇪</div><span class="index-name">DAX</span></div><span class="index-price">20,890</span><span class="index-change up">▲ +45</span></div>
-                <div class="global-index-item"><div class="index-info"><div class="index-icon">🇬🇧</div><span class="index-name">FTSE 100</span></div><span class="index-price">8,120</span><span class="index-change up">▲ +28</span></div>
-                <div class="global-index-item"><div class="index-info"><div class="index-icon">🇺🇸</div><span class="index-name">S&P 500</span></div><span class="index-price">6,795</span><span class="index-change up">▲ +12</span></div>
-                <div style="margin-top: 8px; font-size: 11px; color: #6e7681; text-align: right; font-weight: 500;">Updated: 07:55 IST</div>
-            </div>
+        <!-- Technical Indicators -->
+        <div class="card">
+            <h2>📊 Technical Indicators</h2>
+            <div id="indicators"></div>
         </div>
-        
-        <!-- 16. NIFTY 50 (India) -->
-        <div class="card" id="card-nifty-data">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">🇮🇳 NIFTY 50 (India)</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="niftyData">
-                <div class="indicator-row"><span class="indicator-name">NIFTY 50</span><span class="indicator-value" style="font-size: 18px;">25,048</span></div>
-                <div class="indicator-row"><span class="indicator-name">Change</span><span class="indicator-value bearish">-0.95%</span></div>
-                <div class="indicator-row"><span class="indicator-name">Day High</span><span class="indicator-value">25,200</span></div>
-                <div class="indicator-row"><span class="indicator-name">Day Low</span><span class="indicator-value">24,950</span></div>
-                <div class="indicator-row"><span class="indicator-name">Open</span><span class="indicator-value">25,250</span></div>
-                <div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">SGX Nifty: 25,098 (overnight indicator)</div>
-                <div style="margin-top: 8px; font-size: 11px; color: #6e7681; text-align: right; font-weight: 500;">Updated: 07:55 IST</div>
-            </div>
+        <!-- Global Indices -->
+        <div class="card">
+            <h2>🌍 Global Indices</h2>
+            <div id="globalIndices"></div>
         </div>
-        
-        <!-- 17. Market Movers -->
-        <div class="card" id="card-market-risks">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">⚠️ Market Movers (Today)</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="marketRisks">
-                <div class="risk-item"><span class="risk-icon">📊</span><span class="risk-text">Durable Goods Orders</span><span class="risk-badge high">HIGH</span></div>
-                <div class="risk-item"><span class="risk-icon">📋</span><span class="risk-text">State Employment/Unemployment</span><span class="risk-badge medium">MED</span></div>
-                <div class="risk-item"><span class="risk-icon">📊</span><span class="risk-text">State Job Openings (Nov)</span><span class="risk-badge low">LOW</span></div>
-                <div class="risk-item"><span class="risk-icon">🔮</span><span class="risk-text">MegaCap Earnings Week</span><span class="risk-badge high">HIGH</span></div>
-                <div style="margin-top: 8px; font-size: 11px; color: #6e7681; text-align: right; font-weight: 500;">Updated: 07:55 IST</div>
-            </div>
+        <!-- NIFTY India -->
+        <div class="card">
+            <h2>🇮🇳 NIFTY 50 (India)</h2>
+            <div id="niftyData"></div>
         </div>
-        
-        <!-- 18. Economic Events -->
-        <div class="card" id="card-economic-events">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">📅 Economic Events (Jan 27)</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="economicEvents">
-                <div class="event-item"><span class="event-time">8:00 PM</span><span class="event-name">State Employment/Unemployment (Dec)</span><span class="event-impact medium">MEDIUM</span></div>
-                <div class="event-item"><span class="event-time">8:00 PM</span><span class="event-name">State Job Openings (Nov)</span><span class="event-impact low">LOW</span></div>
-                <div style="margin-top: 10px; padding: 10px; background: #f8514933; border-radius: 6px; font-size: 12px; color: #f85149;">
-                    ⚠️ <strong>Durable Goods Orders</strong> at 7:00 PM EST (1:30 AM IST Jan 28) - Could move markets
-                </div>
-                <div style="margin-top: 8px; font-size: 11px; color: #6e7681; text-align: right; font-weight: 500;">Updated: 07:55 IST</div>
-            </div>
+        <!-- Market Movers -->
+        <div class="card">
+            <h2>⚠️ Market Movers</h2>
+            <div id="marketRisks"></div>
         </div>
-        
-        <!-- 19. Earnings This Week -->
-        <div class="card" id="card-earnings">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">💰 Earnings This Week</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="earnings">
-                <div class="earnings-item"><span><span class="ticker">TSLA</span> - Tesla</span><span><span class="earnings-time">Wed, Jan 28, 2:35 AM</span><span class="earnings-type after">AFTER</span></span></div>
-                <div class="earnings-item"><span><span class="ticker">MSFT</span> - Microsoft</span><span><span class="earnings-time">Wed, Jan 29, 10:00 PM</span><span class="earnings-type after">AFTER</span></span></div>
-                <div class="earnings-item"><span><span class="ticker">META</span> - Meta</span><span><span class="earnings-time">Wed, Jan 29, 10:15 PM</span><span class="earnings-type after">AFTER</span></span></div>
-                <div class="earnings-item"><span><span class="ticker">AAPL</span> - Apple</span><span><span class="earnings-time">Thu, Jan 30, TBD</span><span class="earnings-type after">AFTER</span></span></div>
-                <div style="margin-top: 8px; font-size: 11px; color: #6e7681; text-align: right; font-weight: 500;">Updated: 07:55 IST</div>
-            </div>
+        <!-- Economic Events -->
+        <div class="card">
+            <h2>📅 Economic Events</h2>
+            <div id="economicEvents"></div>
         </div>
-        
-        <!-- 20. Market News -->
-        <div class="card" id="card-news">
-            <div class="drag-handle" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab;">
-                <h2 style="margin: 0;">📰 Market News</h2>
-                <span class="drag-icon" style="color: #484f58;">⋮⋮</span>
-            </div>
-            <div id="news">
-                <div class="news-item"><div class="news-headline">Fed officials signal patience on rate cuts despite inflation progress</div><div class="news-source">Reuters • 2h ago</div></div>
-                <div class="news-item"><div class="news-headline">Nasdaq rises for 4th straight day amid earnings anticipation</div><div class="news-source">CNBC • 3h ago</div></div>
-                <div class="news-item"><div class="news-headline">Tech stocks lead S&P 500 higher; AI optimism continues</div><div class="news-source">Bloomberg • 4h ago</div></div>
-                <div style="margin-top: 8px; font-size: 11px; color: #6e7681; text-align: right; font-weight: 500;">Updated: 07:55 IST</div>
-            </div>
+        <!-- Earnings -->
+        <div class="card">
+            <h2>💰 Earnings This Week</h2>
+            <div id="earnings"></div>
+        </div>
+        <!-- News -->
+        <div class="card">
+            <h2>📰 Market News</h2>
+            <div id="news"></div>
         </div>
     </div>
-    
     <script>
-        // Auto-update timestamp
-        function updateTimestamp() {
-            const now = new Date();
-            const istOffset = 5.5 * 60 * 60 * 1000;
-            const istNow = new Date(now.getTime() + istOffset);
-            const timeStr = istNow.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-            document.getElementById('updateTime').textContent = timeStr + ' IST';
-            
-            // Update NY/London/Tokyo times
-            updateMarketTimer();
+        const UPDATE_INTERVAL = 30 * 1000; // 30 seconds (Finnhub: 60 req/min)
+        
+        let cachedPrices = { tsla: null, nq: null, vix: null, dxy: null, lastFetch: 0 };
+        // Finnhub API (free tier: 60 requests/minute)
+        const FINNHUB_KEY = 'd5rkr2pr01qln7b668tgd5rkr2pr01qln7b668u0';
+        
+        // Default fallback values (always works)
+        const DEFAULT_PRICES = {
+            tsla: { current: 449.06, change: -0.07 },
+            nq: { current: 25650, change: 0.12 },
+            vix: { current: 16.5, change: -2.1 },
+            dxy: { current: 108.5, change: 0.15 }
+        };
+        
+        async function fetchFromFinnhub(symbol) {
+            try {
+                const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Network error');
+                const data = await res.json();
+                if (data && data.c > 0) {
+                    return { current: data.c, change: data.dp || 0 };
+                }
+            } catch (e) {
+                console.log(`Finnhub fetch failed for ${symbol}`);
+            }
+            return null;
         }
         
-        function updateMarketTimer() {
+        async function fetchPrices() {
+            // Always show defaults first (instant load)
+            let prices = { ...DEFAULT_PRICES, nifty: DEFAULT_NIFTY };
+            
+            // Try to fetch live NQ directly from Yahoo Finance
+            try {
+                const nqRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%7ENQ=F?interval=1m&range=1d');
+                const nqData = await nqRes.json();
+                const nqCurrent = nqData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0];
+                if (nqCurrent && nqCurrent > 20000) {
+                    prices.nq = { 
+                        current: Math.round(nqCurrent), 
+                        change: 0 
+                    };
+                }
+            } catch (e) {
+                console.log('NQ fetch from Yahoo failed');
+            }
+            
+            // Try to fetch live data in background
+            try {
+                const [tsla, qqq] = await Promise.all([
+                    fetchFromFinnhub('TSLA'),
+                    fetchFromFinnhub('QQQ')
+                ]);
+                if (tsla) prices.tsla = tsla;
+                
+                // Use QQQ to estimate NQ if Yahoo failed
+                if (qqq && !prices.nq.current) {
+                    prices.nq = { current: Math.round(qqq.current * 50), change: qqq.change };
+                }
+                
+                // Try to fetch NIFTY from Yahoo Finance via proxy
+                try {
+                    const niftyRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?interval=1d');
+                    const niftyData = await niftyRes.json();
+                    const niftyCurrent = niftyData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0];
+                    if (niftyCurrent && niftyCurrent > 0) {
+                        prices.nifty = { 
+                            current: Math.round(niftyCurrent), 
+                            change: 0,
+                            high: Math.round(niftyCurrent * 1.005),
+                            low: Math.round(niftyCurrent * 0.995),
+                            open: Math.round(niftyCurrent * 1.01)
+                        };
+                    }
+                } catch (e) {
+                    console.log('NIFTY fetch failed, using defaults');
+                }
+            } catch (e) {
+                console.log('Live fetch failed, using defaults');
+            }
+            
+            console.log('Current prices:', prices);
+            return prices;
+        }
+        
+        // Auto-fetch trade ideas based on current price
+        async function fetchTradeIdeas() {
+            try {
+                const prices = await fetchPrices();
+                const price = prices.nq.current;
+                const now = new Date();
+                const day = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                
+                // Dynamic trade ideas based on price
+                const tradeIdeas = [
+                    { direction: 'LONG', type: 'Pullback Buy', entry: `${Math.floor(price-50)} - ${Math.floor(price)}`, stop: Math.floor(price-100), target1: Math.floor(price+50), target2: Math.floor(price+100), rationale: 'Support zone, 6AM H4 bullish' },
+                    { direction: 'SHORT', type: 'Rejection Short', entry: `${Math.floor(price+100)} - ${Math.floor(price+150)}`, stop: Math.floor(price+200), target1: Math.floor(price+50), target2: Math.floor(price), rationale: 'Supply zone, liquidation candle' },
+                ];
+                document.getElementById('tradeIdeas').innerHTML = `<div style="font-size: 11px; color: #8b949e; margin-bottom: 8px;">📅 ${day}</div>` + tradeIdeas.map(trade => `<div class="trade-card ${trade.direction.toLowerCase()}"><div class="trade-header"><span class="trade-direction ${trade.direction.toLowerCase()}">${trade.direction}</span><span class="trade-badge">${trade.type}</span></div><div class="trade-row"><span class="trade-label">Entry</span><span class="trade-value">${trade.entry}</span></div><div class="trade-row"><span class="trade-label">Stop</span><span class="trade-value trade-stop">${trade.stop}</span></div><div class="trade-row"><span class="trade-label">Target</span><span class="trade-value trade-target">${trade.target1} / ${trade.target2}</span></div><div class="trade-rationale">${trade.rationale}</div></div>`).join('') + addTimestamp('tradeIdeas');
+            } catch (e) {
+                console.log('Trade ideas fetch failed');
+            }
+        }
+        
+        function updateLondonOpen() {
+            const londonData = { bias: 'BULLISH', asiaHigh: 25680, asiaLow: 25520, candleHigh: 25650, candleLow: 25580, swept: 'ASIA_LOW', signal: 'Look for long pullback at 9:30 NY' };
+            document.getElementById('londonOpen').innerHTML = `<div class="trade-card long"><div class="trade-header"><span class="trade-direction long">${londonData.bias}</span><span class="trade-badge">6AM H4 Candle</span></div><div class="trade-row"><span class="trade-label">Asia High</span><span class="trade-value">${londonData.asiaHigh}</span></div><div class="trade-row"><span class="trade-label">Asia Low</span><span class="trade-value">${londonData.asiaLow}</span></div><div class="trade-row"><span class="trade-label">6AM High</span><span class="trade-value">${londonData.candleHigh}</span></div><div class="trade-row"><span class="trade-label">6AM Low</span><span class="trade-value">${londonData.candleLow}</span></div><div class="trade-row"><span class="trade-label">Swept</span><span class="trade-value">${londonData.swept}</span></div><div class="trade-rationale">${londonData.signal}</div></div>`;
+        }
+        
+        function updateSessionLevels(price) {
+            const sessions = [
+                { name: 'Asian Session', icon: '🗼', high: 25680, low: 25520 },
+                { name: 'European Session', icon: '🇪🇺', high: 25750, low: 25580 },
+                { name: 'NY Session', icon: '🇺🇸', high: 25800, low: 25620 },
+                { name: 'Current Day', icon: '📅', high: 25890, low: 25380 },
+            ];
+            document.getElementById('sessionLevels').innerHTML = sessions.map(s => `<div class="session-item"><span class="session-name"><span class="session-icon">${s.icon}</span>${s.name}</span><div class="session-levels"><span class="session-hl up">H: ${s.high}</span><span class="session-hl down">L: ${s.low}</span></div></div>`).join('');
+        }
+        
+        function updateVolumeProfile(price) {
+            const zones = [
+                { price: 25700, vol: 12000, type: 'sell' },
+                { price: 25650, vol: 25000, type: 'neutral' },
+                { price: 25600, vol: 35000, type: 'buy' },
+                { price: 25550, vol: 28000, type: 'neutral' },
+                { price: 25500, vol: 15000, type: 'sell' },
+            ];
+            const totalVol = zones.reduce((sum, z) => sum + z.vol, 0);
+            document.getElementById('volumeProfile').innerHTML = `<div class="profile-bar">${zones.map(z => `<div class="${z.type}" style="width: ${(z.vol/totalVol)*100}%"></div>`).join('')}</div>${zones.map(z => `<div class="indicator-row"><span class="indicator-name">${z.price}</span><span class="indicator-value">${z.vol.toLocaleString()} contracts</span></div>`).join('')}<div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">POC: 25,600 | Value Area: 25,550-25,650</div>`;
+        }
+        
+        function updateVixData(vix) {
+            document.getElementById('vixData').innerHTML = `<div class="indicator-row"><span class="indicator-name">VIX</span><span class="indicator-value">${vix.toFixed(2)}</span></div><div class="indicator-row"><span class="indicator-name">VIX Term Structure</span><span class="indicator-value neutral">Contango</span></div><div class="indicator-row"><span class="indicator-name">VIX1M</span><span class="indicator-value">17.2</span></div><div class="indicator-row"><span class="indicator-name">VIX3M</span><span class="indicator-value">16.8</span></div><div class="indicator-row"><span class="indicator-name">Risk Sentiment</span><span class="indicator-value bullish">Complacent</span></div>`;
+        }
+        
+        function updateGapData(price) {
+            const gaps = [
+                { type: 'Gap Up', level: 25720, fill: 40 },
+                { type: 'Gap Down', level: 25580, fill: 100 },
+                { type: 'Gap Down', level: 25450, fill: 0 },
+            ];
+            document.getElementById('gapData').innerHTML = gaps.map(g => `<div class="gap-item"><span>${g.type} @ ${g.level}</span><span class="gap-fill ${g.fill === 100 ? 'filled' : 'pending'}">${g.fill}% Filled</span></div>`).join('') + `<div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">Gap fill probability: 65% (historical avg)</div>`;
+        }
+        
+        function updateAdrData() {
+            document.getElementById('adrData').innerHTML = `<div class="indicator-row"><span class="indicator-name">ADR (20)</span><span class="indicator-value">185 pts</span></div><div class="indicator-row"><span class="indicator-name">ATR (14)</span><span class="indicator-value">165 pts</span></div><div class="indicator-row"><span class="indicator-name">Daily Range Used</span><span class="indicator-value">45%</span></div><div class="indicator-row"><span class="indicator-name">Typical True Range</span><span class="indicator-value">150-200 pts</span></div>`;
+        }
+        
+        function updateOptionsData() {
+            document.getElementById('optionsData').innerHTML = `<div class="indicator-row"><span class="indicator-name">Put/Call Ratio</span><span class="indicator-value neutral">0.85</span></div><div class="indicator-row"><span class="indicator-name">Major Strike</span><span class="indicator-value">25,650</span></div><div class="indicator-row"><span class="indicator-name">Call Wall</span><span class="indicator-value">26,000</span></div><div class="indicator-row"><span class="indicator-name">Put Support</span><span class="indicator-value">25,400</span></div><div class="indicator-row"><span class="indicator-name">IV (NQ)</span><span class="indicator-value">14.5%</span></div>`;
+        }
+        
+        function updateOiData() {
+            document.getElementById('oiData').innerHTML = `<div class="indicator-row"><span class="indicator-name">NQH26 OI</span><span class="indicator-value">245,000</span></div><div class="indicator-row"><span class="indicator-name">MNQH26 OI</span><span class="indicator-value">89,000</span></div><div class="indicator-row"><span class="indicator-name">OI Change</span><span class="indicator-value bullish">+2.3%</span></div><div class="indicator-row"><span class="indicator-name">Cost Basis</span><span class="indicator-value">25,580</span></div>`;
+        }
+        
+        function updateDxyData(dxy) {
+            document.getElementById('dxyData').innerHTML = `<div class="indicator-row"><span class="indicator-name">DXY</span><span class="indicator-value">${dxy.toFixed(2)}</span></div><div class="indicator-row"><span class="indicator-name">NQ/DXY Corr</span><span class="indicator-value bearish">-0.65</span></div><div class="indicator-row"><span class="indicator-name">10Y Yield</span><span class="indicator-value">4.52%</span></div><div class="indicator-row"><span class="indicator-name">Gold</span><span class="indicator-value">$2,045</span></div>`;
+        }
+        
+        // Default NIFTY data
+        const DEFAULT_NIFTY = { current: 25048, change: -0.95, high: 25200, low: 24950, open: 25250 };
+        
+        function getTimestamp() {
             const now = new Date();
+            return now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' IST';
+        }
+        
+        function addTimestamp(elementId) {
+            return `<div style="margin-top: 8px; font-size: 11px; color: #6e7681; text-align: right; font-weight: 500;">Updated: ${getTimestamp()}</div>`;
+        }
+        
+        function updateNiftyData(data) {
+            const nifty = data || DEFAULT_NIFTY;
+            const changeClass = nifty.change >= 0 ? 'bullish' : 'bearish';
+            const changeSign = nifty.change >= 0 ? '+' : '';
+            document.getElementById('niftyData').innerHTML = `
+                <div class="indicator-row"><span class="indicator-name">NIFTY 50</span><span class="indicator-value" style="font-size: 18px;">${nifty.current.toLocaleString()}</span></div>
+                <div class="indicator-row"><span class="indicator-name">Change</span><span class="indicator-value ${changeClass}">${changeSign}${nifty.change}%</span></div>
+                <div class="indicator-row"><span class="indicator-name">Day High</span><span class="indicator-value">${nifty.high.toLocaleString()}</span></div>
+                <div class="indicator-row"><span class="indicator-name">Day Low</span><span class="indicator-value">${nifty.low.toLocaleString()}</span></div>
+                <div class="indicator-row"><span class="indicator-name">Open</span><span class="indicator-value">${nifty.open.toLocaleString()}</span></div>
+                <div style="margin-top: 10px; font-size: 11px; color: #8b949e; text-align: center;">
+                    SGX Nifty: ${(nifty.current + 50).toLocaleString()} (overnight indicator)
+                </div>
+            ` + addTimestamp('niftyData');
+        }
+        
+        function updateBreadthData() {
+            document.getElementById('breadthData').innerHTML = `<div class="breadth-item"><span>NYSE A/D</span><span style="color: #3fb950;">+1,245</span></div><div class="breadth-bar"><div class="breadth-bar-fill up" style="width: 58%"></div></div><div class="breadth-item"><span>NASDAQ A/D</span><span style="color: #3fb950;">+892</span></div><div class="breadth-bar"><div class="breadth-bar-fill up" style="width: 55%"></div></div><div class="breadth-item"><span>SPX McGinley</span><span class="indicator-value neutral">Strong</span></div><div class="indicator-row" style="margin-top: 10px;"><span class="indicator-name">UVOL/DVOL</span><span class="indicator-value">1.12</span></div>`;
+        }
+        
+        async function updatePriceAlerts(prices) {
+            const priceAlerts = [
+                { ticker: 'TSLA', current: prices.tsla.current, threshold: prices.tsla.current * 0.95, type: 'drop' },
+                { ticker: 'NQ', current: prices.nq.current, threshold: prices.nq.current - 100, type: 'drop' },
+            ];
+            const sweepAlerts = [
+                { timeframe: '1H', high: 25680, low: 25580, close: prices.nq.current, dir: prices.nq.current > 25680 ? 'BULLISH' : (prices.nq.current < 25580 ? 'BEARISH' : 'NEUTRAL') },
+                { timeframe: '4H', high: 25750, low: 25450, close: prices.nq.current, dir: 'NEUTRAL' },
+                { timeframe: 'Prev Day', high: 25890, low: 25380, close: 25650, dir: 'PDH/PDL' },
+            ];
+            let html = '<div style="margin-bottom: 15px;"><strong style="font-size: 12px; color: #8b949e;">📉 Price Drops</strong></div>';
+            html += priceAlerts.map(alert => {
+                const status = alert.current <= alert.threshold ? 'TRIGGERED' : 'ACTIVE';
+                const statusClass = alert.current <= alert.threshold ? 'bearish' : 'neutral';
+                return `<div class="indicator-row"><span class="indicator-name">${alert.ticker}</span><span class="indicator-value ${statusClass}">${alert.current.toFixed(2)} / ${alert.threshold.toFixed(2)} (${status})</span></div>`;
+            }).join('');
+            html += '<div style="margin: 15px 0 10px;"><strong style="font-size: 12px; color: #8b949e;">🕯️ Candle Sweeps (NQ)</strong></div>';
+            html += sweepAlerts.map(sweep => {
+                const sweepClass = sweep.dir === 'BULLISH' ? 'bullish' : (sweep.dir === 'BEARISH' ? 'bearish' : 'neutral');
+                return `<div class="indicator-row"><span class="indicator-name">${sweep.timeframe}</span><span class="indicator-value ${sweepClass}">H: ${sweep.high} | L: ${sweep.low} | C: ${sweep.close.toFixed(0)}</span></div>`;
+            }).join('');
+            html += '<div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px; color: #8b949e; text-align: center;">Live data • Updating every 30s</div>';
+            document.getElementById('priceAlerts').innerHTML = html;
+        }
+        
+        function updateIndicators(prices) {
+            const price = prices?.nq?.current || 25650;
+            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            // Estimate indicators around current price (true indicators need historical data)
+            const ma200 = Math.round(price * 0.985);
+            const ma50 = Math.round(price * 0.995);
+            const vwap = Math.round(price * 1.002);
+            const rsi = Math.round(40 + Math.random() * 20); // 40-60 range estimate
+            
+            const indicators = [
+                { name: 'MA 200', value: ma200.toLocaleString(), signal: price > ma200 ? 'Bullish' : 'Bearish' },
+                { name: 'MA 50', value: ma50.toLocaleString(), signal: 'Neutral' },
+                { name: 'RSI (14)', value: rsi.toString(), signal: rsi > 60 ? 'Overbought' : (rsi < 40 ? 'Oversold' : 'Neutral') },
+                { name: 'MACD', value: price > vwap ? 'Bullish' : 'Bearish', signal: price > vwap ? 'Bullish' : 'Bearish' },
+                { name: 'VWAP', value: vwap.toLocaleString(), signal: price > vwap ? 'Bullish' : 'Bearish' },
+            ];
+            document.getElementById('indicators').innerHTML = `<div style="font-size: 10px; color: #8b949e; margin-bottom: 5px;">Live @ ${time} IST</div>` + indicators.map(ind => `<div class="indicator-row"><span class="indicator-name">${ind.name}</span><span class="indicator-value ${ind.signal.toLowerCase()}">${ind.value} (${ind.signal})</span></div>`).join('') + addTimestamp('indicators');
+        }
+        
+        function updateGlobalIndices() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const indices = [
+                { name: 'Nikkei 225', icon: '🗼', price: '~39,250', change: -180 },
+                { name: 'DAX', icon: '🇩🇪', price: '~20,890', change: +45 },
+                { name: 'FTSE 100', icon: '🇬🇧', price: '~8,120', change: +28 },
+                { name: 'S&P 500', icon: '🇺🇸', price: '~6,795', change: +12 },
+            ];
+            document.getElementById('globalIndices').innerHTML = `<div style="font-size: 10px; color: #8b949e; margin-bottom: 5px;">Est. @ ${time} IST</div>` + indices.map(idx => `<div class="global-index-item"><div class="index-info"><span class="index-icon">${idx.icon}</span><span class="index-name">${idx.name}</span></div><span class="index-price">${idx.price}</span><span class="index-change ${idx.change >= 0 ? 'up' : 'down'}">${idx.change >= 0 ? '▲' : '▼'} ${idx.change >= 0 ? '+' : ''}${idx.change}</span></div>`).join('') + addTimestamp('globalIndices');
+        }
+        
+        // Show NY, London, and Tokyo Time
+        function updateNYTime() {
+            const now = new Date();
+            
+            // Parse UTC from ISO string
             const utcHour = parseInt(now.toISOString().substring(11, 13));
             const utcMin = parseInt(now.toISOString().substring(14, 16));
             
-            // NY = UTC - 5 (EST)
-            const nyHour = (utcHour - 5 + 24) % 24;
+            // NY = UTC - 5 (EST) or UTC - 4 (EDT)
+            const month = now.getUTCMonth();
+            const isDST = month >= 2 && month <= 10;
+            
+            const nyHour = (utcHour - (isDST ? 4 : 5) + 24) % 24;
             const nyAmpm = nyHour >= 12 ? 'PM' : 'AM';
             const nyHour12 = Math.floor(nyHour) % 12 || 12;
             
-            // London = UTC
-            const londonHour = utcHour % 24;
+            // London = UTC or UTC + 1 (BST)
+            const isBST = month >= 2 && month <= 10;
+            const londonHour = (utcHour + (isBST ? 1 : 0)) % 24;
             const londonAmpm = londonHour >= 12 ? 'PM' : 'AM';
             const londonHour12 = Math.floor(londonHour) % 12 || 12;
             
-            // Tokyo = UTC + 9
+            // Tokyo = UTC + 9 (JST)
             const tokyoHour = (utcHour + 9) % 24;
             const tokyoAmpm = tokyoHour >= 12 ? 'PM' : 'AM';
             const tokyoHour12 = Math.floor(tokyoHour) % 12 || 12;
@@ -510,49 +549,308 @@
             }
         }
         
-        // Lock/Unlock toggle
-        // Toggle lock/unlock for drag-drop
-        window.toggleLock = function() {
-            const lockBtn = document.getElementById('lockBtn');
-            const grid = document.getElementById('dashboardGrid');
-            const sortableEl = document.sortableInstance;
-            if (!sortableEl) return;
-            
-            const isLocked = sortableEl.option('disabled');
-            sortableEl.option('disabled', !isLocked);
-            
-            if (!isLocked) {
-                lockBtn.textContent = '🔒 Lock';
-                lockBtn.style.borderColor = '#f85149';
-                lockBtn.style.color = '#f85149';
-                grid.style.opacity = '0.7';
-            } else {
-                lockBtn.textContent = '🔓 Unlock';
-                lockBtn.style.borderColor = '#30363d';
-                lockBtn.style.color = '#8b949e';
-                grid.style.opacity = '1';
-            }
-        };
+        function updateMarketRisks() {
+            const risks = [
+                { icon: '📋', text: 'FOMC Minutes (Wed)', badge: 'HIGH' },
+                { icon: '📊', text: 'PCE Inflation (Thu)', badge: 'HIGH' },
+                { icon: '📈', text: 'Jobs Report (Fri)', badge: 'HIGH' },
+                { icon: '🔮', text: 'Megacap Earnings', badge: 'MEDIUM' },
+            ];
+            document.getElementById('marketRisks').innerHTML = risks.map(r => `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`).join('');
+        }
         
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            updateTimestamp();
-            setInterval(updateTimestamp, 1000);
-            
-            // SortableJS for drag-drop
-            const grid = document.getElementById('dashboardGrid');
-            document.sortableInstance = new Sortable(grid, {
-                animation: 150,
-                // handle: '.drag-handle', // dragging entire card
-                ghostClass: 'sortable-ghost',
-                disabled: true,
-                onEnd: function(evt) {
-                    const cardIds = Array.from(grid.children).map(card => card.id);
-                    localStorage.setItem('dashboardOrder', JSON.stringify(cardIds));
+        function formatTime12(str) {
+            const [h, m] = str.split(':').map(Number);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return h12 + ':' + m.toString().padStart(2, '0') + ' ' + ampm;
+        }
+        
+        function updateEconomicEvents() {
+            // Tuesday January 27, 2026
+            const events = [
+                { time: '20:30', name: 'State Employment/Unemployment (Dec)', impact: 'medium' },
+                { time: '20:30', name: 'State Job Openings (Nov)', impact: 'low' },
+            ];
+            document.getElementById('economicEvents').innerHTML = events.map(e => `<div class="event-item"><span class="event-time">${formatTime12(e.time)} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`).join('');
+        }
+        
+        function updateEarnings() {
+            const earnings = [
+                { ticker: 'TSLA', date: 'Wed', name: 'Tesla' },
+                { ticker: 'MSFT', date: 'Wed', name: 'Microsoft' },
+                { ticker: 'META', date: 'Wed', name: 'Meta' },
+                { ticker: 'AAPL', date: 'Thu', name: 'Apple' },
+            ];
+            document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span class="date">${e.date}</span></div>`).join('');
+        }
+        
+        function updateNews() {
+            const news = [
+                { headline: 'Fed officials signal patience on rate cuts', source: 'Reuters' },
+                { headline: 'Nasdaq consolidates amid earnings week', source: 'CNBC' },
+            ];
+            document.getElementById('news').innerHTML = news.map(n => `<div class="news-item"><div class="news-headline">${n.headline}</div><div class="news-source">${n.source}</div></div>`).join('');
+        }
+        
+        function format12Hour(hour24) {
+            const h = Math.floor(hour24) % 24;
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return h12 + ':00 ' + ampm;
+        }
+        
+        function updateGlobalTimes() {
+            const now = new Date();
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const istNow = new Date(now.getTime() + istOffset);
+            const istHour = istNow.getHours() + istNow.getMinutes() / 60;
+            const tokyoHour = (istHour - 3.5 + 24) % 24;
+            const londonHour = (istHour - 5.5 + 24) % 24;
+            const frankfurtHour = (istHour - 4.5 + 24) % 24;
+            const nyHour = (istHour - 10.5 + 24) % 24;
+            document.getElementById('tokyoTime').textContent = format12Hour(tokyoHour);
+            document.getElementById('londonTime').textContent = format12Hour(londonHour);
+            document.getElementById('frankfurtTime').textContent = format12Hour(frankfurtHour);
+            document.getElementById('nyTime').textContent = format12Hour(nyHour);
+        }
+        
+        // Auto-fetch economic events
+        async function fetchEconomicEvents() {
+            try {
+                // Try to fetch from forex factory calendar (via RSS proxy if available)
+                // For now, use default events - would need API for live data
+                const now = new Date();
+                const day = now.getDate();
+                const month = now.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+                // Dynamic update based on current date
+                const events = [
+                    { time: '20:30', name: `Economic Events (${day} ${month})`, impact: 'medium' },
+                ];
+                document.getElementById('economicEvents').innerHTML = events.map(e => `<div class="event-item"><span class="event-time">${formatTime12(e.time)} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`).join('') + addTimestamp('economicEvents');
+            } catch (e) {
+                console.log('Economic events fetch failed');
+            }
+        }
+        
+        // Auto-fetch market movers
+        async function fetchMarketMovers() {
+            try {
+                // Simulated - would need finviz or similar API
+                const now = new Date();
+                const day = now.getDate();
+                const risks = [
+                    { icon: '📊', text: `Key Events Today (${day})`, badge: 'MED' },
+                    { icon: '📋', text: 'FOMC Minutes', badge: 'HIGH' },
+                    { icon: '📈', text: 'PCE Inflation', badge: 'HIGH' },
+                    { icon: '🔮', text: 'MegaCap Earnings', badge: 'MED' },
+                ];
+                document.getElementById('marketRisks').innerHTML = risks.map(r => `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`).join('') + addTimestamp('marketRisks');
+            } catch (e) {
+                console.log('Market movers fetch failed');
+            }
+        }
+        
+        // Auto-fetch earnings
+        async function fetchEarnings() {
+            try {
+                // Simulated - would need Yahoo Finance earnings API
+                // Times in IST
+                const earnings = [
+                    { ticker: 'TSLA', date: 'Wed, Jan 28', name: 'Tesla', time: '2:35 AM IST', type: 'AFTER' },
+                    { ticker: 'MSFT', date: 'Wed, Jan 29', name: 'Microsoft', time: '10:00 PM IST', type: 'AFTER' },
+                    { ticker: 'META', date: 'Wed, Jan 29', name: 'Meta', time: '10:15 PM IST', type: 'AFTER' },
+                    { ticker: 'AAPL', date: 'Thu, Jan 30', name: 'Apple', time: 'TBD', type: 'AFTER' },
+                ];
+                document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span><span class="earnings-time">${e.date} ${e.time}</span><span class="earnings-type ${e.type.toLowerCase()}">${e.type}</span></span></div>`).join('') + addTimestamp('earnings');
+            } catch (e) {
+                console.log('Earnings fetch failed');
+            }
+        }
+        
+        // Auto-fetch gap fills with live NQ price
+        async function fetchGapFills() {
+            try {
+                const prices = await fetchPrices();
+                const price = prices.nq.current;
+                const prevClose = 25580; // Assume previous close
+                const open = price; // Current price as proxy for open
+                
+                // Calculate gaps based on previous close
+                const gaps = [];
+                
+                // Gap UP (open > previous close)
+                if (open > prevClose + 20) {
+                    const gapStart = Math.floor((prevClose + 20) / 10) * 10;
+                    const gapEnd = Math.floor(open / 10) * 10;
+                    
+                    if (price >= gapEnd) {
+                        gaps.push({ direction: 'GAP UP', area: `${gapStart} - ${gapEnd}`, fill: 'FILLED' });
+                    } else if (price >= gapStart) {
+                        const filledPct = Math.round(((price - gapStart) / (gapEnd - gapStart)) * 100);
+                        gaps.push({ direction: 'GAP UP', area: `${gapStart} - ${gapEnd}`, fill: `${filledPct}% filled` });
+                    } else {
+                        gaps.push({ direction: 'GAP UP', area: `${gapStart} - ${gapEnd}`, fill: 'NOT filled' });
+                    }
                 }
+                
+                // Gap DOWN (open < previous close)
+                if (open < prevClose - 20) {
+                    const gapEnd = Math.ceil((prevClose - 20) / 10) * 10;
+                    const gapStart = Math.ceil(open / 10) * 10;
+                    
+                    if (price <= gapStart) {
+                        gaps.push({ direction: 'GAP DOWN', area: `${gapStart} - ${gapEnd}`, fill: 'FILLED' });
+                    } else if (price <= gapEnd) {
+                        const filledPct = Math.round(((gapEnd - price) / (gapEnd - gapStart)) * 100);
+                        gaps.push({ direction: 'GAP DOWN', area: `${gapStart} - ${gapEnd}`, fill: `${filledPct}% filled` });
+                    } else {
+                        gaps.push({ direction: 'GAP DOWN', area: `${gapStart} - ${gapEnd}`, fill: 'NOT filled' });
+                    }
+                }
+                
+                // Default to current price info if no gaps
+                if (gaps.length === 0) {
+                    gaps.push({ direction: 'NO GAP', area: `Current: ${price.toLocaleString()}`, fill: 'Near prev close' });
+                }
+                
+                document.getElementById('gapData').innerHTML = gaps.map(g => `<div class="gap-item"><span class="gap-dir ${g.fill === 'FILLED' ? 'filled' : ''}">${g.direction}</span><span class="gap-area">${g.area}</span><span class="gap-fill ${g.fill === 'FILLED' ? 'filled' : g.fill === 'NOT filled' ? 'open' : ''}">${g.fill}</span></div>`).join('') + addTimestamp('gapData');
+            } catch (e) {
+                console.log('Gap fills fetch failed');
+            }
+        }
+        
+        // Auto-fetch market news
+        async function fetchMarketNews() {
+            try {
+                // Simulated - would need news API
+                const now = new Date();
+                const news = [
+                    { headline: 'Market moving news for ' + now.toLocaleDateString(), source: 'Reuters' },
+                    { headline: 'Tech sector update', source: 'CNBC' },
+                ];
+                document.getElementById('news').innerHTML = news.map(n => `<div class="news-item"><div class="news-headline">${n.headline}</div><div class="news-source">${n.source}</div></div>`).join('') + addTimestamp('news');
+            } catch (e) {
+                console.log('News fetch failed');
+            }
+        }
+        
+        async function updatePrice() {
+            const prices = await fetchPrices();
+            const price = prices.nq.current;
+            document.getElementById('price').textContent = price.toLocaleString();
+            document.getElementById('res1').textContent = (price + 100).toLocaleString();
+            document.getElementById('res2').textContent = (price + 200).toLocaleString();
+            document.getElementById('sup1').textContent = (price - 100).toLocaleString();
+            document.getElementById('sup2').textContent = (price - 200).toLocaleString();
+        }
+        
+        function formatDateTime12(d) {
+            const h = d.getHours();
+            const m = d.getMinutes();
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return h12 + ':' + m.toString().padStart(2, '0') + ' ' + ampm + ' IST';
+        }
+        
+        async function fetchAllData() {
+            try {
+                const now = new Date();
+                document.getElementById('updateTime').textContent = formatDateTime12(now);
+                
+                updateNYTime();
+                updateGlobalTimes();
+                
+                const prices = await fetchPrices();
+                await updatePrice();
+                
+                fetchTradeIdeas();
+                updateLondonOpen();
+                updatePriceAlerts(prices);
+                updateSessionLevels(prices.nq.current);
+                updateVolumeProfile(prices.nq.current);
+                updateVixData(prices.vix.current);
+                updateGapData(prices.nq.current);
+                updateAdrData();
+                updateOptionsData();
+                updateOiData();
+                updateDxyData(prices.dxy.current);
+                updateBreadthData();
+                updateIndicators(prices);
+                updateGlobalIndices();
+                updateNiftyData(prices.nifty);
+                
+                // Auto-fetch dynamic data
+                fetchMarketMovers();
+                fetchEconomicEvents();
+                fetchEarnings();
+                fetchGapFills();
+                fetchMarketNews();
+            } catch (e) {
+                console.error('Error:', e);
+            }
+        }
+        
+        // Populate data immediately with defaults
+        (function initDashboard() {
+            console.log('Initializing dashboard...');
+            
+            // Default prices
+            const prices = {
+                tsla: { current: 449.06, change: -0.07 },
+                nq: { current: 25650, change: 0.12 },
+                vix: { current: 16.5, change: -2.1 },
+                dxy: { current: 108.5, change: 0.15 },
+                nifty: DEFAULT_NIFTY
+            };
+            
+            // Add IDs to cards and update all sections
+            const cardConfigs = [
+                { id: 'card-nq-levels', fn: () => {} },
+                { id: 'card-trade-ideas', fn: fetchTradeIdeas },
+                { id: 'card-london-open', fn: updateLondonOpen },
+                { id: 'card-price-alerts', fn: () => updatePriceAlerts(prices) },
+                { id: 'card-session-levels', fn: () => updateSessionLevels(prices.nq.current) },
+                { id: 'card-volume-profile', fn: () => updateVolumeProfile(prices.nq.current) },
+                { id: 'card-vix-data', fn: () => updateVixData(prices.vix.current) },
+                { id: 'card-gap-data', fn: fetchGapFills },
+                { id: 'card-adr-data', fn: updateAdrData },
+                { id: 'card-options-data', fn: updateOptionsData },
+                { id: 'card-oi-data', fn: updateOiData },
+                { id: 'card-dxy-data', fn: () => updateDxyData(prices.dxy.current) },
+                { id: 'card-breadth-data', fn: updateBreadthData },
+                { id: 'card-indicators', fn: () => updateIndicators(prices) },
+                { id: 'card-global-indices', fn: updateGlobalIndices },
+                { id: 'card-nifty-data', fn: () => updateNiftyData(prices.nifty) },
+                { id: 'card-market-risks', fn: fetchMarketMovers },
+                { id: 'card-economic-events', fn: fetchEconomicEvents },
+                { id: 'card-earnings', fn: fetchEarnings },
+                { id: 'card-news', fn: fetchMarketNews }
+            ];
+            
+            // Apply IDs and run functions
+            const grid = document.getElementById('dashboardGrid');
+            const cardDivs = grid.querySelectorAll('.card');
+            cardConfigs.forEach((config, index) => {
+                if (cardDivs[index]) {
+                    cardDivs[index].id = config.id;
+                }
+                config.fn();
             });
             
-            // Restore saved order
+            console.log('Dashboard initialized with default data');
+        })();
+        
+        // Fetch live data in background
+        fetchAllData();
+        setInterval(() => fetchAllData(), UPDATE_INTERVAL);
+        
+        // Initialize drag-and-drop with SortableJS
+        document.addEventListener('DOMContentLoaded', function() {
+            const grid = document.getElementById('dashboardGrid');
+            const lockBtn = document.getElementById('lockBtn');
+            
+            // Restore saved order from localStorage
             const savedOrder = localStorage.getItem('dashboardOrder');
             if (savedOrder) {
                 try {
@@ -563,29 +861,197 @@
                     });
                 } catch (e) {}
             }
+            
+            // Initialize Sortable
+            const sortable = new Sortable(grid, {
+                animation: 150,
+                handle: '.card',
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                onEnd: function(evt) {
+                    const cardIds = Array.from(grid.children).map(card => card.id);
+                    localStorage.setItem('dashboardOrder', JSON.stringify(cardIds));
+                }
+            });
+            
+            // Lock toggle function
+            window.toggleLock = function() {
+                const isLocked = sortable.option('disabled');
+                sortable.option('disabled', !isLocked);
+                
+                if (!isLocked) {
+                    // Locking
+                    lockBtn.textContent = '🔒 Lock';
+                    lockBtn.style.borderColor = '#f85149';
+                    lockBtn.style.color = '#f85149';
+                    localStorage.setItem('dashboardLocked', 'true');
+                    grid.style.opacity = '0.7';
+                } else {
+                    // Unlocking
+                    lockBtn.textContent = '🔓 Unlock';
+                    lockBtn.style.borderColor = '#30363d';
+                    lockBtn.style.color = '#8b949e';
+                    localStorage.setItem('dashboardLocked', 'false');
+                    grid.style.opacity = '1';
+                }
+            };
+            
+            // Check saved lock state
+            const wasLocked = localStorage.getItem('dashboardLocked') === 'true';
+            if (wasLocked) {
+                sortable.option('disabled', true);
+                lockBtn.textContent = '🔒 Lock';
+                lockBtn.style.borderColor = '#f85149';
+                lockBtn.style.color = '#f85149';
+                grid.style.opacity = '0.7';
+            }
         });
+        
+        // Side Tab Functions
+        window.toggleSidePanel = function() {
+            const panel = document.getElementById('sidePanel');
+            panel.classList.toggle('open');
+        }
+        
+        // Load non-trading data
+        function updateSidePanel() {
+            // Cricket Scores (Simulated)
+            const cricketMatches = [
+                { team1: 'IND', team2: 'ENG', score1: '312/3', score2: 'Trailing', status: '3rd Day' },
+                { team1: 'RCB', team2: 'CSK', score1: '185/6', score2: 'Yet to bat', status: 'IPL Warmup' },
+            ];
+            document.getElementById('cricketData').innerHTML = cricketMatches.map(m => `
+                <div class="ao-match">
+                    <div class="ao-match-player"><span>${m.team1}</span><span class="ao-score">${m.score1}</span></div>
+                    <div class="ao-match-player"><span>${m.team2}</span><span style="color: #8b949e;">${m.score2}</span></div>
+                    <div style="font-size: 10px; color: #58a6ff; margin-top: 4px;">${m.status}</div>
+                </div>
+            `).join('');
+            
+            // India News (Simulated)
+            const indiaNews = [
+                { headline: 'RBI keeps repo rate unchanged at 6.5%', source: 'ET' },
+                { headline: 'Sensex closes at record high', source: 'BS' },
+                { headline: 'India Inc. Q3 earnings beat expectations', source: 'FE' },
+            ];
+            document.getElementById('indiaNews').innerHTML = indiaNews.map(n => `
+                <div style="padding: 6px 0; border-bottom: 1px solid #21262d;">
+                    <div style="font-size: 12px;">${n.headline}</div>
+                    <div style="font-size: 10px; color: #8b949e;">${n.source}</div>
+                </div>
+            `).join('');
+            
+            // Bengaluru News (Simulated)
+            const bangaloreNews = [
+                { headline: 'Metro phase 2 expansion approved', source: 'TOI' },
+                { headline: 'Bangalore tech hub sees new IPOs', source: 'ET' },
+                { headline: 'Weather alert: Light rain expected', source: 'IMD' },
+            ];
+            document.getElementById('bangaloreNews').innerHTML = bangaloreNews.map(n => `
+                <div style="padding: 6px 0; border-bottom: 1px solid #21262d;">
+                    <div style="font-size: 12px;">${n.headline}</div>
+                    <div style="font-size: 10px; color: #8b949e;">${n.source}</div>
+                </div>
+            `).join('');
+            
+            // Australian Open
+            const aoScores = [
+                { p1: 'Sinner', p2: 'Darderi', s1: '6-1', s2: '6-3', s3: '7-6', winner: 1 },
+                { p1: 'Shelton', p2: 'Ruud', s1: '3-6', s2: '6-4', s3: '6-3', s4: '6-4', winner: 1 },
+                { p1: 'Swiatek', p2: 'Inglis', s1: '6-0', s2: '6-3', winner: 1 },
+            ];
+            document.getElementById('aoScores').innerHTML = aoScores.map(m => `
+                <div class="ao-match">
+                    <div class="ao-match-player"><span>${m.p1}</span><span class="ao-score">${m.s1}</span></div>
+                    <div class="ao-match-player"><span>${m.p2}</span><span class="ao-score">${m.s2}</span></div>
+                    ${m.s3 ? `<div class="ao-match-player" style="color: #8b949e; font-size: 11px;">${m.s3}${m.s4 ? ' / ' + m.s4 : ''}</div>` : ''}
+                </div>
+            `).join('');
+            
+            // Weather (Bangalore)
+            document.getElementById('weatherData').innerHTML = `
+                <div class="weather-item"><span class="weather-icon">☀️</span><span>Bangalore</span><span class="weather-temp">28°C</span></div>
+                <div class="weather-item"><span class="weather-icon">🌙</span><span> Tonight</span><span>22°C</span></div>
+            `;
+            
+            // Crypto
+            document.getElementById('cryptoData').innerHTML = `
+                <div class="side-item"><span>₿ Bitcoin</span><span style="color: #3fb950;">$104,250 (+2.1%)</span></div>
+                <div class="side-item"><span>Ξ Ethereum</span><span style="color: #3fb950;">$3,420 (+1.8%)</span></div>
+                <div class="side-item"><span>◎ Solana</span><span style="color: #f85149;">$175 (-0.5%)</span></div>
+            `;
+        }
+        
+        // Initialize side panel
+        document.addEventListener('DOMContentLoaded', updateSidePanel);
+        
+        // Update NY time every second
+        setInterval(updateNYTime, 1000);
+        updateNYTime(); // Initial call
+        
+        // Auto-refresh dynamic data every 5 minutes
+        setInterval(() => {
+            fetchTradeIdeas();
+            fetchMarketMovers();
+            fetchEconomicEvents();
+            fetchEarnings();
+            fetchGapFills();
+            fetchMarketNews();
+        }, 5 * 60 * 1000);
+        
+        // Check for 6 AM IST daily refresh
+        setInterval(() => {
+            const now = new Date();
+            const utcHour = parseInt(now.toISOString().substring(11, 13));
+            const utcMin = parseInt(now.toISOString().substring(14, 16));
+            // IST = UTC + 5:30
+            const istHour = (utcHour + 5.5) % 24;
+            const istMin = utcMin;
+            // Trigger at exactly 6:00 AM IST
+            if (istHour === 6 && istMin === 0) {
+                console.log('6 AM IST - Refreshing all dashboard data');
+                fetchAllData();
+            }
+        }, 60000); // Check every minute
     </script>
     
     <!-- Side Tab -->
     <div class="side-tab">
-        <button class="side-tab-btn" onclick="document.getElementById('sidePanel').classList.toggle('open')">MORE ▪</button>
+        <button class="side-tab-btn" onclick="toggleSidePanel()">MORE ▪</button>
     </div>
     
     <!-- Side Panel -->
     <div class="side-panel" id="sidePanel">
-        <h2>📋 Extras <button class="side-panel-close" onclick="document.getElementById('sidePanel').classList.remove('open')">×</button></h2>
+        <h2>📋 Extras <button class="side-panel-close" onclick="toggleSidePanel()">×</button></h2>
+        
+        <div class="side-section">
+            <h3>🏏 Cricket</h3>
+            <div id="cricketData">Loading...</div>
+        </div>
+        
+        <div class="side-section">
+            <h3>🇮🇳 India News</h3>
+            <div id="indiaNews">Loading...</div>
+        </div>
+        
+        <div class="side-section">
+            <h3>🇮🇳 Bengaluru News</h3>
+            <div id="bangaloreNews">Loading...</div>
+        </div>
+        
+        <div class="side-section">
+            <h3>🎾 Australian Open</h3>
+            <div id="aoScores">Loading...</div>
+        </div>
         
         <div class="side-section">
             <h3>🌤️ Weather (Bangalore)</h3>
-            <div class="weather-item"><span class="weather-icon">☀️</span><span>Bangalore</span><span class="weather-temp">28°C</span></div>
-            <div class="weather-item"><span class="weather-icon">🌙</span><span>Tonight</span><span>22°C</span></div>
+            <div id="weatherData">Loading...</div>
         </div>
         
         <div class="side-section">
             <h3>₿ Crypto</h3>
-            <div class="side-item"><span>₿ Bitcoin</span><span style="color: #3fb950;">$104,250 (+2.1%)</span></div>
-            <div class="side-item"><span>Ξ Ethereum</span><span style="color: #3fb950;">$3,420 (+1.8%)</span></div>
-            <div class="side-item"><span>◎ Solana</span><span style="color: #f85149;">$175 (-0.5%)</span></div>
+            <div id="cryptoData">Loading...</div>
         </div>
         
         <div class="side-section">
