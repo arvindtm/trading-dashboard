@@ -681,16 +681,52 @@
             }
         }
         
-        // Auto-fetch gap fills
+        // Auto-fetch gap fills with live NQ price
         async function fetchGapFills() {
             try {
-                // Simulated - would need API for overnight gaps
-                const now = new Date();
-                const gaps = [
-                    { direction: 'GAP UP', area: '25,520 - 25,540', fill: '65% filled' },
-                    { direction: 'GAP UP', area: '25,480 - 25,500', fill: 'NOT filled' },
-                    { direction: 'GAP UP', area: '25,420 - 25,440', fill: 'FILLED' },
-                ];
+                const prices = await fetchPrices();
+                const price = prices.nq.current;
+                const prevClose = 25580; // Assume previous close
+                const open = price; // Current price as proxy for open
+                
+                // Calculate gaps based on previous close
+                const gaps = [];
+                
+                // Gap UP (open > previous close)
+                if (open > prevClose + 20) {
+                    const gapStart = Math.floor((prevClose + 20) / 10) * 10;
+                    const gapEnd = Math.floor(open / 10) * 10;
+                    
+                    if (price >= gapEnd) {
+                        gaps.push({ direction: 'GAP UP', area: `${gapStart} - ${gapEnd}`, fill: 'FILLED' });
+                    } else if (price >= gapStart) {
+                        const filledPct = Math.round(((price - gapStart) / (gapEnd - gapStart)) * 100);
+                        gaps.push({ direction: 'GAP UP', area: `${gapStart} - ${gapEnd}`, fill: `${filledPct}% filled` });
+                    } else {
+                        gaps.push({ direction: 'GAP UP', area: `${gapStart} - ${gapEnd}`, fill: 'NOT filled' });
+                    }
+                }
+                
+                // Gap DOWN (open < previous close)
+                if (open < prevClose - 20) {
+                    const gapEnd = Math.ceil((prevClose - 20) / 10) * 10;
+                    const gapStart = Math.ceil(open / 10) * 10;
+                    
+                    if (price <= gapStart) {
+                        gaps.push({ direction: 'GAP DOWN', area: `${gapStart} - ${gapEnd}`, fill: 'FILLED' });
+                    } else if (price <= gapEnd) {
+                        const filledPct = Math.round(((gapEnd - price) / (gapEnd - gapStart)) * 100);
+                        gaps.push({ direction: 'GAP DOWN', area: `${gapStart} - ${gapEnd}`, fill: `${filledPct}% filled` });
+                    } else {
+                        gaps.push({ direction: 'GAP DOWN', area: `${gapStart} - ${gapEnd}`, fill: 'NOT filled' });
+                    }
+                }
+                
+                // Default to current price info if no gaps
+                if (gaps.length === 0) {
+                    gaps.push({ direction: 'NO GAP', area: `Current: ${price.toLocaleString()}`, fill: 'Near prev close' });
+                }
+                
                 document.getElementById('gapData').innerHTML = gaps.map(g => `<div class="gap-item"><span class="gap-dir ${g.fill === 'FILLED' ? 'filled' : ''}">${g.direction}</span><span class="gap-area">${g.area}</span><span class="gap-fill ${g.fill === 'FILLED' ? 'filled' : g.fill === 'NOT filled' ? 'open' : ''}">${g.fill}</span></div>`).join('');
             } catch (e) {
                 console.log('Gap fills fetch failed');
