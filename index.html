@@ -27,6 +27,10 @@
         .event-impact.medium { background: #d2992233; color: #d29922; }
         .earnings-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 14px; }
         .earnings-item:last-child { border-bottom: none; }
+        .earnings-time { color: #8b949e; margin-right: 8px; font-size: 12px; }
+        .earnings-type { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        .earnings-type.after { background: #3fb95033; color: #3fb950; }
+        .earnings-type.before { background: #58a6ff33; color: #58a6ff; }
         .ticker { font-weight: 700; color: #58a6ff; }
         .news-item { padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 13px; }
         .news-item:last-child { border-bottom: none; }
@@ -634,15 +638,14 @@
         async function fetchEarnings() {
             try {
                 // Simulated - would need Yahoo Finance earnings API
-                const now = new Date();
-                const day = now.toLocaleDateString('en-US', { weekday: 'short' });
+                // Times in IST
                 const earnings = [
-                    { ticker: 'TSLA', date: day, name: 'Tesla' },
-                    { ticker: 'MSFT', date: 'Wed', name: 'Microsoft' },
-                    { ticker: 'META', date: 'Wed', name: 'Meta' },
-                    { ticker: 'AAPL', date: 'Thu', name: 'Apple' },
+                    { ticker: 'TSLA', date: 'Wed 28', name: 'Tesla', time: '2:35 AM IST', type: 'AFTER' },
+                    { ticker: 'MSFT', date: 'Wed 29', name: 'Microsoft', time: '10:00 PM IST', type: 'AFTER' },
+                    { ticker: 'META', date: 'Wed 29', name: 'Meta', time: '10:15 PM IST', type: 'AFTER' },
+                    { ticker: 'AAPL', date: 'Thu 30', name: 'Apple', time: 'TBD', type: 'AFTER' },
                 ];
-                document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span class="date">${e.date}</span></div>`).join('');
+                document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span><span class="earnings-time">${e.time}</span><span class="earnings-type ${e.type.toLowerCase()}">${e.type}</span></span></div>`).join('');
             } catch (e) {
                 console.log('Earnings fetch failed');
             }
