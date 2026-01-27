@@ -546,10 +546,10 @@
         }
         
         function updateEconomicEvents() {
+            // Tuesday January 27, 2026
             const events = [
-                { time: '18:30', name: 'Dallas Fed Mfg', impact: 'medium' },
-                { time: '20:30', name: 'Durable Goods', impact: 'medium' },
-                { time: '22:00', name: 'Bowman Speech', impact: 'high' },
+                { time: '20:30', name: 'State Employment/Unemployment (Dec)', impact: 'medium' },
+                { time: '20:30', name: 'State Job Openings (Nov)', impact: 'low' },
             ];
             document.getElementById('economicEvents').innerHTML = events.map(e => `<div class="event-item"><span class="event-time">${formatTime12(e.time)} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`).join('');
         }
