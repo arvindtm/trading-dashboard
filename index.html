@@ -317,7 +317,7 @@
                 console.log('Live fetch failed, using defaults');
             }
             
-            console.log('Current prices:', prices);
+            console.log('Fetched prices:', prices);
             return prices;
         }
         
@@ -757,7 +757,7 @@
         // Populate data immediately with defaults - moved to DOMContentLoaded
         
         // Fetch live data in background
-        fetchAllData();
+        fetchAllData().then(() => console.log('Initial data fetch complete')).catch(e => console.error('Initial fetch failed:', e));
         setInterval(() => fetchAllData(), UPDATE_INTERVAL);
         
         // Initialize drag-and-drop with SortableJS
