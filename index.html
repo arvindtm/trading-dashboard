@@ -780,12 +780,12 @@
                 updateGlobalIndices();
                 updateNiftyData(prices.nifty);
                 
-                // Auto-fetch dynamic data
-                fetchMarketMovers();
-                fetchEconomicEvents();
-                fetchEarnings();
-                fetchGapFills();
-                fetchMarketNews();
+                // Auto-fetch dynamic data (await to ensure completion)
+                await fetchMarketMovers();
+                await fetchEconomicEvents();
+                await fetchEarnings();
+                await fetchGapFills();
+                await fetchMarketNews();
             } catch (e) {
                 console.error('Error:', e);
             }
@@ -822,10 +822,10 @@
                 { id: 'card-indicators', fn: () => updateIndicators(prices) },
                 { id: 'card-global-indices', fn: updateGlobalIndices },
                 { id: 'card-nifty-data', fn: () => updateNiftyData(prices.nifty) },
-                { id: 'card-market-risks', fn: fetchMarketMovers },
-                { id: 'card-economic-events', fn: fetchEconomicEvents },
-                { id: 'card-earnings', fn: fetchEarnings },
-                { id: 'card-news', fn: fetchMarketNews }
+                { id: 'card-market-risks', fn: () => fetchMarketMovers().catch(console.error) },
+                { id: 'card-economic-events', fn: () => fetchEconomicEvents().catch(console.error) },
+                { id: 'card-earnings', fn: () => fetchEarnings().catch(console.error) },
+                { id: 'card-news', fn: () => fetchMarketNews().catch(console.error) }
             ];
             
             // Apply IDs and run functions
