@@ -863,7 +863,7 @@
             }
             
             // Initialize Sortable
-            const sortable = new Sortable(grid, {
+            window.dashboardSortable = new Sortable(grid, {
                 animation: 150,
                 handle: '.card',
                 ghostClass: 'sortable-ghost',
@@ -876,6 +876,7 @@
             
             // Lock toggle function
             window.toggleLock = function() {
+                const sortable = window.dashboardSortable;
                 const isLocked = sortable.option('disabled');
                 sortable.option('disabled', !isLocked);
                 
