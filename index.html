@@ -269,6 +269,9 @@
             dxy: { current: 108.5, change: 0.15 }
         };
         
+        // NIFTY default values
+        const DEFAULT_NIFTY = { current: 25048, change: -0.95, high: 25200, low: 24950, open: 25250 };
+        
         async function fetchFromFinnhub(symbol) {
             try {
                 const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`;
@@ -416,8 +419,7 @@
             document.getElementById('dxyData').innerHTML = `<div class="indicator-row"><span class="indicator-name">DXY</span><span class="indicator-value">${dxy.toFixed(2)}</span></div><div class="indicator-row"><span class="indicator-name">NQ/DXY Corr</span><span class="indicator-value bearish">-0.65</span></div><div class="indicator-row"><span class="indicator-name">10Y Yield</span><span class="indicator-value">4.52%</span></div><div class="indicator-row"><span class="indicator-name">Gold</span><span class="indicator-value">$2,045</span></div>`;
         }
         
-        // Default NIFTY data
-        const DEFAULT_NIFTY = { current: 25048, change: -0.95, high: 25200, low: 24950, open: 25250 };
+        // Default NIFTY data (moved to global scope)
         
         function getTimestamp() {
             const now = new Date();
@@ -798,7 +800,8 @@
         setInterval(() => fetchAllData(), UPDATE_INTERVAL);
         
         // Initialize drag-and-drop with SortableJS
-        document.addEventListener('DOMContentLoaded', function() {console.log('DOMContentLoaded - populating dashboard data');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded - populating dashboard data');
 
             const grid = document.getElementById('dashboardGrid');
             const lockBtn = document.getElementById('lockBtn');
@@ -867,7 +870,6 @@
             // Apply IDs and run functions
             const cardDivs = grid.querySelectorAll('.card');
             cardConfigs.forEach((config, index) => {
-                console.log('Processing card:', config.id);
                 if (cardDivs[index]) {
                     cardDivs[index].id = config.id;
                 }
