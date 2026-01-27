@@ -115,7 +115,7 @@
         .card.sortable-ghost { opacity: 0.5; }
         .card.sortable-drag { opacity: 1; }
         .grid.locked .card { cursor: not-allowed; }
-        .drag-handle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .drag-handle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: grab; }
         .drag-icon { color: #484f58; font-size: 16px; cursor: grab; }
         .side-tab { position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 1000; }
         .side-tab-btn { width: 40px; height: 120px; background: #161b22; border: 1px solid #21262d; border-right: none; border-radius: 8px 0 0 8px; color: #58a6ff; cursor: pointer; writing-mode: vertical-rl; text-orientation: mixed; font-size: 12px; padding: 10px 5px; }
@@ -542,7 +542,7 @@
             const grid = document.getElementById('dashboardGrid');
             document.sortableInstance = new Sortable(grid, {
                 animation: 150,
-                handle: '.card',
+                handle: '.drag-handle',
                 ghostClass: 'sortable-ghost',
                 disabled: true,
                 onEnd: function(evt) {
