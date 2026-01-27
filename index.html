@@ -158,100 +158,19 @@
             <div class="level-item"><span class="level-label">S1</span><span class="level-value support" id="sup1">--</span></div>
             <div class="level-item"><span class="level-label">S2</span><span class="level-value support" id="sup2">--</span></div>
         </div>
-        <!-- Trade Ideas -->
-        <div class="card">
-            <h2>🎯 Trade Ideas (Jan 26)</h2>
-            <div id="tradeIdeas"></div>
-        </div>
         <!-- London Open Strategy -->
         <div class="card">
             <h2>🇬🇧 London Open (6AM EST)</h2>
             <div id="londonOpen"></div>
-        </div>
-        <!-- Price Alerts -->
-        <div class="card">
-            <h2>🔔 Price Alerts</h2>
-            <div id="priceAlerts"></div>
         </div>
         <!-- Session Levels -->
         <div class="card">
             <h2>🌏 Session Levels (NQ)</h2>
             <div id="sessionLevels"></div>
         </div>
-        <!-- Volume Profile -->
-        <div class="card">
-            <h2>📊 Volume Profile</h2>
-            <div id="volumeProfile"></div>
-        </div>
-        <!-- VIX & Volatility -->
-        <div class="card">
-            <h2>📉 VIX & Volatility</h2>
-            <div id="vixData"></div>
-        </div>
-        <!-- Gap Analysis -->
-        <div class="card">
-            <h2>📭 Gap Analysis</h2>
-            <div id="gapData"></div>
-        </div>
-        <!-- ADR -->
-        <div class="card">
-            <h2>📏 ADR & ATR</h2>
-            <div id="adrData"></div>
-        </div>
-        <!-- Options Data -->
-        <div class="card">
-            <h2>📊 Options Flow</h2>
-            <div id="optionsData"></div>
-        </div>
-        <!-- Open Interest -->
-        <div class="card">
-            <h2>📈 Open Interest (NQ)</h2>
-            <div id="oiData"></div>
-        </div>
-        <!-- DXY Correlation -->
-        <div class="card">
-            <h2>💵 DXY & Correlation</h2>
-            <div id="dxyData"></div>
-        </div>
-        <!-- Market Breadth -->
-        <div class="card">
-            <h2>📊 Market Breadth</h2>
-            <div id="breadthData"></div>
-        </div>
-        <!-- Technical Indicators -->
-        <div class="card">
-            <h2>📊 Technical Indicators</h2>
-            <div id="indicators"></div>
-        </div>
-        <!-- Global Indices -->
-        <div class="card">
-            <h2>🌍 Global Indices</h2>
-            <div id="globalIndices"></div>
-        </div>
-        
-        <!-- Market Movers -->
-        <div class="card">
-            <h2>⚠️ Market Movers</h2>
-            <div id="marketRisks"></div>
-        </div>
-        <!-- Economic Events -->
-        <div class="card">
-            <h2>📅 Economic Events</h2>
-            <div id="economicEvents"></div>
-        </div>
-        <!-- Earnings -->
-        <div class="card">
-            <h2>💰 Earnings This Week</h2>
-            <div id="earnings"></div>
-        </div>
-        <!-- News -->
-        <div class="card">
-            <h2>📰 Market News</h2>
-            <div id="news"></div>
-        </div>
     </div>
     <script>
-        const UPDATE_INTERVAL = 30 * 1000; // 30 seconds (Finnhub: 60 req/min)
+        const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes (reduced to save API costs)
         
         let cachedPrices = { tsla: null, nq: null, vix: null, dxy: null, lastFetch: 0 };
         // Finnhub API (free tier: 60 requests/minute)
@@ -305,6 +224,7 @@
         }
         
         // Auto-fetch trade ideas based on current price
+        // Removed unused functions
         async function fetchTradeIdeas() {
             try {
                 const prices = await fetchPrices();
@@ -960,15 +880,8 @@
         setInterval(updateNYTime, 1000);
         updateNYTime(); // Initial call
         
-        // Auto-refresh dynamic data every 5 minutes
-        setInterval(() => {
-            fetchTradeIdeas();
-            fetchMarketMovers();
-            fetchEconomicEvents();
-            fetchEarnings();
-            fetchGapFills();
-            fetchMarketNews();
-        }, 5 * 60 * 1000);
+        // Auto-refresh every 5 minutes
+        setInterval(() => fetchAllData(), 5 * 60 * 1000);
         
         // Check for 6 AM IST daily refresh
         setInterval(() => {
