@@ -284,22 +284,7 @@
             // Always show defaults first (instant load)
             let prices = { ...DEFAULT_PRICES };
             
-            // Try to fetch live NQ directly from Yahoo Finance
-            try {
-                const nqRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%7ENQ=F?interval=1m&range=1d');
-                const nqData = await nqRes.json();
-                const nqCurrent = nqData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.[0];
-                if (nqCurrent && nqCurrent > 20000) {
-                    prices.nq = { 
-                        current: Math.round(nqCurrent), 
-                        change: 0 
-                    };
-                }
-            } catch (e) {
-                console.log('NQ fetch from Yahoo failed');
-            }
-            
-            // Try to fetch live data in background
+            // Fetch live data from Finnhub (CORS-friendly)
             try {
                 const [tsla, qqq] = await Promise.all([
                     fetchFromFinnhub('TSLA'),
@@ -307,14 +292,12 @@
                 ]);
                 if (tsla) prices.tsla = tsla;
                 
-                // Use QQQ to estimate NQ if Yahoo failed
-                if (qqq && !prices.nq.current) {
+                // Use QQQ to estimate NQ (QQQ * 50 ≈ NQ)
+                if (qqq && qqq.current > 0) {
                     prices.nq = { current: Math.round(qqq.current * 50), change: qqq.change };
                 }
-                
-                
             } catch (e) {
-                console.log('Live fetch failed, using defaults');
+                console.log('Finnhub fetch failed, using defaults');
             }
             
             console.log('Fetched prices:', prices);
