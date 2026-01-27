@@ -129,7 +129,7 @@
         .weather-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .weather-icon { font-size: 24px; }
         .weather-temp { font-size: 18px; font-weight: 700; color: #58a6ff; }
-        .market-timer-fixed { position: fixed; top: 20px; right: 20px; z-index: 1001; background: #161b22; padding: 8px 16px; border-radius: 8px; border: 1px solid #21262d; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+        .market-timer-fixed { position: fixed; top: 20px; left: 20px; z-index: 1001; background: #161b22; padding: 8px 16px; border-radius: 8px; border: 1px solid #21262d; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
@@ -139,7 +139,7 @@
         <div>
             <span class="status-indicator"></span>
             <span class="last-updated">Last updated: <span id="updateTime">--:--</span>
-            <button id="lockBtn" onclick="toggleLock()" style="margin-left: 15px; padding: 5px 12px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; cursor: pointer; font-size: 12px;">🔓 Unlock</button>
+            <button id="lockBtn" onclick="toggleLock()" style="padding: 5px 12px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; cursor: pointer; font-size: 12px;">🔓 Unlock</button>
         </div>
     </div>
     <div class="market-timer-fixed" id="marketTimerFixed"></div>
