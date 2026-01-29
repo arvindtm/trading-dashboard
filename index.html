@@ -618,6 +618,34 @@
             const h12 = h % 12 || 12;
             return h12 + ':' + m.toString().padStart(2, '0') + ' ' + ampm + ' IST';
         }
+
+        // Get current date in IST (UTC+5:30)
+        function getIstDate() {
+            const now = new Date();
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            return new Date(now.getTime() + istOffset);
+        }
+        
+        // Format date for display (IST)
+        function formatIstDate(date) {
+            const day = date.getDate();
+            const month = date.toLocaleString('en-US', { month: 'short' });
+            return day + ' ' + month;
+        }
+        
+        // Get "Today", "Tomorrow", "Day name" in IST
+        function getIstDayLabels() {
+            const ist = getIstDate();
+            const today = formatIstDate(ist);
+            
+            const tomorrow = new Date(ist);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = formatIstDate(tomorrow);
+            
+            const dayName = ist.toLocaleString('en-US', { weekday: 'short' });
+            
+            return { today, tomorrow: tomorrowStr, dayName, istDate: ist };
+        }
         
         async function fetchAllData() {
             try {
