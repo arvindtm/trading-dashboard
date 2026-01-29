@@ -673,34 +673,35 @@
             const cardConfigs = [
                 { id: 'card-market-risks', fn: function() {
                     const risks = [
-                        { icon: '📊', text: 'Consumer Confidence', badge: 'HIGH' },
-                        { icon: '📋', text: 'API Crude Oil Inventories', badge: 'MED' },
-                        { icon: '📈', text: 'Tesla Earnings (Today!)', badge: 'HIGH' },
-                        { icon: '🔮', text: 'US GDP Growth Rate', badge: 'MED' },
+                        { icon: '🔴', text: 'FED RATE DECISION (Today 7PM UTC)', badge: 'HIGH' },
+                        { icon: '📊', text: 'Microsoft Earnings (Today!)', badge: 'HIGH' },
+                        { icon: '📊', text: 'Meta Earnings (Today!)', badge: 'HIGH' },
+                        { icon: '📋', text: 'Initial Jobless Claims', badge: 'MED' },
                     ];
                     document.getElementById('marketRisks').innerHTML = risks.map(r => `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`).join('') + addTimestamp('marketRisks');
                 }},
                 { id: 'card-economic-events', fn: function() {
                     const events = [
-                        { time: '20:30', name: 'Consumer Confidence (Jan)', impact: 'high' },
-                        { time: '22:00', name: 'API Crude Oil Inventories', impact: 'medium' },
+                        { time: '19:00', name: 'Fed Rate Decision', impact: 'high' },
+                        { time: '19:30', name: 'Fed Press Conference', impact: 'high' },
+                        { time: '16:30', name: 'Initial Jobless Claims', impact: 'medium' },
                     ];
-                    document.getElementById('economicEvents').innerHTML = events.map(e => `<div class="event-item"><span class="event-time">${e.time} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`).join('') + '<div style="margin-top: 10px; padding: 10px; background: #58a6ff33; border-radius: 6px; font-size: 12px; color: #58a6ff;">📈 <strong>Tesla Earnings</strong> releasing today (2:35 AM IST)</div>' + addTimestamp('economicEvents');
+                    document.getElementById('economicEvents').innerHTML = events.map(e => `<div class="event-item"><span class="event-time">${e.time} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`).join('') + '<div style="margin-top: 10px; padding: 10px; background: #f8514933; border-radius: 6px; font-size: 12px; color: #f85149;">⚠️ <strong>BIG DAY:</strong> Fed decision + 2 mega-cap earnings</div>' + addTimestamp('economicEvents');
                 }},
                 { id: 'card-earnings', fn: function() {
                     const earnings = [
-                        { ticker: 'TSLA', date: 'Today', name: 'Tesla', time: '2:35 AM IST', type: 'AFTER' },
-                        { ticker: 'MSFT', date: 'Wed, Jan 29', name: 'Microsoft', time: '10:00 PM IST', type: 'AFTER' },
-                        { ticker: 'META', date: 'Wed, Jan 29', name: 'Meta', time: '10:15 PM IST', type: 'AFTER' },
-                        { ticker: 'AAPL', date: 'Thu, Jan 30', name: 'Apple', time: 'TBD', type: 'AFTER' },
+                        { ticker: 'MSFT', date: 'Today', name: 'Microsoft', time: '10:00 PM IST', type: 'AFTER' },
+                        { ticker: 'META', date: 'Today', name: 'Meta', time: '10:15 PM IST', type: 'AFTER' },
+                        { ticker: 'AAPL', date: 'Tomorrow', name: 'Apple', time: 'TBD', type: 'AFTER' },
+                        { ticker: 'AMZN', date: 'Fri, Jan 31', name: 'Amazon', time: 'TBD', type: 'AFTER' },
                     ];
                     document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span><span class="earnings-time">${e.date} ${e.time}</span><span class="earnings-type ${e.type.toLowerCase()}">${e.type}</span></span></div>`).join('') + addTimestamp('earnings');
                 }},
                 { id: 'card-news', fn: function() {
                     const news = [
-                        { headline: 'Tesla shares volatile ahead of earnings report', source: 'Reuters' },
-                        { headline: 'Fed officials hint at careful approach to rate cuts', source: 'CNBC' },
-                        { headline: 'Nasdaq slips from record as investors await big tech earnings', source: 'Bloomberg' },
+                        { headline: 'Fed expected to hold rates steady ahead of decision', source: 'Reuters' },
+                        { headline: 'Nasdaq slips as investors brace for Fed, Big Tech earnings', source: 'CNBC' },
+                        { headline: 'Microsoft cloud revenue growth in focus ahead of earnings', source: 'Bloomberg' },
                     ];
                     document.getElementById('news').innerHTML = news.map(n => `<div class="news-item"><div class="news-headline">${n.headline}</div><div class="news-source">${n.source}</div></div>`).join('') + addTimestamp('news');
                 }}
