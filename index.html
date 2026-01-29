@@ -672,13 +672,14 @@
             // Add IDs to all cards and populate with data
             const cardConfigs = [
                 { id: 'card-market-risks', fn: function() {
+                    const labels = getIstDayLabels();
                     const risks = [
-                        { icon: '🔴', text: 'FED RATE DECISION (Today 7PM UTC)', badge: 'HIGH' },
-                        { icon: '📊', text: 'Microsoft Earnings (Today!)', badge: 'HIGH' },
-                        { icon: '📊', text: 'Meta Earnings (Today!)', badge: 'HIGH' },
+                        { icon: '🔴', text: 'FED RATE DECISION', badge: 'HIGH' },
+                        { icon: '📊', text: 'Microsoft Earnings', badge: 'HIGH' },
+                        { icon: '📊', text: 'Meta Earnings', badge: 'HIGH' },
                         { icon: '📋', text: 'Initial Jobless Claims', badge: 'MED' },
                     ];
-                    document.getElementById('marketRisks').innerHTML = risks.map(r => `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`).join('') + addTimestamp('marketRisks');
+                    document.getElementById('marketRisks').innerHTML = risks.map(r => `<div class="risk-item"><span class="risk-icon">${r.icon}</span><span class="risk-text">${r.text}</span><span class="risk-badge high">${r.badge}</span></div>`).join('') + `<div style="margin-top: 10px; font-size: 11px; color: #8b949e;">📅 ${labels.today}, ${labels.dayName}</div>` + addTimestamp('marketRisks');
                 }},
                 { id: 'card-economic-events', fn: function() {
                     const events = [
@@ -689,11 +690,12 @@
                     document.getElementById('economicEvents').innerHTML = events.map(e => `<div class="event-item"><span class="event-time">${e.time} IST</span><span class="event-name">${e.name}</span><span class="event-impact ${e.impact}">${e.impact.toUpperCase()}</span></div>`).join('') + '<div style="margin-top: 10px; padding: 10px; background: #f8514933; border-radius: 6px; font-size: 12px; color: #f85149;">⚠️ <strong>BIG DAY:</strong> Fed decision + 2 mega-cap earnings</div>' + addTimestamp('economicEvents');
                 }},
                 { id: 'card-earnings', fn: function() {
+                    const labels = getIstDayLabels();
                     const earnings = [
                         { ticker: 'MSFT', date: 'Today', name: 'Microsoft', time: '10:00 PM IST', type: 'AFTER' },
                         { ticker: 'META', date: 'Today', name: 'Meta', time: '10:15 PM IST', type: 'AFTER' },
                         { ticker: 'AAPL', date: 'Tomorrow', name: 'Apple', time: 'TBD', type: 'AFTER' },
-                        { ticker: 'AMZN', date: 'Fri, Jan 31', name: 'Amazon', time: 'TBD', type: 'AFTER' },
+                        { ticker: 'AMZN', date: 'Fri', name: 'Amazon', time: 'TBD', type: 'AFTER' },
                     ];
                     document.getElementById('earnings').innerHTML = earnings.map(e => `<div class="earnings-item"><span><span class="ticker">${e.ticker}</span> - ${e.name}</span><span><span class="earnings-time">${e.date} ${e.time}</span><span class="earnings-type ${e.type.toLowerCase()}">${e.type}</span></span></div>`).join('') + addTimestamp('earnings');
                 }},
